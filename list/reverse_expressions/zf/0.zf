@@ -1,0 +1,18 @@
+data nat := 
+  | zero 
+  | s nat.
+data lst := 
+  | nil 
+  | cons nat lst.
+val app : lst -> lst -> lst.
+val rev : lst -> lst.
+val revAcc : lst -> lst.
+val revAccInner : lst -> lst -> lst.
+assert (forall(R:lst). (app nil R) = R).
+assert (forall(A:nat). (forall(L:lst). (forall(R:lst). (app (cons A L) R) = (cons A (app L R))))).
+assert (rev nil) = nil.
+assert (forall(X:nat). (forall(Xs:lst). (rev (cons X Xs)) = (app (rev Xs) (cons X nil)))).
+assert (forall(X:lst). (revAcc X) = (revAccInner X nil)).
+assert (forall(Acc:lst). (revAccInner nil Acc) = Acc).
+assert (forall(Acc:lst). (forall(X:nat). (forall(Xs:lst). (revAccInner (cons X Xs) Acc) = (revAccInner Xs (cons X Acc))))).
+goal   (forall(X:lst). (revAcc X) = (rev X)).

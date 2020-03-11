@@ -1,0 +1,16 @@
+data nat := 
+  | zero 
+  | s nat.
+def add : nat -> nat -> nat where
+(forall(Y:nat). (add zero Y) = Y);
+(forall(X:nat). (forall(Y:nat). (add (s X) Y) = (s (add X Y)))).
+def leq : nat -> nat -> prop where
+(forall(Y:nat). (leq zero Y));
+(forall(X:nat). ~((leq (s X) zero)));
+(forall(X:nat). (forall(Y:nat). ((leq (s X) (s Y)) <=> (leq X Y)))).
+assert (forall(Y:nat). (add zero Y) = Y).
+assert (forall(X:nat). (forall(Y:nat). (add (s X) Y) = (s (add X Y)))).
+assert (forall(Y:nat). (leq zero Y)).
+assert (forall(X:nat). ~((leq (s X) zero))).
+assert (forall(X:nat). (forall(Y:nat). ((leq (s X) (s Y)) <=> (leq X Y)))).
+goal   (forall(V0:nat). (leq (add V0 (add (add V0 V0) V0)) (add V0 (add V0 (add (add V0 (add V0 V0)) V0))))).

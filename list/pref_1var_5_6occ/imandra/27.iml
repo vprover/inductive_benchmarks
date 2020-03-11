@@ -1,0 +1,22 @@
+#logic               ;;
+
+
+type nat = Zero | S of nat
+type lst = Nil | Cons of nat * lst
+
+
+let rec app a0 a1 = match (a0, a1) with
+  | (Nil, r) -> r
+  | ((Cons(a, l)), r) -> (Cons(a, (app l r)))
+
+let rec pref a0 a1 = match (a0, a1) with
+  | (Nil, x) -> (not false)
+  | ((Cons(a, x)), Nil) -> false
+  | ((Cons(a, x)), (Cons(b, y))) -> ((a = b) && (pref x y))
+
+
+
+;;
+
+verify(        fun v0 -> (pref (app (app v0 v0) (app v0 (app v0 v0))) (app (app (app (app v0 v0) v0) v0) (app v0 v0)))             ) [@@auto]
+;;

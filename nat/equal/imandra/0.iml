@@ -1,0 +1,20 @@
+#logic               ;;
+
+
+type nat = Zero | S of nat
+
+
+let rec equal a0 a1 a2 = match (a0, a1, a2) with
+  | (Zero, Zero, Zero) -> (not false)
+  | (Zero, (S(y)), z) -> false
+  | (Zero, y, (S(z))) -> false
+  | ((S(x)), Zero, z) -> false
+  | ((S(x)), y, Zero) -> false
+  | ((S(x)), (S(y)), (S(z))) -> (equal x y z)
+
+
+
+;;
+
+verify(        fun x -> (equal x x x)             ) [@@auto]
+;;

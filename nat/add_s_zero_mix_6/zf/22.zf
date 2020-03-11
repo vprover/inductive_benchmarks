@@ -1,0 +1,11 @@
+data nat := 
+  | zero 
+  | s nat.
+val add : nat -> nat -> nat.
+val leq : nat -> nat -> prop.
+assert (forall(Y:nat). (add zero Y) = Y).
+assert (forall(X:nat). (forall(Y:nat). (add (s X) Y) = (s (add X Y)))).
+assert (forall(Y:nat). (leq zero Y)).
+assert (forall(X:nat). ~((leq (s X) zero))).
+assert (forall(X:nat). (forall(Y:nat). ((leq (s X) (s Y)) <=> (leq X Y)))).
+goal   (forall(V0:nat). (forall(V1:nat). (add (add (s V0) V0) (add V0 (s V1))) = (add (add V0 V1) (s (add (s V0) V0))))).

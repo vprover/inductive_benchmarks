@@ -1,0 +1,9 @@
+data nat := 
+  | zero 
+  | s nat.
+val add : nat -> nat -> nat.
+val id : nat -> nat.
+assert (forall(Y:nat). (add zero Y) = Y).
+assert (forall(X:nat). (forall(Y:nat). (add (s X) Y) = (s (add X Y)))).
+assert (forall(X:nat). (id X) = X).
+goal   (forall(X:nat). (forall(Y:nat). (add (id X) Y) = (add Y X))).

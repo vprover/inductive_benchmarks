@@ -1,0 +1,20 @@
+#logic               ;;
+
+
+type nat = Zero | S of nat
+
+
+let rec add a0 a1 = match (a0, a1) with
+  | (Zero, y) -> y
+  | ((S(x)), y) -> (S((add x y)))
+
+let rec mul a0 a1 = match (a0, a1) with
+  | (Zero, y) -> Zero
+  | ((S(x)), y) -> (add (mul x y) y)
+
+
+
+;;
+
+verify(        fun x y z -> ((mul (add x y) z) = (add (mul z x) (mul y z)))             ) [@@auto]
+;;

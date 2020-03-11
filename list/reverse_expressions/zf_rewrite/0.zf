@@ -1,0 +1,25 @@
+data nat := 
+  | zero 
+  | s nat.
+data lst := 
+  | nil 
+  | cons nat lst.
+def app : lst -> lst -> lst where
+(forall(R:lst). (app nil R) = R);
+(forall(A:nat). (forall(L:lst). (forall(R:lst). (app (cons A L) R) = (cons A (app L R))))).
+def rev : lst -> lst where
+(rev nil) = nil;
+(forall(X:nat). (forall(Xs:lst). (rev (cons X Xs)) = (app (rev Xs) (cons X nil)))).
+def revAcc : lst -> lst where
+(forall(X:lst). (revAcc X) = (revAccInner X nil)).
+def revAccInner : lst -> lst -> lst where
+(forall(Acc:lst). (revAccInner nil Acc) = Acc);
+(forall(Acc:lst). (forall(X:nat). (forall(Xs:lst). (revAccInner (cons X Xs) Acc) = (revAccInner Xs (cons X Acc))))).
+assert (forall(R:lst). (app nil R) = R).
+assert (forall(A:nat). (forall(L:lst). (forall(R:lst). (app (cons A L) R) = (cons A (app L R))))).
+assert (rev nil) = nil.
+assert (forall(X:nat). (forall(Xs:lst). (rev (cons X Xs)) = (app (rev Xs) (cons X nil)))).
+assert (forall(X:lst). (revAcc X) = (revAccInner X nil)).
+assert (forall(Acc:lst). (revAccInner nil Acc) = Acc).
+assert (forall(Acc:lst). (forall(X:nat). (forall(Xs:lst). (revAccInner (cons X Xs) Acc) = (revAccInner Xs (cons X Acc))))).
+goal   (forall(X:lst). (revAcc X) = (rev X)).

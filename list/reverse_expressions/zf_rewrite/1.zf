@@ -1,0 +1,17 @@
+data nat := 
+  | zero 
+  | s nat.
+data lst := 
+  | nil 
+  | cons nat lst.
+def app : lst -> lst -> lst where
+(forall(R:lst). (app nil R) = R);
+(forall(A:nat). (forall(L:lst). (forall(R:lst). (app (cons A L) R) = (cons A (app L R))))).
+def rev : lst -> lst where
+(rev nil) = nil;
+(forall(X:nat). (forall(Xs:lst). (rev (cons X Xs)) = (app (rev Xs) (cons X nil)))).
+assert (forall(R:lst). (app nil R) = R).
+assert (forall(A:nat). (forall(L:lst). (forall(R:lst). (app (cons A L) R) = (cons A (app L R))))).
+assert (rev nil) = nil.
+assert (forall(X:nat). (forall(Xs:lst). (rev (cons X Xs)) = (app (rev Xs) (cons X nil)))).
+goal   (forall(X:lst). (rev (rev X)) = X).

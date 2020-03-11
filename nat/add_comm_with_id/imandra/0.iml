@@ -1,0 +1,19 @@
+#logic               ;;
+
+
+type nat = Zero | S of nat
+
+
+let rec add a0 a1 = match (a0, a1) with
+  | (Zero, y) -> y
+  | ((S(x)), y) -> (S((add x y)))
+
+let rec id a0 = match (a0) with
+  | (x) -> x
+
+
+
+;;
+
+verify(        fun x y -> ((add (id x) y) = (add y x))             ) [@@auto]
+;;

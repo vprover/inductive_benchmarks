@@ -1,0 +1,16 @@
+data nat := 
+  | zero 
+  | s nat.
+def add : nat -> nat -> nat where
+(forall(Y:nat). (add zero Y) = Y);
+(forall(X:nat). (forall(Y:nat). (add (s X) Y) = (s (add X Y)))).
+def leq : nat -> nat -> prop where
+(forall(Y:nat). (leq zero Y));
+(forall(X:nat). ~((leq (s X) zero)));
+(forall(X:nat). (forall(Y:nat). ((leq (s X) (s Y)) <=> (leq X Y)))).
+assert (forall(Y:nat). (add zero Y) = Y).
+assert (forall(X:nat). (forall(Y:nat). (add (s X) Y) = (s (add X Y)))).
+assert (forall(Y:nat). (leq zero Y)).
+assert (forall(X:nat). ~((leq (s X) zero))).
+assert (forall(X:nat). (forall(Y:nat). ((leq (s X) (s Y)) <=> (leq X Y)))).
+goal   (forall(V0:nat). (forall(V1:nat). (forall(V2:nat). (forall(V3:nat). (forall(V4:nat). (forall(V5:nat). (forall(V6:nat). (forall(V7:nat). (forall(V8:nat). (forall(V9:nat). (add (add (add (add (add (add (s V2) V7) zero) (s V9)) (s V8)) (s V5)) (add (s (s (s V3))) (add (add (s V9) (s (s (add V6 (s (s V1)))))) (s (add (s (s V4)) V0))))) = (s (add (s (add (add V9 (s (add (add V6 (s V9)) (s (add V0 (add (s (add (add (s V5) (s (s (s (s V8))))) V3)) (add (s (add (s (s V1)) zero)) (s V2)))))))) V7)) V4)))))))))))).

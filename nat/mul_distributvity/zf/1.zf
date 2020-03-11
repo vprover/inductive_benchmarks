@@ -1,0 +1,10 @@
+data nat := 
+  | zero 
+  | s nat.
+val add : nat -> nat -> nat.
+val mul : nat -> nat -> nat.
+assert (forall(Y:nat). (add zero Y) = Y).
+assert (forall(X:nat). (forall(Y:nat). (add (s X) Y) = (s (add X Y)))).
+assert (forall(Y:nat). (mul zero Y) = zero).
+assert (forall(X:nat). (forall(Y:nat). (mul (s X) Y) = (add (mul X Y) Y))).
+goal   (forall(X:nat). (forall(Y:nat). (forall(Z:nat). (mul (add X Y) Z) = (add (mul X Z) (mul Y Z))))).

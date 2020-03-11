@@ -1,0 +1,11 @@
+data nat := 
+  | zero 
+  | s nat.
+val equal : nat -> nat -> nat -> prop.
+assert ((equal zero zero zero) <=> ~(false)).
+assert (forall(Y:nat). (forall(Z:nat). ((equal zero (s Y) Z) <=> false))).
+assert (forall(Y:nat). (forall(Z:nat). ((equal zero Y (s Z)) <=> false))).
+assert (forall(X:nat). (forall(Z:nat). ((equal (s X) zero Z) <=> false))).
+assert (forall(X:nat). (forall(Y:nat). ((equal (s X) Y zero) <=> false))).
+assert (forall(X:nat). (forall(Y:nat). (forall(Z:nat). ((equal (s X) (s Y) (s Z)) <=> (equal X Y Z))))).
+goal   (forall(X:nat). (equal X X X)).

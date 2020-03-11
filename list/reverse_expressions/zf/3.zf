@@ -1,0 +1,13 @@
+data nat := 
+  | zero 
+  | s nat.
+data lst := 
+  | nil 
+  | cons nat lst.
+val app : lst -> lst -> lst.
+val rev : lst -> lst.
+assert (forall(R:lst). (app nil R) = R).
+assert (forall(A:nat). (forall(L:lst). (forall(R:lst). (app (cons A L) R) = (cons A (app L R))))).
+assert (rev nil) = nil.
+assert (forall(X:nat). (forall(Xs:lst). (rev (cons X Xs)) = (app (rev Xs) (cons X nil)))).
+goal   (forall(X:lst). (app X (app (rev X) X)) = (app (app X (rev X)) X)).

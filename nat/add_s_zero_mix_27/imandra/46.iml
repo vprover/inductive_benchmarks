@@ -1,0 +1,21 @@
+#logic               ;;
+
+
+type nat = Zero | S of nat
+
+
+let rec add a0 a1 = match (a0, a1) with
+  | (Zero, y) -> y
+  | ((S(x)), y) -> (S((add x y)))
+
+let rec leq a0 a1 = match (a0, a1) with
+  | (Zero, y) -> (not false)
+  | ((S(x)), Zero) -> false
+  | ((S(x)), (S(y))) -> (leq x y)
+
+
+
+;;
+
+verify(        fun v0 v1 v2 v3 v4 v5 v6 v7 v8 v9 v10 v11 -> ((add (S((add (add (S(v7)) v10) (S((add (S(v1)) (S((S(v4)))))))))) (add (S(v9)) (add (S(v6)) (S((add (S((S((S((add (add v2 (add (S(v5)) v8)) v3))))))) (add (add v1 (S(v0))) v11))))))) = (S((S((add v8 (add (S((S((add (S((S((S((add v5 v6))))))) (add (S((S(v9)))) (add (add (S((add (S((add v1 v1))) v0))) (add v2 v4)) (add (S((S(v11)))) (S(v10)))))))))) (add v3 v7))))))))             ) [@@auto]
+;;
