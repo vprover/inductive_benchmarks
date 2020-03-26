@@ -4,6 +4,11 @@ This repository contains various benchmarks requiring inductive reasoning.
 
 ## Running Vampire on these benchmarks
 
+You can get the source code of Vampire at https://github.com/vprover/vampire,
+or, if you want the version with generalized induction, at
+https://github.com/vprover/vampire/tree/hzzv-induction1.
+To build it, simply `make vampire_rel`.
+
 To run Vampire with structural induction on the benchmarks in SMT-LIB2
 format, use the option `--input_syntax smtlib2 -ind struct`.
 To turn on generalized induction, add `-indgen on`, and optionally
