@@ -15,6 +15,8 @@ To turn on generalized induction, add `-indgen on`, and optionally
 also `-indgenss N` to limit the maximum number of occurrences of a term
 selected for induction to N.
 
+Additionally, to turn on induction for complex terms, add `-indonc on`.
+
 ## Organization of this repository (subject to change)
 
 First level of directories categorizes benchmarks by data types used
