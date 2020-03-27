@@ -19,6 +19,11 @@ Additionally, to turn on induction for complex terms, add `-indoct on`.
 
 ## Organization of this repository (subject to change)
 
+Directory `selected` contains 16 representative benchmarks capturing
+selected properties of natural numbers and lists.
+Directory `all` contains a broader range of such benchmarks.
+
+Within `selected` and `all`, the benchmarks are organized as follows:
 First level of directories categorizes benchmarks by data types used
 in them.
 Second level of directories groups benchmarks by the type problem
