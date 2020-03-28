@@ -6,6 +6,6 @@
         (t (s (add (p x) y)))))
 
 (defthm theorem
-    (equal (add (s x) x) (s (add x x)))
+    (equal (add x (s x)) (s (add x x)))
     :rule-classes nil
 )
