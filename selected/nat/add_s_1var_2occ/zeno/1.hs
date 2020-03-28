@@ -63,4 +63,4 @@ instance Eq Nat where
 (+) :: Nat -> Nat -> Nat
 (+) Zero y = y
 (+) (S x) y = (S ((+) x y))
-prop x = proveBool $  (eq ((+) (S x) x) (S((+) x x)))
+prop x = proveBool $  (eq ((+) x (S x)) (S((+) x x)))

@@ -12,5 +12,5 @@ let rec add a0 a1 = match (a0, a1) with
 
 ;;
 
-verify(        fun x -> ((add (S(x)) x) = (S(add x x)))             ) [@@auto]
+verify(        fun x -> ((add x (S(x))) = (S(add x x)))             ) [@@auto]
 ;;

@@ -3,5 +3,5 @@
 (declare-fun add (nat nat) nat)
 (assert (forall ((y nat)) (= (add zero y) y)))
 (assert (forall ((x nat) (y nat)) (= (add (s x) y) (s (add x y)))))
-(assert (not (forall ((x nat)) (= (add (s x) x) (s (add x x))))))
+(assert (not (forall ((x nat)) (= (add x (s x)) (s (add x x))))))
 (check-sat)
