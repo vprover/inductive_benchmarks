@@ -22,6 +22,6 @@
             (flatten2 (lc tr) (cons (val tr) (flatten2 (rc tr) lst))))))
 
 (defthm theorem
-    (equal (app (flatten0 (node p x q) l))
+    (equal (app (flatten0 (node p x q)) l)
         (flatten2 (node p x q) l))
 )
