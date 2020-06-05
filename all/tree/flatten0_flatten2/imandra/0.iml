@@ -1,0 +1,25 @@
+#logic               ;;
+
+
+type nat = Zero | S of nat
+type lst = Nil | Cons of nat * lst
+type tree = TNil | Node of tree * nat * tree
+
+let rec app a0 a1 = match (a0, a1) with
+  | (Nil, r) -> r
+  | ((Cons(a, l)), r) -> (Cons(a, (app l r)))
+
+let rec flatten0 a0 = match (a0) with
+  | (TNil) -> Nil
+  | ((Node(p, x, q))) -> (app (flatten0 p) (Cons(x, (flatten0 q))))
+
+let rec flatten2 a0 a1 = match (a0, a1) with
+  | (TNil, r) -> r
+  | ((Node(p, x, q)), r) -> (flatten2 p (Cons(x, (flatten2 q r))))
+
+
+
+;;
+
+verify(        fun t l -> ((app (flatten0 t) l) = (flatten2 t l))             ) [@@auto]
+;;

@@ -1,0 +1,20 @@
+data nat := 
+  | zero 
+  | s nat.
+data lst := 
+  | nil 
+  | cons nat lst.
+data tree := 
+  | Nil 
+  | node tree nat tree.
+def app : lst -> lst -> lst where
+(forall(R:lst). (app nil R) = R);
+(forall(A:nat). (forall(L:lst). (forall(R:lst). (app (cons A L) R) = (cons A (app L R))))).
+def flatten0 : tree -> lst where
+(flatten0 Nil) = nil;
+(forall(P:tree). (forall(X:nat). (forall(Q:tree). (flatten0 (node P X Q)) = (app (flatten0 P) (cons X (flatten0 Q)))))).
+assert (forall(R:lst). (app nil R) = R).
+assert (forall(A:nat). (forall(L:lst). (forall(R:lst). (app (cons A L) R) = (cons A (app L R))))).
+assert (flatten0 Nil) = nil.
+assert (forall(P:tree). (forall(X:nat). (forall(Q:tree). (flatten0 (node P X Q)) = (app (flatten0 P) (cons X (flatten0 Q)))))).
+goal   (forall(T:tree). (forall(X:nat). (forall(Y:nat). (flatten0 (node (node T X T) Y T)) = (flatten0 (node T X (node T Y T)))))).
