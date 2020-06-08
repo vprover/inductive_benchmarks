@@ -4,9 +4,7 @@ This repository contains various benchmarks requiring inductive reasoning.
 
 ## Running Vampire on these benchmarks
 
-You can get the source code of Vampire at https://github.com/vprover/vampire,
-or, if you want the version with generalized induction, at
-https://github.com/vprover/vampire/tree/hzzv-induction1.
+You can get the source code of Vampire at https://github.com/vprover/vampire.
 To build it, simply `make vampire_rel`.
 
 To run Vampire with structural induction on the benchmarks in SMT-LIB2
@@ -19,9 +17,10 @@ Additionally, to turn on induction for complex terms, add `-indoct on`.
 
 ## Organization of this repository (subject to change)
 
-Directory `selected` contains 16 representative benchmarks capturing
-selected properties of natural numbers and lists.
-Directory `all` contains a broader range of such benchmarks.
+Directory `benchmarks` contains the benchmarks:
+* Subdirectory `selected` contains 16 representative benchmarks
+capturing selected properties of natural numbers and lists.
+* Subdirectory `all` contains a broader range of such benchmarks.
 
 Within `selected` and `all`, the benchmarks are organized as follows:
 First level of directories categorizes benchmarks by data types used
@@ -29,3 +28,9 @@ in them.
 Second level of directories groups benchmarks by the type problem
 (e.g., associativity of plus with three variables).
 Third level of directories categorizes benchmarks by the input format.
+
+Directory `results` contains results generated with a set of solvers
+and solver variants. The subdirectories are organized similar to
+the `benchmarks` folder for the first two levels. In the leaf directories,
+one can find CSV files with results corresponding to benchmark
+subdirectories for various solvers.
