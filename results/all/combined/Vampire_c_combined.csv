@@ -1,0 +1,2 @@
+SOLVER,BENCHMARK,DESC,STATUS
+Vampire_c,combined/combined_nat_list/0,|$\forall n,x.(cons(n + s(n),x) \append (x \append x) = (cons(s(n) + n,x) \append x) \append x)$|,FAILED
