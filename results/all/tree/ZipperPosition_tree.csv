@@ -1,0 +1,4 @@
+SOLVER,BENCHMARK,DESC,STATUS
+ZipperPosition,tree/flatten0_flatten2/0,,FAILED
+ZipperPosition,tree/flatten0_rotate_5var/0,,FAILED
+ZipperPosition,tree/flatten0_rotate_3var/0,,FAILED

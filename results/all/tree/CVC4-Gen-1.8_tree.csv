@@ -1,0 +1,4 @@
+SOLVER,BENCHMARK,DESC,STATUS
+CVC4-Gen-1.8,tree/flatten0_flatten2/0,|$\forall t,l.(flatten0(t) \append l = flatten2(t,l))$|,FAILED
+CVC4-Gen-1.8,tree/flatten0_rotate_5var/0,|$\forall p,q,r,x,y.(flatten0(node(node(p,x,q),y,r)) = flatten0(node(p,x,node(q,y,r))))$|,FAILED
+CVC4-Gen-1.8,tree/flatten0_rotate_3var/0,|$\forall p,x,y.(flatten0(node(node(p,x,p),y,p)) = flatten0(node(p,x,node(p,y,p))))$|,FAILED
