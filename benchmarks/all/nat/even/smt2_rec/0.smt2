@@ -5,14 +5,16 @@
     (match n
         ((zero true)
         ((s zero) false)
-        ((s (s m)) (even m)))))
-(define-fun-rec plus
-    ((n nat) (m nat)) nat
-    (match n
-        ((zero m)
-        ((s n0) (s (plus n0 m))))))
+        ((s (s m)) (even m))
+    )))
+(define-fun-rec add
+    ((x nat) (y nat)) nat
+    (match x
+        ((zero y)
+        ((s x0) (s (add x0 y)))
+    )))
 (assert (not (forall ((x nat) (y nat))
   (=> (and (even x) (even y))
-     (even (plus x y)))
+     (even (add x y)))
 )))
 (check-sat)
