@@ -16,5 +16,5 @@
                 ((cons b y) (and (= a b) (pref x y)))
             )))
     )))
-(assert (not (forall ((x lst) (y lst)) (pref x (app x y)))))
+(assert (not (forall ((v0 lst)) (= (app v0 (app v0 v0)) (app (app v0 v0) v0)))))
 (check-sat)
