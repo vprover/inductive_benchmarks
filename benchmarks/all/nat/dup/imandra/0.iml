@@ -16,5 +16,5 @@ let rec dup a0 = match (a0) with
 
 ;;
 
-verify(        fun x y -> ((mul x y) = (mul y x))             ) [@@auto]
+verify(        fun x -> ((dup x) = (add x x))             ) [@@auto]
 ;;
