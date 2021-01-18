@@ -1,3 +1,4 @@
+(set-logic UFDT)
 (declare-datatypes ((nat 0))
   (((zero) (s (s0 nat)))))
 (define-fun-rec even

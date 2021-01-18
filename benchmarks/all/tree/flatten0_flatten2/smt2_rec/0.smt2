@@ -1,3 +1,4 @@
+(set-logic UFDT)
 (declare-datatypes ((nat 0) (list 0) (tree 0))
   (((zero) (s (s0 nat)))
    ((nil) (cons (head nat) (tail list)))
