@@ -8,6 +8,10 @@ let rec add a0 a1 = match (a0, a1) with
   | (Zero, y) -> y
   | ((S(x)), y) -> (S((add x y)))
 
+let rec mul a0 a1 = match (a0, a1) with
+  | (Zero, y) -> Zero
+  | ((S(x)), y) -> (add (mul x y) y)
+
 let rec even a0 = match (a0) with
   | (Zero) -> true
   | ((S(Zero))) -> false
@@ -17,5 +21,5 @@ let rec even a0 = match (a0) with
 
 ;;
 
-verify(        fun x y -> (((even x) && (even y)) ==> (even (add x y)))             ) [@@auto]
+verify(        fun x y -> (((even x) || (even y)) ==> (even (mul x y)))             ) [@@auto]
 ;;

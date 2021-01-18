@@ -1,0 +1,14 @@
+data nat := 
+  | zero 
+  | s nat.
+def add : nat -> nat -> nat where
+(forall(Y:nat). (add zero Y) = Y);
+(forall(X:nat). (forall(Y:nat). (add (s X) Y) = (s (add X Y)))).
+def dup : nat -> nat where
+((dup zero) = zero);
+(forall(X:nat). (dup (s X)) = (s (s (dup X)))).
+assert (forall(Y:nat). (add zero Y) = Y).
+assert (forall(X:nat). (forall(Y:nat). (add (s X) Y) = (s (add X Y)))).
+assert ((dup zero) = zero).
+assert (forall(X:nat). (dup (s X)) = (s (s (dup X)))).
+goal   (forall(X:nat). (dup X) = (add X X)).
