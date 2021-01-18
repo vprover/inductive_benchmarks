@@ -1,0 +1,14 @@
+data nat := 
+  | zero 
+  | s nat.
+val add : nat -> nat -> nat.
+val mul : nat -> nat -> nat.
+val even : nat -> prop.
+assert (forall(Y:nat). (add zero Y) = Y).
+assert (forall(X:nat). (forall(Y:nat). (add (s X) Y) = (s (add X Y)))).
+assert (forall(Y:nat). (mul zero Y) = zero).
+assert (forall(X:nat). (forall(Y:nat). (mul (s X) Y) = (add (mul X Y) Y))).
+assert (even zero).
+assert (~(even (s zero))).
+assert (forall(Y:nat). (even (s (s Y))) <=> (even Y)).
+goal   (forall(X:nat). (forall(Y:nat). (((even X) || (even Y)) => (even (mul X Y))))).

@@ -1,0 +1,16 @@
+data nat := 
+  | zero 
+  | s nat.
+def add : nat -> nat -> nat where
+(forall(Y:nat). (add zero Y) = Y);
+(forall(X:nat). (forall(Y:nat). (add (s X) Y) = (s (add X Y)))).
+def even : nat -> prop where
+((even zero) <=> ~(false));
+((even (s zero)) <=> false);
+(forall(Y:nat). (even (s (s Y))) <=> (even Y)).
+assert (forall(Y:nat). (add zero Y) = Y).
+assert (forall(X:nat). (forall(Y:nat). (add (s X) Y) = (s (add X Y)))).
+assert (even zero).
+assert (~(even (s zero))).
+assert (forall(Y:nat). (even (s (s Y))) <=> (even Y)).
+goal   (forall(X:nat). (forall(Y:nat). (((even X) && (even Y)) => (even (add X Y))))).
