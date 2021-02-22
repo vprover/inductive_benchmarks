@@ -2,25 +2,13 @@
 
 This repository contains various benchmarks requiring inductive reasoning.
 
-## Running Vampire on these benchmarks
-
-You can get the source code of Vampire at https://github.com/vprover/vampire.
-To build it, simply `make vampire_rel`.
-
-To run Vampire with structural induction on the benchmarks in SMT-LIB2
-format, use the option `--input_syntax smtlib2 -ind struct`.
-To turn on generalized induction, add `-indgen on`, and optionally
-also `-indgenss N` to limit the maximum number of occurrences of a term
-selected for induction to N.
-
-Additionally, to turn on induction for complex terms, add `-indoct on`.
-
 ## Organization of this repository (subject to change)
 
 Directory `benchmarks` contains the benchmarks:
+* Subdirectory `all` contains benchmarks for inductive
+data types as well as integers.
 * Subdirectory `selected` contains 16 representative benchmarks
 capturing selected properties of natural numbers and lists.
-* Subdirectory `all` contains a broader range of such benchmarks.
 
 Within `selected` and `all`, the benchmarks are organized as follows:
 First level of directories categorizes benchmarks by data types used
@@ -34,3 +22,16 @@ and solver variants. The subdirectories are organized similar to
 the `benchmarks` folder for the first two levels. In the leaf directories,
 one can find CSV files with results corresponding to benchmark
 subdirectories for various solvers.
+
+## Running Vampire on these benchmarks
+
+You can get the source code of Vampire at https://github.com/vprover/vampire.
+To build it, simply `make vampire_rel`.
+
+To run Vampire with structural induction on the benchmarks in SMT-LIB2
+format, use the option `--input_syntax smtlib2 -ind struct`.
+To turn on generalized induction, add `-indgen on`, and optionally
+also `-indgenss N` to limit the maximum number of occurrences of a term
+selected for induction to N.
+
+Additionally, to turn on induction for complex terms, add `-indoct on`.
