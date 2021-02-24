@@ -27,6 +27,8 @@ subdirectories for various solvers.
 
 You can get the source code of Vampire at https://github.com/vprover/vampire.
 To build it, simply `make vampire_rel`.
+Note: Vampire with integer induction is currently in the branch:
+https://github.com/vprover/vampire/tree/int-induction
 
 To run Vampire with structural induction on the benchmarks in SMT-LIB2
 format, use the option `--input_syntax smtlib2 -ind struct`.
@@ -35,3 +37,6 @@ also `-indgenss N` to limit the maximum number of occurrences of a term
 selected for induction to N.
 
 Additionally, to turn on induction for complex terms, add `-indoct on`.
+
+To run Vampire with integer induction, the recommended setting is
+`--mode portfolio --schedule integer_induction`.
