@@ -1,22 +1,22 @@
 (defstub f (*) => *)
-(defstub b1 () => *)
-(defstub b2 () => *)
+(defstub a () => *)
+(defstub b () => *)
 
 (defthm theorem
     (implies
         (and
-            (integerp (b1))
-            (integerp (b2))
+            (integerp (a))
+            (integerp (b))
             (integerp x)
             (integerp y)
             (implies
-                (and (>= y b1) (< y b2))
+                (and (>= y a) (< y b))
                 (equal (f y) (f (+ y 1)))
             )
         )
         (implies
-            (and (>= x b1) (<= x b2))
-            (equal (f x) (f (b1)))
+            (and (>= x a) (<= x b))
+            (equal (f x) (f (b)))
         )
     )
     :rule-classes nil
