@@ -1,0 +1,40 @@
+data nat := 
+  | s nat
+  | zero .
+data lst := 
+  | nil 
+  | cons nat lst.
+val plus : nat -> nat -> nat.
+val times : nat -> nat -> nat.
+val plusPlus : lst -> lst -> lst.
+val len : lst -> nat.
+val outOfBounds : nat -> nat.
+val get : lst -> nat -> nat.
+val cnt : lst -> nat -> nat.
+val rev : lst -> lst.
+val leq : nat -> nat -> prop.
+val less : nat -> nat -> prop.
+val pref : lst -> lst -> prop.
+assert (forall(X:nat). (plus zero X) = X).
+assert (forall(X:nat). (forall(Y:nat). (plus (s X) Y) = (s (plus X Y)))).
+assert (forall(Y:nat). (times zero Y) = zero).
+assert (forall(X:nat). (forall(Y:nat). (times (s X) Y) = (plus Y (times X Y)))).
+assert (forall(X:nat). (leq X X)).
+assert (forall(X:nat). (forall(Y:nat). ((leq X Y) => (leq X (s Y))))).
+assert (forall(X:nat). (forall(Y:nat). (leq (s X) Y))).
+assert (forall(R:lst). (plusPlus nil R) = R).
+assert (forall(A:nat). (forall(L:lst). (forall(R:lst). (plusPlus (cons A L) R) = (cons A (plusPlus L R))))).
+assert (forall(X:lst). (pref nil X)).
+assert (forall(A:nat). (forall(X:lst). ~((pref (cons A X) nil)))).
+assert (forall(A:nat). (forall(B:nat). (forall(X:lst). (forall(Y:lst). ((pref (cons A X) (cons B Y)) <=> (A = B && (pref X Y))))))).
+assert (forall(Zero:nat). (len nil) = Zero).
+assert (forall(E:nat). (forall(L:lst). (len (cons E L)) = (s (len L)))).
+assert (forall(Tail:lst). (forall(X:nat). (get (cons X Tail) zero) = X)).
+assert (forall(I:nat). (forall(Tail:lst). (forall(X:nat). (get (cons X Tail) (s I)) = (get Tail I)))).
+assert (forall(I:nat). (get nil I) = (outOfBounds I)).
+assert (forall(X:nat). (cnt nil X) = zero).
+assert (forall(E:nat). (forall(Tail:lst). (forall(X:nat). (~(E = X) => (cnt (cons E Tail) X) = (cnt Tail E))))).
+assert (forall(E:nat). (forall(Tail:lst). (cnt (cons E Tail) E) = (s (cnt Tail E)))).
+assert (forall(X:nat). (forall(Xs:lst). (rev (cons X Xs)) = (plusPlus (rev Xs) (cons X nil)))).
+assert (rev nil) = nil.
+goal   (forall(2:nat). (forall(X:lst). (forall(Xs:lst). (((rev Xs) = Xs && (exists(K:nat). (len X) = (times 2 K))) => (forall(X:nat). (exists(K:nat). (cnt Xs X) = (times 2 K))))))).

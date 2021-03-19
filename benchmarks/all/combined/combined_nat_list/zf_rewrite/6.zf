@@ -1,0 +1,40 @@
+data nat := 
+  | s nat
+  | zero .
+data lst := 
+  | nil 
+  | cons nat lst.
+val less : nat -> nat -> prop.
+val outOfBounds : nat -> nat.
+def plus : nat -> nat -> nat where
+	(forall(X:nat). (plus zero X) = X);
+	(forall(X:nat). (forall(Y:nat). (plus (s X) Y) = (s (plus X Y)))).
+def times : nat -> nat -> nat where
+	(forall(Y:nat). (times zero Y) = zero);
+	(forall(X:nat). (forall(Y:nat). (times (s X) Y) = (plus Y (times X Y)))).
+def plusPlus : lst -> lst -> lst where
+	(forall(R:lst). (plusPlus nil R) = R);
+	(forall(A:nat). (forall(L:lst). (forall(R:lst). (plusPlus (cons A L) R) = (cons A (plusPlus L R))))).
+def len : lst -> nat where
+	(forall(Zero:nat). (len nil) = Zero);
+	(forall(E:nat). (forall(L:lst). (len (cons E L)) = (s (len L)))).
+def get : lst -> nat -> nat where
+	(forall(Tail:lst). (forall(X:nat). (get (cons X Tail) zero) = X));
+	(forall(I:nat). (forall(Tail:lst). (forall(X:nat). (get (cons X Tail) (s I)) = (get Tail I))));
+	(forall(I:nat). (get nil I) = (outOfBounds I)).
+def cnt : lst -> nat -> nat where
+	(forall(X:nat). (cnt nil X) = zero);
+	(forall(E:nat). (forall(Tail:lst). (cnt (cons E Tail) E) = (s (cnt Tail E)))).
+def rev : lst -> lst where
+	(forall(X:nat). (forall(Xs:lst). (rev (cons X Xs)) = (plusPlus (rev Xs) (cons X nil))));
+	(rev nil) = nil.
+def leq : nat -> nat -> prop where
+	(forall(X:nat). (leq X X));
+	(forall(X:nat). (forall(Y:nat). (leq (s X) Y))).
+def pref : lst -> lst -> prop where
+	(forall(X:lst). (pref nil X));
+	(forall(A:nat). (forall(X:lst). ~((pref (cons A X) nil))));
+	(forall(A:nat). (forall(B:nat). (forall(X:lst). (forall(Y:lst). ((pref (cons A X) (cons B Y)) <=> (A = B && (pref X Y))))))).
+assert (forall(X:nat). (forall(Y:nat). ((leq X Y) => (leq X (s Y))))).
+assert (forall(E:nat). (forall(Tail:lst). (forall(X:nat). (~(E = X) => (cnt (cons E Tail) X) = (cnt Tail E))))).
+goal   (forall(Xs:lst). (forall(X:nat). (cnt Xs X) = (cnt (rev Xs) X))).
