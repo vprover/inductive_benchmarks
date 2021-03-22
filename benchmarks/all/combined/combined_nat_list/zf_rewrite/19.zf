@@ -28,13 +28,14 @@ def rev : lst -> lst where
 	(forall(X:nat). (forall(Xs:lst). (rev (cons X Xs)) = (plusPlus (rev Xs) (cons X nil))));
 	(rev nil) = nil.
 def leq : nat -> nat -> prop where
-	(forall(X:nat). (leq X X)).
+	(forall(X:nat). ((leq zero X) <=> true));
+	(forall(X:nat). ((leq (s X) zero) <=> false));
+	(forall(X:nat). (forall(Y:nat). ((leq (s X) (s Y)) <=> (leq X Y)))).
 def less : nat -> nat -> prop where
 	(forall(X:nat). (forall(Y:nat). ((less X Y) <=> (leq (s X) Y)))).
 def pref : lst -> lst -> prop where
 	(forall(X:lst). (pref nil X));
 	(forall(A:nat). (forall(X:lst). ~((pref (cons A X) nil))));
 	(forall(A:nat). (forall(B:nat). (forall(X:lst). (forall(Y:lst). ((pref (cons A X) (cons B Y)) <=> (A = B && (pref X Y))))))).
-assert (forall(X:nat). (forall(Y:nat). ((leq X Y) => (leq X (s Y))))).
 assert (forall(E:nat). (forall(Tail:lst). (forall(X:nat). (~(E = X) => (cnt (cons E Tail) X) = (cnt Tail E))))).
 goal   (forall(2:nat). (forall(Xs:lst). ((rev Xs) = Xs => ((forall(X:nat). (exists(K:nat). (cnt Xs X) = (times 2 K))) || (exists(Mid:nat). ((exists(K:nat). (cnt Xs Mid) = (s (times K 2))) && (forall(X:nat). (~(X = Mid) => (exists(K:nat). (cnt Xs X) = (times 2 K)))))))))).

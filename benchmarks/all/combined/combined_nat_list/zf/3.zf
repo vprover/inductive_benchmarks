@@ -19,8 +19,9 @@ assert (forall(X:nat). (plus zero X) = X).
 assert (forall(X:nat). (forall(Y:nat). (plus (s X) Y) = (s (plus X Y)))).
 assert (forall(Y:nat). (times zero Y) = zero).
 assert (forall(X:nat). (forall(Y:nat). (times (s X) Y) = (plus Y (times X Y)))).
-assert (forall(X:nat). (leq X X)).
-assert (forall(X:nat). (forall(Y:nat). ((leq X Y) => (leq X (s Y))))).
+assert (forall(X:nat). ((leq zero X) <=> true)).
+assert (forall(X:nat). ((leq (s X) zero) <=> false)).
+assert (forall(X:nat). (forall(Y:nat). ((leq (s X) (s Y)) <=> (leq X Y)))).
 assert (forall(X:nat). (forall(Y:nat). ((less X Y) <=> (leq (s X) Y)))).
 assert (forall(R:lst). (plusPlus nil R) = R).
 assert (forall(A:nat). (forall(L:lst). (forall(R:lst). (plusPlus (cons A L) R) = (cons A (plusPlus L R))))).
