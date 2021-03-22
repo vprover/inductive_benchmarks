@@ -4,7 +4,6 @@ data nat :=
 data lst := 
   | nil 
   | cons nat lst.
-val less : nat -> nat -> prop.
 val outOfBounds : nat -> nat.
 def plus : nat -> nat -> nat where
 	(forall(X:nat). (plus zero X) = X);
@@ -29,8 +28,9 @@ def rev : lst -> lst where
 	(forall(X:nat). (forall(Xs:lst). (rev (cons X Xs)) = (plusPlus (rev Xs) (cons X nil))));
 	(rev nil) = nil.
 def leq : nat -> nat -> prop where
-	(forall(X:nat). (leq X X));
-	(forall(X:nat). (forall(Y:nat). (leq (s X) Y))).
+	(forall(X:nat). (leq X X)).
+def less : nat -> nat -> prop where
+	(forall(X:nat). (forall(Y:nat). ((less X Y) <=> (leq (s X) Y)))).
 def pref : lst -> lst -> prop where
 	(forall(X:lst). (pref nil X));
 	(forall(A:nat). (forall(X:lst). ~((pref (cons A X) nil))));

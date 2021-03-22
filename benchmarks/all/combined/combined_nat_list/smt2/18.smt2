@@ -19,7 +19,7 @@
 (assert (forall ((x nat) (y nat)) (= (mul (s x) y) (add y (mul x y)))))
 (assert (forall ((x nat)) (leq x x)))
 (assert (forall ((x nat) (y nat)) (=> (leq x y) (leq x (s y)))))
-(assert (forall ((x nat) (y nat)) (leq (s x) y)))
+(assert (forall ((x nat) (y nat)) (= (less x y) (leq (s x) y))))
 (assert (forall ((r lst)) (= (app nil r) r)))
 (assert (forall ((a nat) (l lst) (r lst)) (= (app (cons a l) r) (cons a (app l r)))))
 (assert (forall ((x lst)) (pref nil x)))
