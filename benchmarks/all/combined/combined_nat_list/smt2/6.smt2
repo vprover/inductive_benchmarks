@@ -26,7 +26,7 @@
 (assert (forall ((x lst)) (pref nil x)))
 (assert (forall ((a nat) (x lst)) (not (pref (cons a x) nil))))
 (assert (forall ((a nat) (b nat) (x lst) (y lst)) (= (pref (cons a x) (cons b y)) (and (= a b) (pref x y)))))
-(assert (forall ((zero nat)) (= (len nil) zero)))
+(assert (= (len nil) zero))
 (assert (forall ((e nat) (l lst)) (= (len (cons e l)) (s (len l)))))
 (assert (forall ((tail lst) (x nat)) (= (get (cons x tail) zero) x)))
 (assert (forall ((i nat) (tail lst) (x nat)) (= (get (cons x tail) (s i)) (get tail i))))

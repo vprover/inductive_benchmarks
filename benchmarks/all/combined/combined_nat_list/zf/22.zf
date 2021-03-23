@@ -28,7 +28,7 @@ assert (forall(A:nat). (forall(L:lst). (forall(R:lst). (plusPlus (cons A L) R) =
 assert (forall(X:lst). (pref nil X)).
 assert (forall(A:nat). (forall(X:lst). ~((pref (cons A X) nil)))).
 assert (forall(A:nat). (forall(B:nat). (forall(X:lst). (forall(Y:lst). ((pref (cons A X) (cons B Y)) <=> (A = B && (pref X Y))))))).
-assert (forall(Zero:nat). (len nil) = Zero).
+assert (len nil) = zero.
 assert (forall(E:nat). (forall(L:lst). (len (cons E L)) = (s (len L)))).
 assert (forall(Tail:lst). (forall(X:nat). (get (cons X Tail) zero) = X)).
 assert (forall(I:nat). (forall(Tail:lst). (forall(X:nat). (get (cons X Tail) (s I)) = (get Tail I)))).

@@ -15,7 +15,7 @@ def plusPlus : lst -> lst -> lst where
 	(forall(R:lst). (plusPlus nil R) = R);
 	(forall(A:nat). (forall(L:lst). (forall(R:lst). (plusPlus (cons A L) R) = (cons A (plusPlus L R))))).
 def len : lst -> nat where
-	(forall(Zero:nat). (len nil) = Zero);
+	(len nil) = zero;
 	(forall(E:nat). (forall(L:lst). (len (cons E L)) = (s (len L)))).
 def get : lst -> nat -> nat where
 	(forall(Tail:lst). (forall(X:nat). (get (cons X Tail) zero) = X));
