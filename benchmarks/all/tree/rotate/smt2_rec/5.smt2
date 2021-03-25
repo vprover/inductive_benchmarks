@@ -3,11 +3,23 @@
   (((zero) (s (s0 nat)))
    ((nil) (cons (head nat) (tail list)))
    ((Nil) (node (lc tree) (val nat) (rc tree)))))
+(define-fun-rec add
+    ((x nat) (y nat)) nat
+    (match x
+        ((zero y)
+        ((s x0) (s (add x0 y)))
+    )))
 (define-fun-rec app
     ((l list) (r list)) list
     (match l
         ((nil r)
         ((cons a l0) (cons a (app l0 r))))))
+(define-fun-rec rev
+    ((l list)) list
+    (match l
+        ((nil nil)
+        ((cons a l0) (app (rev l0) (cons a nil)))
+    )))
 (define-fun-rec size
     ((t tree)) nat
     (match t
