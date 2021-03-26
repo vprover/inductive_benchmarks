@@ -38,4 +38,4 @@ def pref : lst -> lst -> prop where
 	(forall(A:nat). (forall(X:lst). ~((pref (cons A X) nil))));
 	(forall(A:nat). (forall(B:nat). (forall(X:lst). (forall(Y:lst). ((pref (cons A X) (cons B Y)) <=> (A = B && (pref X Y))))))).
 assert (forall(E:nat). (forall(Tail:lst). (forall(X:nat). (~(E = X) => (cnt (cons E Tail) X) = (cnt Tail E))))).
-goal   (forall(X:lst). (forall(Y:lst). (((leq (len X) (s zero)) && (leq (len Y) (s zero))) => (plusPlus X Y) = (plusPlus Y X)))).
+goal   (forall(X:lst). (forall(Y:lst). ((leq (plus (len X) (len Y)) (s zero)) => (plusPlus X Y) = (plusPlus Y X)))).

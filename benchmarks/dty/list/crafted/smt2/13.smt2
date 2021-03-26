@@ -36,5 +36,5 @@
 (assert (forall ((e nat) (tail lst)) (= (cnt (cons e tail) e) (s (cnt tail e)))))
 (assert (forall ((x nat) (xs lst)) (= (rev (cons x xs)) (app (rev xs) (cons x nil)))))
 (assert (= (rev nil) nil))
-(assert (not (forall ((x lst) (y lst)) (=> (and (leq (len x) (s zero)) (leq (len y) (s zero))) (= (app x y) (app y x))))))
+(assert (not (forall ((x lst) (y lst)) (=> (leq (add (len x) (len y)) (s zero)) (= (app x y) (app y x))))))
 (check-sat)

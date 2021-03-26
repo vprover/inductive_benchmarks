@@ -70,5 +70,5 @@
                 ((cons b y) (and (= a b) (pref x y)))
             )))
     )))
-(assert (not (forall ((x lst) (y lst)) (=> (and (leq (len x) (s zero)) (leq (len y) (s zero))) (= (app x y) (app y x))))))
+(assert (not (forall ((x lst) (y lst)) (=> (leq (add (len x) (len y)) (s zero)) (= (app x y) (app y x))))))
 (check-sat)

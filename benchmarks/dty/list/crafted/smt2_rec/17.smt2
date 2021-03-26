@@ -70,5 +70,5 @@
                 ((cons b y) (and (= a b) (pref x y)))
             )))
     )))
-(assert (not (forall ((2 nat) (x lst) (xs lst)) (=> (and (= (rev xs) xs) (exists ((k nat)) (= (len x) (mul 2 k)))) (forall ((x nat)) (exists ((k nat)) (= (cnt xs x) (mul 2 k))))))))
+(assert (not (forall ((x lst) (xs lst)) (=> (and (= (rev xs) xs) (exists ((k nat)) (= (len x) (mul (s (s zero)) k)))) (forall ((x nat)) (exists ((k nat)) (= (cnt xs x) (mul (s (s zero)) k))))))))
 (check-sat)
