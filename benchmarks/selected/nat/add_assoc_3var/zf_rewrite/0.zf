@@ -1,9 +1,0 @@
-data nat := 
-  | zero 
-  | s nat.
-def add : nat -> nat -> nat where
-(forall(Y:nat). (add zero Y) = Y);
-(forall(X:nat). (forall(Y:nat). (add (s X) Y) = (s (add X Y)))).
-assert (forall(Y:nat). (add zero Y) = Y).
-assert (forall(X:nat). (forall(Y:nat). (add (s X) Y) = (s (add X Y)))).
-goal   (forall(X:nat). (forall(Y:nat). (forall(Z:nat). (add X (add Y Z)) = (add (add X Y) Z)))).
