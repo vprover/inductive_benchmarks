@@ -1,0 +1,8 @@
+     (DEFUN S (X0) (LIST X0))
+     (DEFUN ADD (X0 X1)
+            (COND ((ENDP X0) X1)
+                  ((CONSP X0) (S (ADD (CAR X0) X1)))))
+     (DEFUN DUP (X0)
+            (COND ((ENDP X0) X0)
+                  ((CONSP X0) (S (S (DUP (CAR X0)))))))
+     (DEFTHM THEOREM (= (DUP V0) (ADD V0 V0))))
