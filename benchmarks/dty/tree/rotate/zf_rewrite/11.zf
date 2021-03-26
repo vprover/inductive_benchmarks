@@ -1,0 +1,59 @@
+data nat := 
+  | zero 
+  | s nat.
+data lst := 
+  | nil 
+  | cons nat lst.
+data tree := 
+  | Nil 
+  | node tree nat tree.
+def add : nat -> nat -> nat where
+(forall(Y:nat). (add zero Y) = Y);
+(forall(X:nat). (forall(Y:nat). (add (s X) Y) = (s (add X Y)))).
+def app : lst -> lst -> lst where
+(forall(R:lst). (app nil R) = R);
+(forall(A:nat). (forall(L:lst). (forall(R:lst). (app (cons A L) R) = (cons A (app L R))))).
+def rev : lst -> lst where
+(rev nil) = nil;
+(forall(X:nat). (forall(Xs:lst). (rev (cons X Xs)) = (app (rev Xs) (cons X nil)))).
+def size : tree -> nat where
+(size Nil) = zero;
+(forall(P:tree). (forall(X:nat). (forall(Q:tree). (size (node P X Q)) = (s (add (size P) (size Q)))))).
+def flatten0 : tree -> lst where
+(flatten0 Nil) = nil;
+(forall(P:tree). (forall(X:nat). (forall(Q:tree). (flatten0 (node P X Q)) = (app (flatten0 P) (cons X (flatten0 Q)))))).
+def flatten2 : tree -> lst -> lst where
+(forall(R:lst). (flatten2 Nil R) = R);
+(forall(P:tree). (forall(X:nat). (forall(Q:tree). (forall(R:lst). (flatten2 (node P X Q) R) = (flatten2 P (cons X (flatten2 Q R))))))).
+def rotateLeft : tree -> tree where
+((rotateLeft Nil) = Nil);
+(forall(X:nat). (forall(P:tree). (rotateLeft (node P X Nil) = (node P X Nil))));
+(forall(P:tree). (forall(X:nat). (forall(Q:tree). (forall(Y:nat). (forall(R:tree). (rotateLeft (node P X (node Q Y R))) = (rotateLeft (node (node P X Q) Y R))))))).
+def rotateRight : tree -> tree where
+((rotateRight Nil) = Nil);
+(forall(X:nat). (forall(P:tree). (rotateRight (node Nil X P) = (node Nil X P))));
+(forall(P:tree). (forall(X:nat). (forall(Q:tree). (forall(Y:nat). (forall(R:tree). (rotateRight (node (node P X Q) Y R)) = (rotateRight (node P X (node Q Y R)))))))).
+def mirror : tree -> tree -> prop where
+(forall(P:tree). ((mirror Nil P) <=> (P = Nil)));
+(forall(P:tree). (forall(X:nat). (forall(Q:tree). ~((mirror (node P X Q) Nil)))));
+(forall(P1:tree). (forall(X1:nat). (forall(Q1:tree). (forall(P2:tree). (forall(X2:nat). (forall(Q2:tree). ((mirror (node P1 X1 Q1) (node P2 X2 Q2)) <=> (X1 = X2 && (mirror P1 Q2) && (mirror Q1 P2))))))))).
+assert (forall(Y:nat). (add zero Y) = Y).
+assert (forall(X:nat). (forall(Y:nat). (add (s X) Y) = (s (add X Y)))).
+assert (forall(R:lst). (app nil R) = R).
+assert (forall(A:nat). (forall(L:lst). (forall(R:lst). (app (cons A L) R) = (cons A (app L R))))).
+assert (rev nil) = nil.
+assert (forall(X:nat). (forall(Xs:lst). (rev (cons X Xs)) = (app (rev Xs) (cons X nil)))).
+assert (flatten0 Nil) = nil.
+assert (forall(P:tree). (forall(X:nat). (forall(Q:tree). (flatten0 (node P X Q)) = (app (flatten0 P) (cons X (flatten0 Q)))))).
+assert (rotateRight Nil) = Nil.
+assert (forall(X:nat). (forall(P:tree). (rotateRight (node Nil X P) = (node Nil X P)))).
+assert (forall(P:tree). (forall(X:nat). (forall(Q:tree). (forall(Y:nat). (forall(R:tree). (rotateRight (node (node P X Q) Y R)) = (rotateRight (node P X (node Q Y R)))))))).
+assert (rotateLeft Nil) = Nil.
+assert (forall(X:nat). (forall(P:tree). (rotateLeft (node Nil X P) = (node Nil X P)))).
+assert (forall(P:tree). (forall(X:nat). (forall(Q:tree). (forall(Y:nat). (forall(R:tree). (rotateLeft (node P X (node Q Y R))) = (rotateLeft (node (node P X Q) Y R))))))).
+assert (forall(R:lst). (flatten2 Nil R) = R).
+assert (forall(P:tree). (forall(X:nat). (forall(Q:tree). (forall(R:lst). (flatten2 (node P X Q) R) = (flatten2 P (cons X (flatten2 Q R))))))).
+assert (forall(P:tree). ((mirror Nil P) <=> (P = Nil))).
+assert (forall(P:tree). (forall(X:nat). (forall(Q:tree). ~((mirror (node P X Q) Nil))))).
+assert (forall(P1:tree). (forall(X1:nat). (forall(Q1:tree). (forall(P2:tree). (forall(X2:nat). (forall(Q2:tree). ((mirror (node P1 X1 Q1) (node P2 X2 Q2)) <=> (X1 = X2 && (mirror P1 Q2) && (mirror Q1 P2))))))))).
+goal   (forall(T:tree). (rotateRight (rotateLeft T)) = T).
