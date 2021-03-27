@@ -1,6 +1,0 @@
-     (DEFUN S (X0) (LIST X0))
-     (DEFUN ADD (X0 X1)
-            (COND ((ENDP X0) X1)
-                  ((CONSP X0) (S (ADD (CAR X0) X1)))))
-     (DEFUN ID (X0) (COND (NIL X0)))
-     (DEFTHM THEOREM (= (ADD (ID X) Y) (ADD Y X))))
