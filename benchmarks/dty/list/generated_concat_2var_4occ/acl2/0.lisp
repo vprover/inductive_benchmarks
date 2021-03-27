@@ -1,10 +1,10 @@
-
-(defun app (l k)
-  (if (endp l) k
-        (cons (car l)
-            (app (cdr l) k))))
-
-(defthm theorem
-    (equal (app l (app k (app l l))) (app (app l k) (app l l)))
-    :rule-classes nil
-)
+     (DEFUN S (X0) (LIST X0))
+     (DEFUN CONS_ (X0 X1) (LIST X0 X1))
+     (DEFUN APP (X0 X1)
+            (COND ((ENDP X0) X1)
+                  ((CONSP X0)
+                   (CONS_ (CAR X0)
+                          (APP (CAR (CDR X0)) X1)))))
+     (DEFTHM THEOREM
+             (= (APP X (APP Y (APP X X)))
+                (APP (APP X Y) (APP X X)))))
