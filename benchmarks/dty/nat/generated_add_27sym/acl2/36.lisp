@@ -15,7 +15,7 @@
            (S (ADD (S V4)
                    (ADD (S (ADD (S V0)
                                 (ADD (ADD (S V4) (S V7)) (S (S V6)))))
-                        (S (S ZERO)))))))
+                        (S (S NIL)))))))
    (ADD
     (S (ADD V2 V4))
     (S
@@ -26,6 +26,6 @@
          (ADD V4 V6)
          (S
            (ADD (S (ADD (ADD (S (S (S (ADD V3 (S (ADD (S V1) (S (S V0))))))))
-                             (S (S ZERO)))
+                             (S (S NIL)))
                         (ADD V5 V5)))
                 V7)))))))))))

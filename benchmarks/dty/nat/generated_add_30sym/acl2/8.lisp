@@ -12,9 +12,9 @@
   (=
    (S (S (S (S (ADD (ADD (S (S (S V1)))
                          (ADD (ADD (S (S (S (S V3)))) (S V2))
-                              (S (S (S (S ZERO))))))
+                              (S (S (S (S NIL))))))
                     (ADD (S (S (S (ADD V1 (S V0)))))
-                         (S (ADD V4 (S ZERO)))))))))
+                         (S (ADD V4 (S NIL)))))))))
    (S
     (S
      (S
@@ -22,5 +22,5 @@
                           (S (ADD (ADD (S (ADD (S V1) (S (S V4))))
                                        (S (ADD (S (S V1))
                                                (S (S (S (S (ADD V2 V0))))))))
-                                  (S (S (S ZERO)))))))
-                  (S ZERO))))))))))
+                                  (S (S (S NIL)))))))
+                  (S NIL))))))))))

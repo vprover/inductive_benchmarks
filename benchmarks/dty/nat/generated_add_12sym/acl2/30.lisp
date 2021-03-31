@@ -8,8 +8,8 @@
                   ((AND (CONSP X0) (CONSP X1))
                    (LEQ (CAR X0) (CAR X1)))))
      (DEFTHM THEOREM
-             (= (S (ADD (S (S (S (ADD (S ZERO) (S (ADD (S V0) V1))))))
+             (= (S (ADD (S (S (S (ADD (S NIL) (S (ADD (S V0) V1))))))
                         (S V0)))
                 (S (ADD V0
-                        (S (S (S (ADD ZERO
+                        (S (S (S (ADD NIL
                                       (S (S (S (ADD (S V0) V1)))))))))))))

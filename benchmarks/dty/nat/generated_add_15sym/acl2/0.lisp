@@ -9,7 +9,7 @@
                    (LEQ (CAR X0) (CAR X1)))))
      (DEFTHM THEOREM
              (= (S (ADD (S (ADD (S (S V0)) (S (S V1))))
-                        (S (S (ADD (S (S ZERO)) (S V0))))))
-                (ADD (S ZERO)
+                        (S (S (ADD (S (S NIL)) (S V0))))))
+                (ADD (S NIL)
                      (S (S (S (S (S (S (ADD (S (S (S V1)))
                                             (ADD (S V0) V0))))))))))))

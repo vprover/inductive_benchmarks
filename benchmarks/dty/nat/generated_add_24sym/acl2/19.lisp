@@ -11,7 +11,7 @@
   THEOREM
   (=
    (ADD (S (S (S (S (ADD (S (S (ADD (S (S V3))
-                                    (ADD (S (ADD ZERO (S V1)))
+                                    (ADD (S (ADD NIL (S V1)))
                                          (S (S V2))))))
                          (ADD (S (S (S V0))) (S V5)))))))
         (S V4))
@@ -19,4 +19,4 @@
                          (ADD V1
                               (ADD (S (S (ADD V4 (S V5))))
                                    (S (S (S (S (S (S (S (S (S V0)))))))))))))
-                 (S ZERO))))))))
+                 (S NIL))))))))

@@ -10,10 +10,10 @@
  (DEFTHM
       THEOREM
       (= (S (ADD (ADD (S (S V0)) (S V3))
-                 (S (S (ADD (S (S (S (S (S (S (ADD (S (S ZERO))
+                 (S (S (ADD (S (S (S (S (S (S (ADD (S (S NIL))
                                                    (S (ADD (S V2) V1)))))))))
-                            (ADD (S V4) ZERO))))))
+                            (ADD (S V4) NIL))))))
          (S (S (ADD (ADD V1
-                         (S (S (S (S (ADD (ADD ZERO (ADD V3 V4))
+                         (S (S (S (S (ADD (ADD NIL (ADD V3 V4))
                                           (S (S (S (S (S V2)))))))))))
-                    (ADD V0 (S (S (S (S (S (S ZERO)))))))))))))
+                    (ADD V0 (S (S (S (S (S (S NIL)))))))))))))

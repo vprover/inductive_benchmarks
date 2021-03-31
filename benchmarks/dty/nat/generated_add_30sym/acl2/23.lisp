@@ -11,11 +11,11 @@
         THEOREM
         (= (S (S (ADD (ADD (S (ADD (S (S (S (ADD (S V4) V7))))
                                    (S (ADD (S (S V1))
-                                           (ADD (S (S (S V3))) (S ZERO))))))
+                                           (ADD (S (S (S V3))) (S NIL))))))
                            (S (S V6)))
                       (S (ADD (ADD V2 (S V0)) (S (S (S V5))))))))
            (S (S (S (S (ADD (S (ADD (ADD V0 V2)
-                                    (S (ADD (S ZERO)
+                                    (S (ADD (S NIL)
                                             (S (ADD (S (S (S (S V4))))
                                                     (ADD (S (S V7)) V1)))))))
                             (ADD V3

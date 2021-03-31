@@ -11,11 +11,11 @@
              (= (ADD (ADD (S (ADD (ADD (S V7) (S (S (S V3))))
                                   (S V0)))
                           (ADD (ADD V2 (S V1)) (S V6)))
-                     (ADD (ADD (S V4) ZERO)
+                     (ADD (ADD (S V4) NIL)
                           (S (ADD V1 (S V5)))))
                 (S (ADD (S (ADD (S V0)
                                 (S (ADD (ADD V6 (S V5)) V1))))
-                        (ADD ZERO
+                        (ADD NIL
                              (ADD (ADD (S V1)
                                        (ADD (ADD (S (S V4)) V2)
                                             (S (S (S V3)))))

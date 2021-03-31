@@ -12,18 +12,18 @@
   (=
    (ADD (S (ADD (S V5)
                 (S (ADD (ADD (S V2) V1)
-                        (ADD (S V3) ZERO)))))
+                        (ADD (S V3) NIL)))))
         (ADD (ADD V5 (S V4))
-             (ADD ZERO
-                  (S (S (ADD (S V0) (S (S ZERO))))))))
+             (ADD NIL
+                  (S (S (ADD (S V0) (S (S NIL))))))))
    (S
     (ADD
      (ADD
-         (ADD ZERO (S ZERO))
+         (ADD NIL (S NIL))
          (S (S (S (ADD (ADD (ADD (ADD V1
                                       (S (ADD (S (S (ADD (S V0) (S (S V5)))))
                                               V5)))
-                                 ZERO)
+                                 NIL)
                             V2)
                        V3)))))
      V4)))))

@@ -30,8 +30,7 @@
  (DEFUN _GET (X0 X1)
         (COND ((AND (CONSP X0) (ENDP X1)) (CAR X0))
               ((AND (CONSP X0) (CONSP X1))
-               (_GET (CAR (CDR X0)) (CAR X1)))
-              ((ENDP X0) (OUTOFBOUNDS X1))))
+               (_GET (CAR (CDR X0)) (CAR X1)))))
  (DEFUN CNT (X0 X1)
         (COND ((ENDP X0) NIL)
               ((CONSP X0) (COND
@@ -43,6 +42,5 @@
                     (CONS_ (CAR X0) NIL)))
               ((ENDP X0) X0)))
  (DEFTHM THEOREM
-         (=> (PREF L1 L2)
-             (FORALL ((X NAT))
-                     (LEQ (CNT L1 X) (CNT L2 X)))))
+         (IMPLIES (PREF L1 L2)
+              (LEQ (CNT L1 X) (CNT L2 X))))

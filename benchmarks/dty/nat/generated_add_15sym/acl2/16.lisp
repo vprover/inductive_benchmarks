@@ -10,8 +10,8 @@
      (DEFTHM THEOREM
              (= (ADD (S (S V1))
                      (ADD (S (ADD (S V2)
-                                  (ADD (S V1) (ADD (S (S ZERO)) (S V1)))))
+                                  (ADD (S V1) (ADD (S (S NIL)) (S V1)))))
                           (S V0)))
                 (S (ADD (ADD (S V1) (S (S V1)))
-                        (S (ADD (S (S (ADD V2 (S ZERO))))
+                        (S (ADD (S (S (ADD V2 (S NIL))))
                                 (S (ADD V1 V0)))))))))

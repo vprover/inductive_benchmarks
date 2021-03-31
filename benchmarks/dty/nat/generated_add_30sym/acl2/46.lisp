@@ -13,7 +13,7 @@
    (ADD (ADD (S (S V9)) (S V5))
         (S (S (ADD (ADD (ADD (S (ADD (S V3) (S V4))) (S (S V8)))
                         (S (S (ADD (S V7)
-                                   (ADD (ADD ZERO (S V7)) (S V0))))))
+                                   (ADD (ADD NIL (S V7)) (S V0))))))
                    (ADD V6 (ADD (S V1) (S (S V2))))))))
    (S
     (ADD
@@ -25,4 +25,4 @@
                                   (S (ADD (ADD V0 V5)
                                           (ADD (S V8)
                                                (ADD (S (ADD (S V1) V7))
-                                                    (S ZERO))))))))))))))))))
+                                                    (S NIL))))))))))))))))))

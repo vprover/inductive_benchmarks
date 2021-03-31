@@ -14,10 +14,10 @@
              V0)
         (ADD (ADD (ADD (ADD V4 (S V7)) (S V8))
                   (ADD (S V5) (S (ADD V6 (S (S V3))))))
-             (ADD (S V0) (ADD V0 (S ZERO)))))
+             (ADD (S V0) (ADD V0 (S NIL)))))
    (ADD
        (ADD (ADD (ADD V0
-                      (ADD (S (S (ADD (S (ADD (ADD ZERO V0) V1))
+                      (ADD (S (S (ADD (S (ADD (ADD NIL V0) V1))
                                       (ADD V5 (S (S (S (S (ADD V7 V2)))))))))
                            (S (S (ADD V6 V3)))))
                  V8)

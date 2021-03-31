@@ -4,8 +4,10 @@
                   ((CONSP X0) (S (ADD (CAR X0) X1)))))
      (DEFUN EVEN (X0)
             (COND ((ENDP X0) T)
-                  ((CONSP X0) (EVEN X))))
-     (DEFTHM THEOREM (EVEN (S ZERO)))
+                  ((CONSP X0) (COND
+                        ((ENDP (CAR X0)) (NOT T))
+                        ((CONSP (CAR X0))
+                              (EVEN (CAR (CAR X0))))))))
      (DEFTHM THEOREM
-             (=> (AND (EVEN X) (EVEN Y))
+             (IMPLIES (AND (EVEN X) (EVEN Y))
                  (EVEN (ADD X Y)))))
