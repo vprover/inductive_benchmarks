@@ -1,0 +1,13 @@
+     (DEFUN S (X0) (LIST X0))
+     (DEFUN EQUAL_ (X0 X1 X2)
+            (COND ((AND (ENDP X0) (ENDP X1) (ENDP X2))
+                   (NOT (NOT T)))
+                  ((AND (ENDP X0) (CONSP X1)) (NOT T))
+                  ((AND (ENDP X0) (CONSP X2)) (NOT T))
+                  ((AND (CONSP X0) (ENDP X1)) (NOT T))
+                  ((AND (CONSP X0) (ENDP X2)) (NOT T))
+                  ((AND (CONSP X0) (CONSP X1) (CONSP X2))
+                   (EQUAL_ (CAR X0) (CAR X1) (CAR X2)))))
+     (DEFTHM THEOREM
+             (= (EQUAL_ X Y Z)
+                (AND (= X Y) (= Y Z)))))
