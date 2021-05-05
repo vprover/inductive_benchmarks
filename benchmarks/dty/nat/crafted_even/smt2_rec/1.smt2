@@ -5,9 +5,10 @@
     ((n nat)) Bool
     (match n
         ((zero true)
-        ((s zero) false)
-        ((s (s m)) (even m))
-    )))
+        ((s x) (match x
+            ((zero false)
+            ((s m) (even m))
+    ))))))
 (define-fun-rec add
     ((x nat) (y nat)) nat
     (match x

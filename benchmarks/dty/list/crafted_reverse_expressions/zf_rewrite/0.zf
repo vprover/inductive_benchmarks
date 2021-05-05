@@ -10,11 +10,11 @@ def app : lst -> lst -> lst where
 def rev : lst -> lst where
 (rev nil) = nil;
 (forall(X:nat). (forall(Xs:lst). (rev (cons X Xs)) = (app (rev Xs) (cons X nil)))).
-def revAcc : lst -> lst where
-(forall(X:lst). (revAcc X) = (revAccInner X nil)).
 def revAccInner : lst -> lst -> lst where
 (forall(Acc:lst). (revAccInner nil Acc) = Acc);
 (forall(Acc:lst). (forall(X:nat). (forall(Xs:lst). (revAccInner (cons X Xs) Acc) = (revAccInner Xs (cons X Acc))))).
+def revAcc : lst -> lst where
+(forall(X:lst). (revAcc X) = (revAccInner X nil)).
 assert (forall(R:lst). (app nil R) = R).
 assert (forall(A:nat). (forall(L:lst). (forall(R:lst). (app (cons A L) R) = (cons A (app L R))))).
 assert (rev nil) = nil.
