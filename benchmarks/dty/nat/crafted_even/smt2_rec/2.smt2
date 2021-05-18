@@ -22,7 +22,6 @@
         ((s n0) (add (mul n0 m) m))
     )))
 (assert (not (forall ((x nat) (y nat))
-  (=> (or (even x) (even y))
-     (even (mul x y)))
+  (=> (even y) (even (mul x y)))
 )))
 (check-sat)

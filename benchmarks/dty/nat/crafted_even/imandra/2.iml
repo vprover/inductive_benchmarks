@@ -1,0 +1,25 @@
+#logic               ;;
+
+
+type nat = Zero | S of nat
+
+
+let rec add a0 a1 = match (a0, a1) with
+  | (Zero, y) -> y
+  | ((S(x)), y) -> (S((add x y)))
+
+let rec mul a0 a1 = match (a0, a1) with
+  | (Zero, y) -> Zero
+  | ((S(x)), y) -> (add (mul x y) y)
+
+let rec even a0 = match (a0) with
+  | (Zero) -> true
+  | ((S(Zero))) -> false
+  | ((S(S(x)))) -> ((even x))
+
+
+
+;;
+
+verify(        fun x y -> (((even y)) ==> (even (mul x y)))             ) [@@auto]
+;;
