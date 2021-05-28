@@ -42,4 +42,5 @@
                     (CONS_ (CAR X0) NIL)))
               ((ENDP X0) X0)))
  (DEFTHM THEOREM
-         (= (CNT XS X) (CNT (REV XS) X)))
+         (= (REV (APP X Y))
+            (APP (REV Y) (REV X))))

@@ -36,5 +36,5 @@
 (assert (forall ((e nat) (tail lst)) (= (cnt (cons e tail) e) (s (cnt tail e)))))
 (assert (forall ((x nat) (xs lst)) (= (rev (cons x xs)) (app (rev xs) (cons x nil)))))
 (assert (= (rev nil) nil))
-(assert (not (forall ((x lst) (xs lst)) (=> (and (= (rev xs) xs) (exists ((k nat)) (= (len x) (s (mul (s (s zero)) k))))) (exists ((mid nat)) (and (exists ((k nat)) (= (cnt xs mid) (s (mul (s (s zero)) k)))) (forall ((x nat)) (=> (not (= x mid)) (exists ((k nat)) (= (cnt xs x) (mul (s (s zero)) k)))))))))))
+(assert (not (forall ((xs lst)) (=> (and (= (rev xs) xs) (exists ((k nat)) (= (len xs) (s (mul (s (s zero)) k))))) (exists ((mid nat)) (and (exists ((k nat)) (= (cnt xs mid) (s (mul (s (s zero)) k)))) (forall ((x nat)) (=> (not (= x mid)) (exists ((k nat)) (= (cnt xs x) (mul (s (s zero)) k)))))))))))
 (check-sat)

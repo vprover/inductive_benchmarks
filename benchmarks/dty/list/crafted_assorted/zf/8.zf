@@ -38,4 +38,4 @@ assert (forall(E:nat). (forall(Tail:lst). (forall(X:nat). (~(E = X) => (cnt (con
 assert (forall(E:nat). (forall(Tail:lst). (cnt (cons E Tail) E) = (s (cnt Tail E)))).
 assert (forall(X:nat). (forall(Xs:lst). (rev (cons X Xs)) = (plusPlus (rev Xs) (cons X nil)))).
 assert (rev nil) = nil.
-goal   (forall(X:lst). (forall(Y:lst). (((pref X Y) && (s (len X)) = (len Y)) => (exists(E:nat). (cons E X) = Y)))).
+goal   (forall(X:lst). (forall(Y:lst). (((pref X Y) && (s (len X)) = (len Y)) => (exists(E:nat). (plusPlus X (cons E nil)) = Y)))).

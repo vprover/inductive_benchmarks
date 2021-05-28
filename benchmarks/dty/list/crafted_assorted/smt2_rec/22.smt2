@@ -70,5 +70,5 @@
                 ((cons b y) (and (= a b) (pref x y)))
             )))
     )))
-(assert (not (forall ((x nat) (xs lst)) (= (cnt xs x) (cnt (rev xs) x)))))
+(assert (not (forall ((x lst) (y lst)) (= (rev (app x y)) (app (rev y) (rev x))))))
 (check-sat)
