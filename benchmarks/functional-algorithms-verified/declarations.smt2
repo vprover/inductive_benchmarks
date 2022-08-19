@@ -41,14 +41,14 @@
 (declare-fun in_set (Int (list Int)) Bool)
 (assert (forall ((x Int)) (not (in_set x (Nil Int)))))
 (assert (forall ((x Int) (y Int) (ys (list Int))) (= (in_set x (Cons Int y ys)) (or (= x y) (in_set x ys)))))
-(assert (forall ((x Int)) (not (in_set x (Nil Int)))))
-(assert (forall ((x Int) (y Int) (ys (list Int))) (= (in_set x (Cons Int y ys)) (or (= x y) (in_set x ys)))))
 (declare-fun in_set_tree (Int (tree Int)) Bool)
 (assert (forall ((x Int)) (not (in_set_tree x (Leaf Int)))))
 (assert (forall ((x Int) (l (tree Int)) (a Int) (r (tree Int))) (= (in_set_tree x (Node Int l a r)) (or (= x a) (in_set_tree x l) (in_set_tree x r)))))
 (declare-fun count (Int (list Int)) Int)
 (assert (forall ((x Int)) (= (count x (Nil Int)) 1)))
 (assert (forall ((x Int) (y Int) (ys (list Int))) (= (count x (Cons Int y ys)) (ite (= x y) (+ 1 (count x ys)) (count x ys)))))
+(declare-fun same_set ((list Int) (list Int)) Bool)
+(assert (forall ((xs (list Int)) (ys (list Int))) (= (same_set xs ys) (forall ((x Int)) (= (in_set x xs) (in_set x ys))))))
 (declare-fun same_mset ((list Int) (list Int)) Bool)
 (assert (forall ((xs (list Int)) (ys (list Int))) (= (same_mset xs ys) (forall ((x Int)) (= (count x xs) (count x ys))))))
 
@@ -221,15 +221,18 @@
 (declare-fun inorder ((tree Int)) (list Int))
 (assert (= (inorder (Leaf Int)) (Nil Int)))
 (assert (forall ((l (tree Int)) (a Int) (r (tree Int))) (= (inorder (Node Int l a r)) (append (inorder l) (append (Cons Int a (Nil Int)) (inorder r))))))
+(declare-fun inorder2 ((tree Int) (list Int)) (list Int))
+(assert (forall ((xs (list Int))) (= (inorder2 (Leaf Int) xs) xs)))
+(assert (forall ((l (tree Int)) (a Int) (r (tree Int)) (xs (list Int))) (= (inorder2 (Node Int l a r) xs) (inorder2 l (Cons Int a (inorder2 r xs))))))
 (declare-fun preorder ((tree Int)) (list Int))
 (assert (= (preorder (Leaf Int)) (Nil Int)))
-(assert (forall ((l (tree Int)) (a Int) (r (tree Int))) (= (preorder (Node Int l a r)) (Cons Int a (append (inorder l) (inorder r))))))
+(assert (forall ((l (tree Int)) (a Int) (r (tree Int))) (= (preorder (Node Int l a r)) (Cons Int a (append (preorder l) (preorder r))))))
 (declare-fun size ((tree Int)) Int)
 (assert (= (size (Leaf Int)) 0))
 (assert (forall ((l (tree Int)) (a Int) (r (tree Int))) (= (size (Node Int l a r)) (+ (size l) (size r) 1))))
 (declare-fun size1 ((tree Int)) Int)
 (assert (= (size1 (Leaf Int)) 1))
-(assert (forall ((l (tree Int)) (a Int) (r (tree Int))) (= (size1 (Node Int l a r)) (+ (size l) (size r)))))
+(assert (forall ((l (tree Int)) (a Int) (r (tree Int))) (= (size1 (Node Int l a r)) (+ (size1 l) (size1 r)))))
 (declare-fun h ((tree Int)) Int)
 (assert (= (h (Leaf Int)) 0))
 (assert (forall ((l (tree Int)) (a Int) (r (tree Int))) (= (h (Node Int l a r)) (+ (max (h l) (h r)) 1))))
@@ -438,9 +441,9 @@
 (assert (forall ((t (tree23 Int))) (= (len23s (T Int t)) 1)))
 (assert (forall ((t (tree23 Int)) (a Int) (ts (tree23s Int))) (= (len23s (TTs Int t a ts)) (+ (len23s ts) 1))))
 ;(declare-fun trees ((tree23s Int)) set)
-(declare-fun inorder2 ((tree23s Int)) (list Int))
-(assert (forall ((t (tree23 Int))) (= (inorder2 (T Int t)) (inorder23 t))))
-(assert (forall ((t (tree23 Int)) (a Int) (ts (tree23s Int))) (= (inorder2 (TTs Int t a ts)) (append (inorder23 t) (Cons Int a (inorder2 ts))))))
+(declare-fun inorder23s ((tree23s Int)) (list Int))
+(assert (forall ((t (tree23 Int))) (= (inorder23s (T Int t)) (inorder23 t))))
+(assert (forall ((t (tree23 Int)) (a Int) (ts (tree23s Int))) (= (inorder23s (TTs Int t a ts)) (append (inorder23 t) (Cons Int a (inorder23s ts))))))
 (declare-fun join_adj ((tree23s Int)) (tree23s Int))
 (assert (forall ((t1 (tree23 Int)) (a Int) (t2 (tree23 Int))) (= (join_adj (TTs Int t1 a (T Int t2))) (T Int (Node2 Int t1 a t2)))))
 (assert (forall ((t1 (tree23 Int)) (a Int) (t2 (tree23 Int)) (b Int) (t3 (tree23 Int))) (= (join_adj (TTs Int t1 a (TTs Int t2 b (T Int t3))))
@@ -572,6 +575,7 @@
 
 ; lemmas
 
+;
 ; Section 1
 
 ; T_rev(xs) <= (|xs|+1)^2
@@ -581,6 +585,7 @@
 ; itrev(xs,ys) = rev(xs) @ ys
 (assert (forall ((xs (list Int)) (ys (list Int))) (= (itrev xs ys) (append (rev xs) ys))))
 
+;
 ; Section 2
 
 ; sorted(sort(xs))
@@ -606,73 +611,137 @@
 ; |isort(xs)| = |xs|
 (assert (forall ((xs (list Int))) (= (len (isort xs)) (len xs))))
 ; ((!xs. mset(f(xs)) = mset(xs)) & (!xs.sorted(f(xs)))) -> f(xs) = isort(xs)
+
 ; mset(quicksort(xs)) = mset(xs)
+(assert (forall ((xs (list Int))) (same_mset (quicksort xs) xs)))
 ; mset(filter(P(xs))) = filter_mset(P,mset(xs))
+
 ; (!x.P(x)=(~Q(x))) -> filter_mset(P,M) + filter_mset(Q,M) = M
+
 ; sorted(quicksort(xs))
+(assert (forall ((xs (list Int))) (sorted (quicksort xs))))
 ; sorted(xs @ ys) = (sorted xs & sorted ys & (!x in set(xs). !y in set(ys). x <= y))
+(assert (forall ((xs (list Int)) (ys (list Int))) (= (sorted (append xs ys)) (and (sorted xs) (sorted ys)
+  (forall ((x Int) (y Int)) (=> (and (in_set x xs) (in_set y ys)) (<= x y)))))))
 ; set(quicksort(xs)) = set(xs)
+(assert (forall ((xs (list Int))) (same_set xs (quicksort xs))))
 ; quicksort2(xs,ys) = quicksort(xs) @ ys
+(assert (forall ((xs (list Int)) (ys (list Int))) (= (quicksort2 xs ys) (append (quicksort xs) ys))))
 ; quicksort3(xs) = quicksort(xs)
+
 ; sorted(xs) -> T_quicksort(xs) = a * |xs|^2 + b * |xs| + c
+
 ; T_quicksort(xs) <= a * |xs|^2 + b * |xs| + c
+
 ; mset(merge(xs,ys)) = mset(xs) + mset(ys)
+
 ; set(merge(xs,ys)) = set(xs) U set(ys)
+
 ; mset(msort(xs)) = mset(xs)
+(assert (forall ((xs (list Int))) (same_set xs (msort xs))))
 ; sorted(merge(xs,ys)) = (sorted(xs) & sorted(ys))
+(assert (forall ((xs (list Int)) (ys (list Int))) (= (sorted (merge xs ys)) (and (sorted xs) (sorted ys)))))
 ; sorted(msort(xs))
+(assert (forall ((xs (list Int))) (sorted (msort xs))))
 ; |merge(xs,ys)| = |xs| + |ys|
+(assert (forall ((xs (list Int)) (ys (list Int))) (= (len (merge xs ys)) (+ (len xs) (len ys)))))
 ; |msort(xs)| = |xs|
+(assert (forall ((xs (list Int))) (= (len (msort xs)) (len xs))))
 ; C_merge(xs,ys) <= |xs| + |ys|
+(assert (forall ((xs (list Int)) (ys (list Int))) (<= (C_merge xs ys) (+ (len xs) (len ys)))))
 ; |xs| = 2^k -> C_msort(xs) <= k * 2^k
+(assert (forall ((xs (list Int)) (k Int)) (=> (= (len xs) (pow 2 k)) (<= (C_msort xs) (* k (pow 2 k))))))
 ; mset(msort2(xs)) = mset(xs)
+
 ; sorted(msort2(xs))
+
 ; |merge_adj(xs)| = (|xs| + 1) div 2
+;(assert (forall ((xs (list Int))) (= (len (merge_adj xs)) (div (+ (len xs) 1) 2))))
 ; mset_mset (merge_adj(xss)) = mset_mset(xss)
+
 ; mset(merge_all(xss)) = mset_mset(xss)
+
 ; mset(msort_bu(xs)) = mset(xs)
+(assert (forall ((xs (list Int))) (same_mset xs (msort_bu xs))))
 ; Ball(set(xss),sorted) -> Ball(set(merge_adj(xss)),sorted)
+
 ; Ball(set(xss),sorted) -> sorted(merge_all(xss))
+
 ; sorted(msort_bu(xs))
+(assert (forall ((xs (list Int))) (sorted (msort_bu xs))))
 ; even(|xss|) & (!xs in set(xss).|xs| = m) -> (!xs in set(merge_adj(xss)). |xs| = 2 * m)
+
 ; (!xs in set(xss). |xs| = m) -> C_merge_adj(xss) <= m * |xss|
+
 ; (!xs in set(xss). |xs| = m) & |xss| = 2^k -> C_merge_all(xss) <= m * k * 2^k
+
 ; |xs| = 2^k -> C_msort_bu(xs) <= k * 2^k
+
 ; (!xs, ys. f (xs @ ys) = f(xs) @ ys) -> mset_mset(asc x f ys) = {{x}} + mset(f([])) + mset(ys)
+
 ; mset_mset(desc(x,xs,ys)) = {{x}} + mset(xs) + mset(ys)
+
 ; mset_mset(runs(xs)) = mset(xs)
+
 ; mset(nmsort(xs)) = mset(xs)
+;(assert (forall ((xs (list Int))) (same_mset xs (nmsort xs))))
 ; Ball(set(runs(xs)),sorted)
+
 ; sorted(nmsort(xs))
+(assert (forall ((xs (list Int))) (sorted (nmsort xs))))
 ; C_merge_adj(xss) <= |concat(xss)|
+(assert (forall ((xss (lists Int))) (<= (C_merge_adj xss) (len (concat xss)))))
 ; |concat(merge_adj(xss))| = |concat(xss)|
+(assert (forall ((xss (lists Int))) (= (len (concat (merge_adj xss))) (len (concat xss)))))
 ; C_merge_all(xss) <= |concat(xss)| * ceil(lg(|xss|))
+
 ; 2 <= n -> ceil(lg(n)) = ceil(lg((n-1) div 2 + 1)) + 1
+
 ; (!xs,ys. f(xs @ ys) = f(xs) @ ys) -> |concat(asc(a,f(ys)))| = 1 + |f([])| + |ys|
+
 ; |concat(desc(a,xs,ys))| = 1 + |xs| + |ys|
+(assert (forall ((a Int) (xs (list Int)) (ys (list Int))) (= (len (concat (desc a xs ys))) (+ 1 (len xs) (len ys)))))
 ; |concat(runs(xs))| = |xs|
+;(assert (forall ((xs (list Int))) (= (len (concat (runs xs))) (len xs))))
 ; (!xs,ys. f(xs @ ys) = f(xs) @ ys) -> |asc(a,f(ys))| <= 1 + |ys|
+
 ; |desc(a,xs,ys)| <= 1 + |ys|
+;(assert (forall ((a Int) (xs (list Int)) (ys (list Int))) (<= (len (desc a xs ys)) (+ 1 (len ys)))))
 ; |runs(xs)| <= |xs|
+;(assert (forall ((xs (list Int))) (<= (len (runs xs)) (len xs))))
 ; C_asc(a,ys) <= |ys|
+(assert (forall ((a Int) (ys (list Int))) (<= (C_asc a ys) (len ys))))
 ; C_desc(a,ys) <= |ys|
+(assert (forall ((a Int) (ys (list Int))) (<= (C_desc a ys) (len ys))))
 ; C_runs(xs) <= |xs| - 1
+(assert (forall ((xs (list Int))) (<= (C_runs xs) (- (len xs) 1))))
 ; |xs| = n -> C_nmsort(xs) <= n + n * ceil(lg(n))
+
 ; C_merge_all(runs(xs)) <= n * ceil(lg(n))
+
 ; mset(sort_key(f,xs)) = mset(xs)
+
 ; sorted(map(f,sort_key(f,xs)))
+
 ; filter((lambda y. (f y = k)), sort_key(f,xs)) = filter((lambda y. (f y = k)),xs)
+
 ; mset(isort_key(f,xs)) = mset(xs)
+
 ; sorted(map(f,isort_key(f,xs)))
+
 ; (!x in set(xs). f(a) <= f(x)) -> insort_key(f,a,xs) = a # xs
+
 ; ~P(x) -> filter(P,insort_key(f,x,xs)) = filter(P,xs)
+
 ; sorted(map(f,xs)) & P(x) -> filter(P, insort_key(f,x,xs)) = insort_key(f,x,filter(P,xs))
+
 ; filter((lamdba y. f(y) = k),isort_key(f,xs)) = filter((lambda y. f(y) = k),xs)
-; 
-; 3.
-; 
+
+;
+; Section 3
+
 ; Theorem 3.1 and 3.2 are maybe a bit too long
-; 
+
 ; mset(xs) = mset(ys) -> sort(xs) = sort(ys)
 ; mset(xs) = mset(ys) -> select(k,xs) = select(k,ys)
 ; xs != [] -> select0(xs) = select(0,xs)
@@ -691,15 +760,22 @@
 ; 
 ; k < |xs| -> mom_select(k,xs) = select(k,xs)
 ; T_mom_select(k,xs) <= T'_mom_select(|xs|)
-; 
-; 4.
-; 
+
+;
+; Section 4
+
 ; |t|_1 = |t| + 1
+(assert (forall ((t (tree Int))) (= (size1 t) (+ (size t) 1))))
 ; h(t) <= |t|
+(assert (forall ((t (tree Int))) (<= (h t) (size t))))
 ; mh(t) <= h(t)
+(assert (forall ((t (tree Int))) (<= (mh t) (h t))))
 ; 2^mh(t) <= |t|_1
+(assert (forall ((t (tree Int))) (<= (pow 2 (mh t)) (size1 t))))
 ; |t|_1 <= 2^h(t)
+(assert (forall ((t (tree Int))) (<= (size1 t) (pow 2 (h t)))))
 ; inorder2(t,xs) = inorder(t) @ xs
+(assert (forall ((t (tree Int)) (xs (list Int))) (= (inorder2 t xs) (append (inorder t) xs))))
 ; complete(t) <-> mh(t) = h(t)
 ; complete(t) -> |t|_1 = 2^h(t)
 ; ~complete(t) -> |t|_1 < 2^h(t)
