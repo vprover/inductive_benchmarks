@@ -36,6 +36,7 @@
 (define-sort rbt (a) (ptree a color))
 (define-sort tree_ht (a) (ptree a nat))
 (declare-datatype triple (par (a b c) ((Triple (Triple_0 a) (Triple_1 b) (Triple_2 c)))))
+(define-sort lheap (a) (ptree a nat))
 
 ; auxiliary functions for sets and multisets -- remove these once a higher-order setting is used
 (declare-fun in_set (par (a) (a (list a)) Bool))
@@ -54,6 +55,11 @@
 (assert (par (a) (forall ((xs (list a)) (ys (list a))) (= (same_set a xs ys) (forall ((x a)) (= (in_set a x xs) (in_set a x ys)))))))
 (declare-fun same_mset (par (a) ((list a) (list a)) Bool))
 (assert (par (a) (forall ((xs (list a)) (ys (list a))) (= (same_mset a xs ys) (forall ((x a)) (= (count a x xs) (count a x ys)))))))
+(declare-fun count_ptree (par (a b) (a (ptree a b)) nat))
+(assert (par (a b) (forall ((x a)) (= (count_ptree a b x (LeafP a b)) zero))))
+; TODO this cannot be parsed yet
+;(assert (par (a b) (forall ((x a) (l (ptree a b)) (y a) (z b) (r (ptree a b))) (= (count_ptree a b x (NodeP a b l y z r))
+;  (let ((lc (count_ptree a b x l)) (rc (count_ptree a b x r))) (ite (= x y) (s (plus lc rc)) (plus lc rc)))))))
 
 ; filter and map functions -- remove these once a higher-order setting is used
 (declare-fun less (par (a) (a a) Bool))
@@ -84,15 +90,48 @@
 (assert (= (fib zero) zero))
 (assert (= (fib (s zero)) (s zero)))
 (assert (forall ((n nat)) (= (fib (s (s n))) (plus (fib (s n)) (fib n)))))
+(declare-fun in_range (nat nat nat) Bool)
+(assert (forall ((x nat) (y nat) (z nat)) (= (in_range x y z) (and (leq nat y x) (leq nat x z)))))
+(declare-fun div2 (nat) nat)
+(assert (= (div2 zero) zero))
+(assert (= (div2 (s zero)) zero))
+(assert (forall ((n nat)) (= (div2 (s (s n))) (s (div2 n)))))
 (declare-fun append (par (a) ((list a) (list a)) (list a)))
 (assert (par (a) (forall ((ys (list a))) (= (append a (Nil a) ys) ys))))
 (assert (par (a) (forall ((x a) (xs (list a)) (ys (list a))) (= (append a (Cons a x xs) ys) (Cons a x (append a xs ys))))))
+(declare-fun len (par (a) ((list a)) nat))
+(assert (par (a) (= (len a (Nil a)) zero)))
+(assert (par (a) (forall ((x a) (xs (list a))) (= (len a (Cons a x xs)) (s (len a xs))))))
 (declare-fun rev (par (a) ((list a)) (list a)))
 (assert (par (a) (= (rev a (Nil a)) (Nil a))))
 (assert (par (a) (forall ((x a) (xs (list a))) (= (rev a (Cons a x xs)) (append a (rev a xs) (Cons a x (Nil a)))))))
 (declare-fun itrev (par (a) ((list a) (list a)) (list a)))
 (assert (par (a) (forall ((ys (list a))) (= (itrev a (Nil a) ys) ys))))
 (assert (par (a) (forall ((x a) (xs (list a)) (ys (list a))) (= (itrev a (Cons a x xs) ys) (itrev a xs (Cons a x ys))))))
+(declare-fun nth (par (a) ((list a) nat) a))
+(assert (par (a) (forall ((x a) (xs (list a)) (n nat)) (= (nth a (Cons a x xs) n) (match n
+  ((zero x)
+   ((s k) (nth a xs k))))))))
+(declare-fun upd (par (a) ((list a) nat a) (list a)))
+(assert (par (a) (forall ((n nat) (x a)) (= (upd a (Nil a) n x) (Nil a)))))
+(assert (par (a) (forall ((x a) (xs (list a)) (n nat) (y a)) (= (upd a (Cons a x xs) n y) (match n
+  ((zero (Cons a y xs))
+   ((s j) (Cons a x (upd a xs j y)))))))))
+; extensionality
+(assert (par (a) (forall ((xs (list a)) (ys (list a))) (= (= xs ys) (and (= (len a xs) (len a ys))
+  (forall ((i nat)) (=> (less nat i (len a xs)) (= (nth a xs i) (nth a ys i)))))))))
+(declare-fun butlast (par (a) ((list a)) (list a)))
+(assert (par (a) (= (butlast a (Nil a)) (Nil a))))
+(assert (par (a) (forall ((x a) (xs (list a))) (= (butlast a (Cons a x xs))
+  (ite (= xs (Nil a)) (Nil a) (Cons a x (butlast a xs)))))))
+(declare-fun hd (par (a) ((list a)) a))
+(assert (par (a) (forall ((x a) (xs (list a))) (= (hd a (Cons a x xs)) x))))
+(declare-fun tl (par (a) ((list a)) (list a)))
+(assert (par (a) (= (tl a (Nil a)) (Nil a))))
+(assert (par (a) (forall ((x a) (xs (list a))) (= (tl a (Cons a x xs)) xs))))
+(declare-fun replicate (par (a) (nat a) (list a)))
+(assert (par (a) (forall ((x a)) (= (replicate a zero x) (Nil a)))))
+(assert (par (a) (forall ((n nat) (x a)) (= (replicate a (s n) x) (Cons a x (replicate a n x))))))
 (declare-fun T_append (par (a) ((list a) (list a)) nat))
 (assert (par (a) (forall ((ys (list a))) (= (T_append a (Nil a) ys) (s zero)))))
 (assert (par (a) (forall ((x a) (xs (list a)) (ys (list a))) (= (T_append a (Cons a x xs) ys) (s (T_append a xs ys))))))
@@ -127,9 +166,6 @@
   (quicksort2 a (filter_less a x xs) (Cons a x (quicksort2 a (filter_ge a x xs) ys)))))))
 ;(declare-fun partition3 (nat (list nat)) tuple((list nat),(list nat),(list nat)))
 ;(declare-fun quicksort3 ((list nat)) (list nat))
-(declare-fun len (par (a) ((list a)) nat))
-(assert (par (a) (= (len a (Nil a)) zero)))
-(assert (par (a) (forall ((x a) (xs (list a))) (= (len a (Cons a x xs)) (s (len a xs))))))
 (declare-fun T_quicksort (par (a) ((list a)) nat))
 (assert (par (a) (= (T_quicksort a (Nil a)) (s zero))))
 (assert (par (a) (forall ((x a) (xs (list a))) (= (T_quicksort a (Cons a x xs))
@@ -148,8 +184,9 @@
 (assert (par (a) (forall ((n nat)) (= (drop a n (Nil a)) (Nil a)))))
 (assert (par (a) (forall ((n nat) (x a) (xs (list a))) (= (drop a (s n) (Cons a x xs)) (drop a n xs)))))
 (declare-fun msort (par (a) ((list a)) (list a)))
-;(assert (par (a) (forall ((xs (list a))) (= (msort a xs) (let ((n (len a xs))) (ite (leq nat n 1) xs
-;  (merge a (msort a (take a (div n 2) xs)) (msort a (drop a (div n 2) xs)))))))))
+; TODO this cannot be parsed yet
+;(assert (par (a) (forall ((xs (list a))) (= (msort a xs) (let ((n (len a xs))) (ite (leq nat n (s zero)) xs
+;  (merge a (msort a (take a (div2 n) xs)) (msort a (drop a (div2 n) xs)))))))))
 (declare-fun C_merge (par (a) ((list a) (list a)) nat))
 (assert (par (a) (forall ((ys (list a))) (= (C_merge a (Nil a) ys) zero))))
 (assert (par (a) (forall ((xs (list a))) (= (C_merge a xs (Nil a)) zero))))
@@ -787,6 +824,144 @@
 ; TODO define this
 ;(assert (par (a) (forall ((l (rbt a)) (x a) (r (rbt a))) (= (joinL a l x r) (ite (leq a (bh a r) (bh a l)) (R a l x r)
 ;  (match r (())))))))
+(declare-fun diff1 (par (a b) ((ptree a b) (ptree a b)) (ptree a b)))
+; TODO define this
+
+; Braun trees
+(declare-fun braun (par (a) ((tree a)) Bool))
+(assert (par (a) (braun a (Leaf a))))
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (braun a (Node a l x r))
+  (and (or (= (size a l) (size a r)) (= (size a l) (s (size a r)))) (braun a l) (braun a r))))))
+(declare-fun splice (par (a) ((list a) (list a)) (list a)))
+(assert (par (a) (forall ((ys (list a))) (= (splice a (Nil a) ys) ys))))
+(assert (par (a) (forall ((x a) (xs (list a)) (ys (list a))) (= (splice a (Cons a x xs) ys)
+  (Cons a x (splice a ys xs))))))
+(declare-fun list_of (par (a) ((tree a)) (list a)))
+(assert (par (a) (= (list_of a (Leaf a)) (Nil a))))
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (list_of a (Node a l x r))
+  (Cons a x (splice a (list_of a l) (list_of a r)))))))
+(declare-fun lookup1 (par (a) ((tree a) nat) a))
+; TODO this cannot be parsed yet
+;(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a)) (n nat)) (= (lookup1 a (Node a l x r) n)
+;  (ite (= n (s zero)) x (lookup1 a (ite (even n) l r) (div2 n)))))))
+(declare-fun update1 (par (a) (nat a (tree a)) (tree a)))
+(assert (par (a) (forall ((n nat) (x a)) (= (update1 a n x (Leaf a)) (Node a (Leaf a) x (Leaf a))))))
+(assert (par (a) (forall ((n nat) (x a) (l (tree a)) (y a) (r (tree a))) (= (update1 a n x (Node a l y r))
+  (ite (= n (s zero)) (Node a l x r) (ite (even n) (Node a (update1 a (div2 n) x l) y r)
+    (Node a l y (update1 a (div2 n) x r))))))))
+(declare-fun adds (par (a) ((list a) nat (tree a)) (tree a)))
+(assert (par (a) (forall ((n nat) (t (tree a))) (= (adds a (Nil a) n t) t))))
+(assert (par (a) (forall ((x a) (xs (list a)) (n nat) (t (tree a))) (= (adds a (Cons a x xs) n t)
+  (adds a xs (s n) (update1 a (s n) x t))))))
+(declare-fun del_hi (par (a) (nat (tree a)) (tree a)))
+(assert (par (a) (forall ((n nat)) (= (del_hi a n (Leaf a)) (Leaf a)))))
+(assert (par (a) (forall ((n nat) (l (tree a)) (x a) (r (tree a))) (= (del_hi a n (Node a l x r))
+  (ite (= n (s zero)) (Leaf a) (ite (even n) (Node a (del_hi a (div2 n) l) x r) (Node a l x (del_hi a (div2 n) r))))))))
+(declare-fun add_lo (par (a) (a (tree a)) (tree a)))
+(assert (par (a) (forall ((x a)) (= (add_lo a x (Leaf a)) (Node a (Leaf a) x (Leaf a))))))
+(assert (par (a) (forall ((x a) (l (tree a)) (y a) (r (tree a))) (= (add_lo a x (Node a l y r))
+  (Node a (add_lo a y r) x l)))))
+(declare-fun merge_braun (par (a) ((tree a) (tree a)) (tree a)))
+(assert (par (a) (forall ((r (tree a))) (= (merge_braun a (Leaf a) r) r))))
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a)) (rr (tree a))) (= (merge_braun a (Node a l x r) rr)
+  (Node a rr x (merge_braun a l r))))))
+(declare-fun del_lo (par (a) ((tree a)) (tree a)))
+(assert (par (a) (= (del_lo a (Leaf a)) (Leaf a))))
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (del_lo a (Node a l x r)) (merge_braun a l r)))))
+(declare-fun diff_braun (par (a) ((tree a) nat) nat))
+(assert (par (a) (forall ((n nat)) (= (diff_braun a (Leaf a) n) zero))))
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a)) (n nat)) (= (diff_braun a (Node a l x r) n)
+  (ite (= n zero) (s zero) (ite (even n) (diff_braun a r (s_0 (div2 n))) (diff_braun a l (div2 n))))))))
+(declare-fun size_fast (par (a) ((tree a)) nat))
+(assert (par (a) (= (size_fast a (Leaf a)) zero)))
+; TODO this cannot be parsed yet
+;(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (size_fast a (Node a l x r))
+;  (let ((n (size_fast a r))) (s (plus (mult (s (s zero)) n) (diff_braun a l n))))))))
+(declare-fun braun2_of (par (a) (a nat) (pair (tree a) (tree a))))
+; TODO this cannot be parsed yet
+;(assert (par (a) (forall ((x a) (n nat)) (= (braun2_of a x n)
+;  (ite (= n zero) (Pair (tree a) (tree a) (Leaf a) (Node a (Leaf a) x (Leaf a)))
+;    (let ((st (braun2_of a x (div2 (s_0 n))))) (ite (odd n)
+;      (Pair (tree a) (tree a) (Node a (Pair_0 (tree a) (tree a) st) x (Pair_0 (tree a) (tree a) st))
+;                              (Node a (Pair_1 (tree a) (tree a) st) x (Pair_0 (tree a) (tree a) st)))
+;      (Pair (tree a) (tree a) (Node a (Pair_1 (tree a) (tree a) st) x (Pair_0 (tree a) (tree a) st))
+;                              (Node a (Pair_1 (tree a) (tree a) st) x (Pair_1 (tree a) (tree a) st))))))))))
+(declare-fun braun_of (par (a) (a nat) (tree a)))
+(assert (par (a) (forall ((x a) (n nat)) (= (braun_of a x n) (Pair_0 (tree a) (tree a) (braun2_of a x n))))))
+(declare-fun take_nths (par (a) (nat nat (list a)) (list a)))
+(assert (par (a) (forall ((i nat) (k nat)) (= (take_nths a i k (Nil a)) (Nil a)))))
+(assert (par (a) (forall ((i nat) (k nat) (x a) (xs (list a))) (= (take_nths a i k (Cons a x xs))
+  (ite (= i zero) (Cons a x (take_nths a (s_0 (pow (s (s zero)) k)) k xs)) (take_nths a (s_0 i) k xs))))))
+(declare-fun braun_list (par (a) ((tree a) (list a)) Bool))
+(assert (par (a) (forall ((xs (list a))) (= (braun_list a (Leaf a) xs) (= xs (Nil a))))))
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a)) (xs (list a))) (= (braun_list a (Node a l x r) xs)
+  (and (distinct xs (Nil a)) (= x (hd a xs)) (braun_list a l (take_nths a (s zero) (s zero) xs))
+    (braun_list a r (take_nths a (s (s zero)) (s zero) xs)))))))
+
+; Priority queues
+(declare-fun heap (par (a) ((tree a)) Bool))
+(assert (par (a) (heap a (Leaf a))))
+(assert (par (a) (forall ((l (tree a)) (m a) (r (tree a))) (= (heap a (Node a l m r))
+  (and (forall ((x a)) (=> (and (in_set_tree a x l) (in_set_tree a x r)) (leq a m x))) (heap a l) (heap a r))))))
+(declare-fun heapp (par (a b) ((ptree a b)) Bool))
+(assert (par (a b) (heapp a b (LeafP a b))))
+(assert (par (a b) (forall ((l (ptree a b)) (m a) (n b) (r (ptree a b))) (= (heapp a b (NodeP a b l m n r))
+  (and (forall ((x a)) (=> (and (in_set_ptree a b x l) (in_set_ptree a b x r)) (leq a m x))) (heapp a b l) (heapp a b r))))))
+(declare-fun get_min (par (a) ((tree a)) a))
+(assert (par (a) (forall ((l (tree a)) (m a) (r (tree a))) (= (get_min a (Node a l m r)) m))))
+(declare-fun get_minp (par (a b) ((ptree a b)) a))
+(assert (par (a b) (forall ((l (ptree a b)) (m a) (n b) (r (ptree a b))) (= (get_minp a b (NodeP a b l m n r)) m))))
+(declare-fun mht (par (a) ((lheap a)) nat))
+(assert (par (a) (= (mht a (LeafP a nat)) zero)))
+(assert (par (a) (forall ((l (lheap a)) (m a) (n nat) (r (lheap a))) (= (mht a (NodeP a nat l m n r)) n))))
+(declare-fun ltree (par (a) ((lheap a)) Bool))
+(assert (par (a) (ltree a (LeafP a nat))))
+; TODO in the text mh is used instead of mht here
+(assert (par (a) (forall ((l (lheap a)) (m a) (n nat) (r (lheap a))) (= (ltree a (NodeP a nat l m n r))
+  (and (leq nat (mht a r) (mht a l)) (= n (s (mht a r))) (ltree a l) (ltree a r))))))
+(declare-fun node_lheap (par (a) ((lheap a) a (lheap a)) (lheap a)))
+; TODO this cannot be parsed yet
+;(assert (par (a) (forall ((l (lheap a)) (x a) (r (lheap a))) (= (node a l x r)
+;  (let ((mhl (mht a l)) (mhr (mht a r))) (ite (leq nat mhr mhl) (NodeP a nat l x (s mhr) r) (NodeP a nat r x (s mhl) l)))))))
+(declare-fun merge_lheap (par (a) ((lheap a) (lheap a)) (lheap a)))
+(assert (par (a) (forall ((t (lheap a))) (= (merge_lheap a (LeafP a nat) t) t))))
+(assert (par (a) (forall ((t (lheap a))) (= (merge_lheap a t (LeafP a nat)) t))))
+(assert (par (a) (forall ((l1 (lheap a)) (a1 a) (n1 nat) (r1 (lheap a)) (l2 (lheap a)) (a2 a) (n2 nat) (r2 (lheap a)))
+  (= (merge_lheap a (NodeP a nat l1 a1 n1 r1) (NodeP a nat l2 a2 n2 r2))
+    (ite (leq a a1 a2) (node_lheap a l1 a1 (merge_lheap a r1 (NodeP a nat l2 a2 n2 r2)))
+      (node_lheap a l2 a2 (merge_lheap a (NodeP a nat l1 a1 n1 r1) r2)))))))
+(declare-fun insert_lheap (par (a) (a (lheap a)) (lheap a)))
+(assert (par (a) (forall ((x a) (t (lheap a))) (= (insert_lheap a x t)
+  (merge_lheap a (NodeP a nat (LeafP a nat) x (s zero) (LeafP a nat)) t)))))
+(declare-fun del_min_lheap (par (a) ((lheap a)) (lheap a)))
+(assert (par (a) (= (del_min_lheap a (LeafP a nat)) (LeafP a nat))))
+(assert (par (a) (forall ((l (lheap a)) (x a) (n nat) (r (lheap a))) (= (del_min_lheap a (NodeP a nat l x n r))
+  (merge_lheap a l r)))))
+
+(declare-fun insert_braun (par (a) (a (tree a)) (tree a)))
+(assert (par (a) (forall ((x a)) (= (insert_braun a x (Leaf a)) (Node a (Leaf a) x (Leaf a))))))
+(assert (par (a) (forall ((x a) (l (tree a)) (y a) (r (tree a))) (= (insert_braun a x (Node a l y r))
+  (ite (less a x y) (Node a (insert_braun a y r) x l) (Node a (insert_braun a x r) y l))))))
+(declare-fun del_left (par (a) ((tree a)) (pair a (tree a))))
+(assert (par (a) (forall ((x a) (r (tree a))) (= (del_left a (Node a (Leaf a) x r)) (Pair a (tree a) x r)))))
+; TODO this cannot be parsed yet
+;(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (del_left a (Node a l x r))
+;  (let ((yl (del_left a l))) (Pair a (tree a) (Pair_0 a (tree a) yl) (Node a r x (Pair_1 a (tree a) yl))))))))
+(declare-fun sift_down (par (a) ((tree a) a (tree a)) (tree a)))
+(assert (par (a) (forall ((x a) (t (tree a))) (= (sift_down a (Leaf a) x t) (Node a (Leaf a) x (Leaf a))))))
+(assert (par (a) (forall ((x a) (t (tree a)) (y a)) (= (sift_down a (Node a (Leaf a) x t) y (Leaf a))
+  (ite (leq a y x) (Node a (Node a (Leaf a) x (Leaf a)) y (Leaf a)) (Node a (Node a (Leaf a) y (Leaf a)) x (Leaf a)))))))
+(assert (par (a) (forall ((l1 (tree a)) (x1 a) (r1 (tree a)) (y a) (l2 (tree a)) (x2 a) (r2 (tree a)))
+  (= (sift_down a (Node a l1 x1 r1) y (Node a l2 x2 r2)) (ite (and (leq a y x1) (leq a y x2))
+    (Node a (Node a l1 x1 r1) y (Node a l2 x2 r2)) (ite (leq a x1 x2)
+      (Node a (sift_down a l1 y r1) x1 (Node a l2 x2 r2)) (Node a (Node a l1 x1 r1) x2 (sift_down a l2 y r2))))))))
+(declare-fun del_min_braun (par (a) ((tree a)) (tree a)))
+(assert (par (a) (= (del_min_braun a (Leaf a)) (Leaf a))))
+(assert (par (a) (forall ((x a) (r (tree a))) (= (del_min_braun a (Node a (Leaf a) x r)) (Leaf a)))))
+; TODO this cannot be parsed yet
+;(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (del_min_braun a (Node a l x r))
+;  (let ((yl (del_left a l))) (sift_down a r (Pair_0 a (tree a) yl) (Pair_1 a (tree a) yl)))))))
+
 
 ; lemmas
 
@@ -871,7 +1046,7 @@
 ; sorted(msort2(xs))
 
 ; |merge_adj(xs)| = (|xs| + 1) div 2
-;(assert (forall ((xs (list nat))) (= (len (merge_adj xs)) (div (+ (len xs) 1) 2))))
+(assert (par (a) (forall ((xs (lists a))) (= (len (list a) (merge_adj a xs)) (div2 (s (len (list a) xs)))))))
 ; mset_mset (merge_adj(xss)) = mset_mset(xss)
 
 ; mset(merge_all(xss)) = mset_mset(xss)
@@ -1331,54 +1506,128 @@
 (assert (par (a b) (forall ((t1 (ptree a b)) (t2 (ptree a b))) (=> (and (invp a b t1) (invp a b t2)) (invp a b (diff a b t1 t2))))))
 ; invc(l) & invc(r) & invh(l) & invh(r) & bh(l) <= bh(r) ->
 ;   invc2(joinL(l,x,r)) & (bh(l) != bh(r) & color(r) = Black -> invc(joinL(l,x,r))) & invh(joinL(l,x,r)) & bh(joinL(l,x,r)) = bh(r)
-
+(assert (par (a) (forall ((l (rbt a)) (x a) (r (rbt a))) (=> (and (invc a l) (invc a r) (invh a l) (invh a r) (leq nat (bh a l) (bh a r)))
+  (and (invc2 a (joinL a l x r)) (=> (and (distinct (bh a l) (bh a r)) (= (color_of a r) Black)) (invc a (joinL a l x r)))
+    (invh a (joinL a l x r)) (= (bh a (joinL a l x r)) (bh a l)))))))
 ; bh(l) < bh(r) -> set_tree(joinL(l,x,r)) = set_tree(l) U {x} U set_tree(r)
+(assert (par (a) (forall ((l (rbt a)) (x a) (r (rbt a))) (=> (less nat (bh a l) (bh a r))
+  (forall ((y a)) (= (in_set_ptree a color y (joinL a l x r)) (or (in_set_ptree a color y l) (= x y) (in_set_ptree a color y r))))))))
 ; bst(<l,(a,n),r>) & bh(l) <= bh(r) -> bst(joinL(l,a,r))
+(assert (par (a) (forall ((l (rbt a)) (x a) (n color) (r (rbt a))) (=> (and (bst (pair a color) (NodeP a color l x n r)) (leq nat (bh a l) (bh a r)))
+  (bst (pair a color) (joinL a l x r))))))
 ; bst(t1) & bst(t2) -> set_tree(diff1(t1,t2)) = set_tree(t1) - set_tree(t2)
+(assert (par (a b) (forall ((t1 (ptree a b)) (t2 (ptree a b))) (=> (and (bst (pair a b) t1) (bst (pair a b) t2))
+  (forall ((x a)) (= (in_set_ptree a b x (diff1 a b t1 t2)) (and (in_set_ptree a b x t1) (not (in_set_ptree a b x t2)))))))))
+
 ; 
 ; Braun-trees:
+
 ; acomplete(l) & acomplete(r) & |l|=|r|+1 -> acomplete(<l,x,r>)
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (=> (and (acomplete a l) (acomplete a r) (= (size a l) (s (size a r))))
+  (acomplete a (Node a l x r))))))
 ; braun(t) -> acomplete(t)
-; list(t) = map(lookup1(t)) [1..<|t|+1]
+(assert (par (a) (forall ((t (tree a))) (=> (braun a t) (acomplete a t)))))
 ; braun(<l,x,r>) & n in {1..|<l,x,r>|} & 1 < n -> (odd(n) -> n div 2 in {1..|r|}) & (even(n) -> n div 2 in {1..|l|})
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a)) (n nat)) (=> (and (braun a (Node a l x r)) (in_range n (s zero) (size a (Node a l x r)))
+  (less nat (s zero) n)) (and
+    (=> (odd n) (in_range (div2 n) (s zero) (size a r)))
+    (=> (even n) (in_range (div2 n) (s zero) (size a l))))))))
 ; |list(t)|=|t|
+(assert (par (a) (forall ((t (tree a))) (= (len a (list_of a t)) (size a t)))))
 ; braun(t) & i < |t| -> list(t!i) = lookup1(t,(i+1))
+(assert (par (a) (forall ((t (tree a)) (i nat)) (=> (and (braun a t) (less nat i (size a t)))
+  (= (nth a (list_of a t) i) (lookup1 a t (s i)))))))
 ; n < |xs| + |ys| & |ys| <= |xs| & |xs| <= |ys| + 1 -> splice(xs,ys) ! n = (if even(n) then xs else ys) ! (n div 2)
+; TODO this cannot be parsed yet
+;(assert (par (a) (forall ((n nat) (xs (list a)) (ys (list a))) (=> (and (less nat n (plus (len a xs) (len a ys)))
+;  (leq nat (len a ys) (len a xs)) (leq nat (len a xs) (s (len a ys))))
+;  (= (nth a (splice a xs ys) n) (nth a (ite (even n) xs ys) (div2 n)))))))
 ; braun(t) -> list(t) = map(lookup1(t)) [1..<|t|+1]
-; xs = ys <-> |xs| = |ys| & (!i<|xs|. xs ! i = ys ! i)
+;(assert (par (a) (forall ((t (tree a))) (=> (braun a t) (= (list_of a t) (map (lookup1 a t ???))))))
 ; braun(t) & n in {1..|t|} -> |update1(n,x,t)| = |t|
+(assert (par (a) (forall ((n nat) (t (tree a)) (x a)) (=> (and (braun a t) (in_range n (s zero) (size a t)))
+  (= (size a (update1 a n x t)) (size a t))))))
 ; braun(t) & n in {1..|t|} -> braun(update1(n,x,t))
+(assert (par (a) (forall ((n nat) (t (tree a)) (x a)) (=> (and (braun a t) (in_range n (s zero) (size a t)))
+  (braun a (update1 a n x t))))))
 ; braun(t) & n in {1..|t|} -> lookup1(update1(n,x,t),m) = if n = m then x else lookup1(t,m)
+(assert (par (a) (forall ((n nat) (m nat) (t (tree a)) (x a)) (=> (and (braun a t) (in_range n (s zero) (size a t)))
+  (= (lookup1 a (update1 a n x t) m) (ite (= n m) x (lookup1 a t m)))))))
 ; braun(t) & n in {1..|t|} -> list(update1(n,x,t)) = (list(t))[n-1 := x]
+(assert (par (a) (forall ((n nat) (t (tree a)) (x a)) (=> (and (braun a t) (in_range (s n) (s zero) (size a t)))
+  (= (list_of a (update1 a (s n) x t)) (upd a (list_of a t) n x))))))
 ; braun(t) -> |update1(|t|+1,x,t)| = |t| + 1
+(assert (par (a) (forall ((t (tree a)) (x a)) (=> (braun a t) (= (size a (update1 a (s (size a t)) x t)) (s (size a t)))))))
 ; braun(t) -> braun(update1(|t|+1,x,t))
+(assert (par (a) (forall ((t (tree a)) (x a)) (=> (braun a t) (braun a (update1 a (s (size a t)) x t))))))
 ; braun(t) -> list(update1(|t|+1,x,t)) = list(t) @ [x]
+(assert (par (a) (forall ((t (tree a)) (x a)) (=> (braun a t) (= (list_of a (update1 a (s (size a t)) x t))
+  (append a (list_of a t) (Cons a x (Nil a))))))))
 ; braun(t) -> |adds(xs,|t|,t)| = |t| + |xs| & braun(adds(xs,|t|,t))
-; braun(t) -> list(adds(xs,|t|,t)) = list(t @ xs)
+(assert (par (a) (forall ((t (tree a)) (xs (list a))) (=> (braun a t)
+  (and (= (size a (adds a xs (size a t) t)) (plus (size a t) (len a xs))) (braun a (adds a xs (size a t) t)))))))
+; braun(t) -> list(adds(xs,|t|,t)) = list(t) @ xs
+(assert (par (a) (forall ((xs (list a)) (t (tree a))) (=> (braun a t)
+  (= (list_of a (adds a xs (size a t) t)) (append a (list_of a t) xs))))))
 ; |ys| <= |xs| -> splice(xs @ [x],ys) = splice(xs,ys @ [x])
+(assert (par (a) (forall ((x a) (xs (list a)) (ys (list a))) (=> (leq nat (len a ys) (len a xs))
+  (= (splice a (append a xs (Cons a x (Nil a))) ys) (splice a xs (append a ys (Cons a x (Nil a)))))))))
 ; |xs| <= |ys| + 1 -> splice(xs,ys @ [y]) = splice(xs,ys) @ [y]
+(assert (par (a) (forall ((y a) (xs (list a)) (ys (list a))) (=> (leq nat (len a xs) (s (len a ys)))
+  (= (splice a xs (append a ys (Cons a y (Nil a)))) (append a (splice a xs ys) (Cons a y (Nil a))))))))
 ; braun(t) -> braun(del_hi(|t|,t))
+(assert (par (a) (forall ((t (tree a))) (=> (braun a t) (braun a (del_hi a (size a t) t))))))
 ; braun(t) -> list(del_hi(|t|,t)) = butlast(list(t))
+(assert (par (a) (forall ((t (tree a))) (=> (braun a t) (= (list_of a (del_hi a (size a t) t)) (butlast a (list_of a t)))))))
 ; braun(t) -> braun(add_lo(x,t))
+(assert (par (a) (forall ((x a) (t (tree a))) (=> (braun a t) (braun a (add_lo a x t))))))
 ; braun(t) -> list(add_lo(a,t)) = a # list(t)
+(assert (par (a) (forall ((x a) (t (tree a))) (=> (braun a t) (= (list_of a (add_lo a x t)) (Cons a x (list_of a t)))))))
 ; braun(<l,x,r>) -> braun(merge(l,r))
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (=> (braun a (Node a l x r)) (braun a (merge_braun a l r))))))
 ; braun(<l,x,r>) -> list(merge(l,r)) = splice(list(l),list(r))
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (=> (braun a (Node a l x r))
+  (= (list_of a (merge_braun a l r)) (splice a (list_of a l) (list_of a r)))))))
 ; braun(t) -> braun(del_lo(t))
+(assert (par (a) (forall ((t (tree a))) (=> (braun a t) (braun a (del_lo a t))))))
 ; braun(t) -> list(del_lo(t)) = tl(list(t))
+(assert (par (a) (forall ((t (tree a))) (=> (braun a t) (= (list_of a (del_lo a t)) (tl a (list_of a t)))))))
 ; braun(t) -> size_fast(t) = |t|
+(assert (par (a) (forall ((t (tree a))) (=> (braun a t) (= (size_fast a t) (size a t))))))
 ; braun(t) & |t| in {n,n+1} -> diff(t,n) = |t| - n
+
 ; list(braun_of(x,n)) = replicate(n,x)
+(assert (par (a) (forall ((x a) (n nat)) (= (list_of a (braun_of a x n)) (replicate a n x)))))
 ; braun(braun_of(x,n))
+(assert (par (a) (forall ((x a) (n nat)) (braun a (braun_of a x n)))))
 ; braun2_of(x,n) = (s,t) -> list(s) = replicate(n,x) & list(t) = replicate(n + 1, x)
+(assert (par (a) (forall ((x a) (n nat) (t (tree a)) (t' (tree a))) (=> (= (braun2_of a x n) (Pair (tree a) (tree a) t t'))
+  (and (= (list_of a t) (replicate a n x)) (= (list_of a t') (replicate a (s n) x)))))))
 ; braun2_of(x,n) = (s,t) -> |s| = n & |t| = n + 1 & braun(s) & braun(t)
+(assert (par (a) (forall ((x a) (n nat) (t (tree a)) (t' (tree a))) (=> (= (braun2_of a x n) (Pair (tree a) (tree a) t t'))
+  (and (= (size a t) n) (= (size a t') (s n)) (braun a t) (braun a t'))))))
 ; take_nths(i,k,drop(j,xs)) = take_nths(i + j,k,xs)
+(assert (par (a) (forall ((i nat) (k nat) (j nat) (xs (list a))) (= (take_nths a i k (drop a j xs)) (take_nths a (plus i j) k xs)))))
 ; take_nths(0,0,xs) = xs
+(assert (par (a) (forall ((xs (list a))) (= (take_nths a zero zero xs) xs))))
 ; splice(take_nths(0,1,xs),take_nths(1,1,xs)) = xs
+(assert (par (a) (forall ((xs (list a))) (= (splice a (take_nths a zero (s zero) xs)
+  (take_nths a (s zero) (s zero) xs)) xs))))
 ; take_nths(i,m,take_nths(j,n,xs)) = take_nths(i * 2^n + j, m + n, xs)
+(assert (par (a) (forall ((i nat) (m nat) (j nat) (n nat) (xs (list a)))
+  (= (take_nths a i m (take_nths a j n xs)) (take_nths a (plus (mult i (pow (s (s zero)) n)) j) (plus m n) xs)))))
 ; take_nths(i,k,xs) = [] <-> |xs| <= i
+(assert (par (a) (forall ((i nat) (k nat) (xs (list a))) (= (= (take_nths a i k  xs) (Nil a)) (leq nat (len a xs) i)))))
 ; i < |xs| -> hd(take_nths(i,k,xs)) = xs ! i
+(assert (par (a) (forall ((i nat) (k nat) (xs (list a))) (=> (less nat i (len a xs))
+  (= (hd a (take_nths a i k xs)) (nth a xs i))))))
 ; |xs| = |ys| | |xs| = |ys| + 1 -> take_nths(0,1,splice(xs,ys)) = xs & take_nths(1,1,splice(xs,ys)) = ys
+(assert (par (a) (forall ((xs (list a)) (ys (list a))) (=> (or (= (len a xs) (len a ys)) (= (len a xs) (s (len a ys))))
+  (and (= (take_nths a zero (s zero) (splice a xs ys)) xs)
+       (= (take_nths a (s zero) (s zero) (splice a xs ys)) ys))))))
 ; |take_nths(0,1,xs)| = |take_nths(1,1,xs)| | |take_nths(0,1,xs)| = |take_nths(1,1,xs)| + 1
+(assert (par (a) (forall ((xs (list a))) (or (= (len a (take_nths a zero (s zero) xs)) (len a (take_nths a (s zero) (s zero) xs)))
+  (= (len a (take_nths a zero (s zero) xs)) (s (len a (take_nths a (s zero) (s zero) xs))))))))
 ; braun_list(t,xs) <-> braun(t) & xs = list(t)
 ; |nodes(ls,xs,rs)| = |xs|
 ; i < |xs| -> nodes(ls,xs,rs) ! i = <if i < |ls| then ls ! i else <>, xs ! i, if i < |rs| then rs ! i else <>>
@@ -1408,3 +1657,102 @@
 ; consistent(t) & a in alphabet(t) & b in alphabet(t) & freq(t,a) <= freq(t,b) & depth(t,a) < depth(t,b) -> cost(swapSyms(t,a,b)) <= cost(t)
 ; consistent(t) & sibling(t,a) != a -> cost(mergeSibling(t,a)) + freq(t,a) + freq(t,sibling(t,a)) = cost(t)
 ; consistent(t) & a in alphabet(t) & freq(t,a) = wa + wb -> cost(splitLeaf(t,wa,a,wb,b)) = cost(t) + wa + wb
+
+; Priority queues
+
+; Leftist heaps
+; heap t & t != <> -> get_min t = Min (set_tree t)
+
+; mset_tree (merge t1 t2) = mset_tree t1 + mset_tree t2
+(assert (par (a) (forall ((t1 (lheap a)) (t2 (lheap a)) (x a)) (= (count_ptree a nat x (merge_lheap a t1 t2))
+  (plus (count_ptree a nat x t1) (count_ptree a nat x t2))))))
+; ltree l & ltree r -> ltree (merge l r)
+; TODO if we write lheap instead of ltree Vampire crashes. Fix it with a user error message.
+(assert (par (a) (forall ((l (lheap a)) (r (lheap a))) (=> (and (ltree a l) (ltree a r)) (ltree a (merge_lheap a l r))))))
+; heap l & heap r -> heap (merge l r)
+(assert (par (a) (forall ((l (lheap a)) (r (lheap a))) (=> (and (heapp a nat l) (heapp a nat r)) (heapp a nat (merge_lheap a l r))))))
+; mset_tree (insert x t) = mset_tree t + {{x}}
+
+; mset_tree (del_min t) = mset_tree t - {{ get_min t}}
+
+; ltree t -> ltree (insert x t)
+(assert (par (a) (forall ((x a) (t (lheap a))) (=> (ltree a t) (ltree a (insert_lheap a x t))))))
+; heap t -> heap (insert x t)
+(assert (par (a) (forall ((x a) (t (lheap a))) (=> (heapp a nat t) (heapp a nat (insert_lheap a x t))))))
+; ltree t -> ltree (del_min t)
+(assert (par (a) (forall ((t (lheap a))) (=> (ltree a t) (ltree a (del_min_lheap a t))))))
+; heap t -> heap (del_min t)
+(assert (par (a) (forall ((t (lheap a))) (=> (heapp a nat t) (heapp a nat (del_min_lheap a t))))))
+; ltree l & ltree r -> T_merge l r <= mh l + mh r + 1
+
+; ltree l & ltree r -> T_merge l r <= lg |l|_1 + lg |r|_1 + 1
+
+; ltree t -> T_insert x t <= lg |t|_1 + 3
+
+; ltree t -> T_del_min t <= 2 * lg |t|_1 + 1
+
+; Braun tree priority queues
+; |insert x t| = |t| + 1
+(assert (par (a) (forall ((x a) (t (tree a))) (= (size a (insert_braun a x t)) (s (size a t))))))
+; mset_tree (insert x t) = {{x}} + mset_tree t
+
+; braun t -> braun (insert x t)
+(assert (par (a) (forall ((x a) (t (tree a))) (=> (braun a t) (braun a (insert_braun a x t))))))
+; heap t -> heap (insert x t)
+(assert (par (a) (forall ((x a) (t (tree a))) (=> (heap a t) (heap a (insert_braun a x t))))))
+; del_left t = (x,t') & t != <> -> mset_tree t = {{x}} + mset_tree t'
+
+; del_left t = (x,t') & t != <> & heap t -> heap t'
+(assert (par (a) (forall ((x a) (t (tree a)) (t' (tree a))) (=> (and (= (del_left a t) (Pair a (tree a) x t'))
+  (distinct t (Leaf a)) (heap a t)) (heap a t')))))
+; del_left t = (x,t') & t != <> -> |t| = |t'| + 1
+(assert (par (a) (forall ((x a) (t (tree a)) (t' (tree a))) (=> (and (= (del_left a t) (Pair a (tree a) x t'))
+  (distinct t (Leaf a))) (= (size a t) (s (size a t')))))))
+; del_left t = (x,t') & t != <> & braun t -> braun t'
+(assert (par (a) (forall ((x a) (t (tree a)) (t' (tree a))) (=> (and (= (del_left a t) (Pair a (tree a) x t'))
+  (distinct t (Leaf a)) (braun a t)) (braun a t')))))
+; braun <l,a,r> -> |sift_down l a r| = |l| + |r| + 1
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (=> (braun a (Node a l x r))
+  (= (size a (sift_down a l x r)) (s (plus (size a l) (size a r))))))))
+; braun <l,a,r> -> braun (sift_down l a r)
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (=> (braun a (Node a l x r))
+  (braun a (sift_down a l x r))))))
+; braun <l,a,r> -> mset_tree (sift_down l a r) = {{a}} + (mset_tree l + mset_tree r)
+
+; braun <l,a,r> & heap l & heap r -> heap (sift_down l a r)
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (=> (and (braun a (Node a l x r))
+  (heap a l) (heap a r)) (heap a (sift_down a l x r))))))
+; braun t -> braun (del_min t)
+(assert (par (a) (forall ((t (tree a))) (=> (braun a t) (braun a (del_min_braun a t))))))
+; heap t & braun t -> heap (del_min t)
+(assert (par (a) (forall ((t (tree a))) (=> (and (heap a t) (braun a t)) (heap a (del_min_braun a t))))))
+; braun t -> |del_min t| = |t| - 1
+(assert (par (a) (forall ((t (tree a))) (=> (braun a t) (= (s (size a (del_min_braun a t))) (size a t))))))
+; braun t & t != <> -> mset_tree (del_min t) = mset_tree t - {{ get_min t }} 
+
+; Binomial heaps
+; invar_btree t -> |mset_tree t| = 2^(rank t)
+; invar ts -> |ts| <= lg (|mset_heap ts| + 1)
+; invar_tree t1 & invar_tree t2 & rank t1 = rank t2 -> invar_tree (link t1 t2)
+; mset_tree (link t1 t2) = mset_tree t1 + mset_tree t2
+; invar_tree t & invar ts & (!t' in set ts. rank t <= rank t') -> invar (ins_tree t ts)
+; mset_heap (ins_tree t ts) = mset_tree t + mset_heap ts
+; invar t -> invar (insert x t)
+; mset_heap (insert x t) = {{x}} + mset_heap t
+; invar ts1 & invar ts2 -> invar (merge ts1 ts2)
+; mset_heap (merge ts1 ts2) = mset_heap ts1 + mset_heap ts2
+; t' in set (merge ts1 ts2) & (!t1 in set ts1. rank t < rank t1) & (!t2 in set ts2. rank t < rank t2) ->
+;   rank t < rank t'
+; mset_heap ts != {{}} & invar ts -> get_min ts = Min_mset (mset_heap ts)
+; ts != [] & invar ts -> invar (del_min ts)
+; ts != [] -> mset_heap ts = mset_heap (del_min ts) + {{get_min ts}}
+; get_min_rest ts = (t',ts') & ts != [] & invar ts -> invar_tree t'
+; get_min_rest ts = (t',ts') & ts != [] & invar ts -> invar ts'
+; ts != [] & get_min_rest ts = (t',ts') -> root t' = get_min ts
+; T_ins_tree t ts <= |ts| + 1
+; invar ts -> T_insert x ts <= lg (|mset_heap ts| + 1) + 2
+; T_ins_tree t ts + |ins_tree t ts| = 2 + |ts|
+; |merge ts1 ts2| + T_merge ts1 ts2 <= 2 * (|ts1| + |ts2|) + 1
+; invar ts1 & invar ts2 -> T_merge ts1 ts2 <= 4 * lg (|mset_heap ts1| + |mset_heap ts2| + 1) + 1
+; invar ts & ts != [] -> T_del_min ts <= 6 * lg(|mset_heap ts| + 1) + 3
+; invar_btree t -> nol l t = rank t choose l
