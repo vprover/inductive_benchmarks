@@ -71,10 +71,6 @@
 (assert (forall ((x nat) (y nat)) (= (less nat (s x) (s y)) (less nat x y))))
 (declare-fun leq (par (a) (a a) Bool))
 (assert (par (a) (forall ((x a) (y a)) (= (leq a x y) (or (= x y) (less a x y))))))
-; TODO remove this once int is used everywhere
-;(assert (forall ((x nat)) (leq nat zero x)))
-;(assert (forall ((x nat)) (not (leq nat (s x) zero))))
-;(assert (forall ((x nat) (y nat)) (= (leq nat (s x) (s y)) (leq nat x y))))
 (declare-fun filter_less (par (a) (a (list a)) (list a)))
 (assert (par (a) (forall ((x a)) (= (filter_less a x (Nil a)) (Nil a)))))
 (assert (par (a) (forall ((x a) (y a) (ys (list a))) (= (filter_less a x (Cons a y ys)) (ite (less a y x) (Cons a y (filter_less a x ys)) (filter_less a x ys))))))
@@ -147,6 +143,11 @@
 (declare-fun sorted (par (a) ((list a)) Bool))
 (assert (par (a) (sorted a (Nil a))))
 (assert (par (a) (forall ((x a) (xs (list a))) (= (sorted a (Cons a x xs)) (and (forall ((y a)) (=> (in_set a y xs) (leq a x y))) (sorted a xs))))))
+; this (strict) variant is used for trees where each element can be present in a tree only once
+(declare-fun sorted_s (par (a) ((list a)) Bool))
+(assert (par (a) (sorted_s a (Nil a))))
+(assert (par (a) (forall ((x a)) (sorted_s a (Cons a x (Nil a))))))
+(assert (par (a) (forall ((x a) (y a) (zs (list a))) (= (sorted_s a (Cons a x (Cons a y zs))) (and (less a x y) (sorted_s a (Cons a y zs)))))))
 (declare-fun Ball_sorted (par (a) ((lists a)) Bool))
 (assert (par (a) (Ball_sorted a (Nil (list a)))))
 (assert (par (a) (forall ((xs (list a)) (xss (lists a))) (= (Ball_sorted a (Cons (list a) xs xss)) (and (sorted a xs) (Ball_sorted a xss))))))
@@ -219,8 +220,8 @@
 (declare-fun merge_all (par (a) ((lists a)) (list a)))
 (assert (par (a) (= (merge_all a (Nil (list a))) (Nil a))))
 (assert (par (a) (forall ((xs (list a))) (= (merge_all a (Cons (list a) xs (Nil (list a)))) xs))))
-; TODO not well-defined
-;(assert (par (a) (forall ((xss (lists a))) (= (merge_all a xss) (merge_all a (merge_adj a xss))))))
+(assert (par (a) (forall ((xs (list a)) (xss (lists a))) (=> (distinct xss (Cons (list a) xs (Nil (list a))))
+  (= (merge_all a xss) (merge_all a (merge_adj a xss)))))))
 (declare-fun msort_bu (par (a) ((list a)) (list a)))
 (assert (par (a) (forall ((xs (list a))) (= (msort_bu a xs) (merge_all a (map_list_lists a xs))))))
 (declare-fun C_merge_adj (par (a) ((lists a)) nat))
@@ -231,8 +232,8 @@
 (declare-fun C_merge_all (par (a) ((lists a)) nat))
 (assert (par (a) (= (C_merge_all a (Nil (list a))) zero)))
 (assert (par (a) (forall ((xs (list a))) (= (C_merge_all a (Cons (list a) xs (Nil (list a)))) zero))))
-; TODO not well-defined
-;(assert (par (a) (forall ((xss (lists a))) (= (C_merge_all a xss) (+ (C_merge_adj a xss) (C_merge_all a (merge_adj a xss)))))))
+(assert (par (a) (forall ((xs (list a)) (xss (lists a))) (=> (and (distinct xss (Cons (list a) xs (Nil (list a)))) (distinct xss (Nil (list a))))
+  (= (C_merge_all a xss) (plus (C_merge_adj a xss) (C_merge_all a (merge_adj a xss))))))))
 (declare-fun C_msort_bu (par (a) ((list a)) nat))
 (assert (par (a) (forall ((xs (list a))) (= (C_msort_bu a xs) (C_merge_all a (map_list_lists a xs))))))
 (declare-fun even (nat) Bool)
@@ -317,6 +318,9 @@
 (declare-fun mh (par (a) ((tree a)) nat))
 (assert (par (a) (= (mh a (Leaf a)) zero)))
 (assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (mh a (Node a l x r)) (s (min (mh a l) (mh a r)))))))
+(declare-fun lh (par (a) ((tree a)) nat))
+(assert (par (a) (= (lh a (Leaf a)) zero)))
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (lh a (Node a l x r)) (s (lh a l))))))
 (declare-fun complete (par (a) ((tree a)) Bool))
 (assert (par (a) (complete a (Leaf a))))
 (assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (complete a (Node a l x r)) (and (= (h a l) (h a r)) (complete a l) (complete a r))))))
@@ -545,30 +549,31 @@
 (assert (par (a) (forall ((t1 (tree23 a)) (x a) (t2 (tree23 a)) (y a) (t3 (tree23 a)) (z a) (t4 (tree23 a)) (u a) (t5 (tree23 a)))
   (= (node33 a t1 x (Node3 a t2 y t3 z t4) u (UF a t5)) (TD a (Node3 a t1 x (Node2 a t2 y t3) z (Node2 a t4 u t5)))))))
 (declare-fun split_min23 (par (a) ((tree23 a)) (pair a (upD a))))
-; TODO not well-defined
-;(assert (par (a) (forall ((x a)) (= (split_min23 a (Node2 a (Leaf23 a) x (Leaf23 a))) (Pair a (upD a) x (UF a (Leaf23 a)))))))
-;(assert (par (a) (forall ((x a) (y a)) (= (split_min23 a (Node3 a (Leaf23 a) x (Leaf23 a) y (Leaf23 a)))
-;  (Pair a (upD a) x (TD a (Node2 a (Leaf23 a) y (Leaf23 a))))))))
-;(assert (par (a) (forall ((l (tree23 a)) (x a) (r (tree23 a))) (= (split_min23 a (Node2 a l x r))
-;  (let ((xl (split_min23 a l))) (Pair a (upD a) (Pair_0 a (upD a) (xl a)) (node21 a (Pair_1 a (upD a) (xl a)) x r)))))))
-;(assert (par (a) (forall ((l (tree23 a)) (x a) (m (tree23 a)) (y a) (r (tree23 a))) (= (split_min23 a (Node3 a l x m y r))
-;  (let ((xl (split_min23 a l))) (Pair a (upD a) (Pair_0 a (upD a) (xl a)) (node31 a (Pair_1 a (upD a) (xl a)) x m y r)))))))
+(assert (par (a) (forall ((x a)) (= (split_min23 a (Node2 a (Leaf23 a) x (Leaf23 a))) (Pair a (upD a) x (UF a (Leaf23 a)))))))
+(assert (par (a) (forall ((x a) (y a)) (= (split_min23 a (Node3 a (Leaf23 a) x (Leaf23 a) y (Leaf23 a)))
+  (Pair a (upD a) x (TD a (Node2 a (Leaf23 a) y (Leaf23 a))))))))
+(assert (par (a) (forall ((l (tree23 a)) (x a) (r (tree23 a))) (=> (and (distinct l (Leaf23 a)) (distinct r (Leaf23 a)))
+  (= (split_min23 a (Node2 a l x r))
+    (let ((xl (split_min23 a l))) (Pair a (upD a) (Pair_0 a (upD a) (xl a)) (node21 a (Pair_1 a (upD a) (xl a)) x r))))))))
+(assert (par (a) (forall ((l (tree23 a)) (x a) (m (tree23 a)) (y a) (r (tree23 a))) (=> (and (distinct l (Leaf23 a)) (distinct m (Leaf23 a)) (distinct r (Leaf23 a)))
+  (= (split_min23 a (Node3 a l x m y r))
+    (let ((xl (split_min23 a l))) (Pair a (upD a) (Pair_0 a (upD a) (xl a)) (node31 a (Pair_1 a (upD a) (xl a)) x m y r))))))))
 (declare-fun del (par (a) (a (tree23 a)) (upD a)))
-; TODO not well-defined
-;(assert (par (a) (forall ((x a)) (= (del a x (Leaf23 a)) (TD a (Leaf23 a))))))
-;(assert (par (a) (forall ((x a) (y a)) (= (del a x (Node2 a (Leaf23 a) y (Leaf23 a))) (ite (= x y) (UF a (Leaf23 a)) (TD a (Node2 a (Leaf23 a) y (Leaf23 a))))))))
-;(assert (par (a) (forall ((x a) (y a) (z a)) (= (del a x (Node3 a (Leaf23 a) y (Leaf23 a) z (Leaf23 a)))
-;  (TD a (ite (= x y) (Node2 a (Leaf23 a) z (Leaf23 a)) (ite (= x z) (Node2 a (Leaf23 a) y (Leaf23 a)) (Node3 a (Leaf23 a) y (Leaf23 a) z (Leaf23 a)))))))))
-;(assert (par (a) (forall ((x a) (l (tree23 a)) (y a) (r (tree23 a))) (= (del a x (Node2 a l y r))
-;  (match (cmp a x y) ((LT (node21 a (del a x l) y r))
-;                      (EQ (let ((ar (split_min23 a r))) (node22 a l (Pair_0 a (upD a) (ar a)) (Pair_1 a (upD a) (ar a)))))
-;                      (GT (node22 a l y (del a x r)))))))))
-;(assert (par (a) (forall ((x a) (l (tree23 a)) (y a) (m (tree23 a)) (z a) (r (tree23 a))) (= (del a x (Node3 a l y m z r))
-;  (match (cmp a x y) ((LT (node31 a (del a x l) y m z r))
-;                      (EQ (let ((am (split_min23 a m))) (node32 a l (Pair_0 a (upD a) (am a)) (Pair_1 a (upD a) (am a)) z r)))
-;                      (GT (match (cmp a x z) ((LT (node32 a l y (del a x m) z r))
-;                                              (EQ (let ((br (split_min23 a r))) (node33 a l y m (Pair_0 a (upD a) (br a)) (Pair_1 a (upD a) (br a)))))
-;                                              (GT (node33 a l y m z (del a x r))))))))))))
+(assert (par (a) (forall ((x a)) (= (del a x (Leaf23 a)) (TD a (Leaf23 a))))))
+(assert (par (a) (forall ((x a) (y a)) (= (del a x (Node2 a (Leaf23 a) y (Leaf23 a))) (ite (= x y) (UF a (Leaf23 a)) (TD a (Node2 a (Leaf23 a) y (Leaf23 a))))))))
+(assert (par (a) (forall ((x a) (y a) (z a)) (= (del a x (Node3 a (Leaf23 a) y (Leaf23 a) z (Leaf23 a)))
+  (TD a (ite (= x y) (Node2 a (Leaf23 a) z (Leaf23 a)) (ite (= x z) (Node2 a (Leaf23 a) y (Leaf23 a)) (Node3 a (Leaf23 a) y (Leaf23 a) z (Leaf23 a)))))))))
+(assert (par (a) (forall ((x a) (l (tree23 a)) (y a) (r (tree23 a))) (=> (and (distinct l (Leaf23 a)) (distinct r (Leaf23 a))) (= (del a x (Node2 a l y r))
+  (match (cmp a x y) ((LT (node21 a (del a x l) y r))
+                      (EQ (let ((ar (split_min23 a r))) (node22 a l (Pair_0 a (upD a) (ar a)) (Pair_1 a (upD a) (ar a)))))
+                      (GT (node22 a l y (del a x r))))))))))
+(assert (par (a) (forall ((x a) (l (tree23 a)) (y a) (m (tree23 a)) (z a) (r (tree23 a))) (=> (and (distinct l (Leaf23 a)) (distinct m (Leaf23 a)) (distinct r (Leaf23 a)))
+  (= (del a x (Node3 a l y m z r))
+    (match (cmp a x y) ((LT (node31 a (del a x l) y m z r))
+                        (EQ (let ((am (split_min23 a m))) (node32 a l (Pair_0 a (upD a) (am a)) (Pair_1 a (upD a) (am a)) z r)))
+                        (GT (match (cmp a x z) ((LT (node32 a l y (del a x m) z r))
+                                                (EQ (let ((br (split_min23 a r))) (node33 a l y m (Pair_0 a (upD a) (br a)) (Pair_1 a (upD a) (br a)))))
+                                                (GT (node33 a l y m z (del a x r)))))))))))))
 (declare-fun delete23 (par (a) (a (tree23 a)) (tree23 a)))
 (assert (par (a) (forall ((x a) (t (tree23 a))) (= (delete23 a x t) (treeD a (del a x t))))))
 
@@ -642,6 +647,7 @@
 (assert (par (a) (forall ((l (rbt a)) (t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)) (z a) (t4 (rbt a)))
   (= (baliL a l z t4) (ite (or (= l (R a (R a t1 x t2) y t3)) (= l (R a t1 x (R a t2 y t3))))
     (R a (B a t1 x t2) y (B a t3 z t4)) (B a l z t4))))))
+; original definition
 ;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)) (z a) (t4 (rbt a)))
 ;  (= (baliL a (R a (R a t1 x t2) y t3) z t4) (R a (B a t1 x t2) y (B a t3 z t4))))))
 ;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)) (z a) (t4 (rbt a)))
@@ -651,6 +657,7 @@
 (assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)) (z a) (t4 (rbt a)) (r (rbt a)))
   (= (baliR a t1 x r) (ite (or (= r (R a t2 y (R a t3 z t4))) (= r (R a (R a t2 y t3) z t4)))
     (R a (B a t1 x t2) y (B a t3 z t4)) (B a t1 x r))))))
+; original definition
 ;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)) (z a) (t4 (rbt a)))
 ;  (= (baliR a t1 x (R a t2 y (R a t3 z t4))) (R a (B a t1 x t2) y (B a t3 z t4))))))
 ;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)) (z a) (t4 (rbt a)))
@@ -676,6 +683,7 @@
   (= (baldL a l x r) (ite (= l (R a l1 xl l2)) (R a (B a l1 xl l2) x r)
     (ite (= r (B a r1 xr1 r2)) (baliR a l x (R a r1 xr1 r2)) (ite (= r (R a (B a r3 xr2 r4) xr3 r5))
       (R a (B a l x r3) xr2 (baliR a r4 xr3 (paint a Red r5))) (R a l x r))))))))
+; original definition
 ;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)))
 ;  (= (baldL a (R a t1 x t2) y t3) (R a (B a t1 x t2) y t3)))))
 ;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)))
@@ -688,6 +696,7 @@
   (= (baldR a l x r) (ite (= r (R a r1 xr r2)) (R a l x (B a r1 xr r2))
     (ite (= l (B a l1 xl1 l2)) (baliL a (R a l1 xl1 l2) x r) (ite (= l (R a l3 xl2 (B a l4 xl3 l5)))
       (R a (baliL a (paint a Red l3) xl2 l4) xl3 (B a l5 x r)) (R a l x r))))))))
+; original definition
 ;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)))
 ;  (= (baldR a t1 x (R a t2 y t3)) (R a t1 x (B a t2 y t3))))))
 ;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)))
@@ -854,13 +863,12 @@
   l (let ((mr (split_minp a b r))) (joinp a b l (Pair_0 a (ptree a b) (mr a b)) (Pair_1 a (ptree a b) (mr a b)))))))))
 (declare-fun splitp (par (a b) ((ptree a b) a) (triple (ptree a b) Bool (ptree a b))))
 (assert (par (a b) (forall ((x a)) (= (splitp a b (LeafP a b) x) (Triple (ptree a b) Bool (ptree a b) (LeafP a b) false (LeafP a b))))))
-; TODO this cannot be parsed yet
-;(assert (par (a b) (forall ((l (ptree a b)) (y a) (z b) (r (ptree a b)) (x a)) (= (splitp a b (NodeP a b l y z r) x)
-;  (match (cmp a x y) ((LT (let ((t (splitp a b l x))) (Triple (ptree a b) Bool (ptree a b) (Triple_0 (ptree a b) Bool (ptree a b) (t a b)) (Triple_1 (ptree a b) Bool (ptree a b) (t a b))
-;                        (joinp a b (Triple_2 (ptree a b) Bool (ptree a b) (t a b)) y r))))
-;                      (EQ (Triple (ptree a b) Bool (ptree a b) l true r))
-;                      (GT (let ((t (splitp a b r x))) (Triple (ptree a b) Bool (ptree a b) (joinp a b l y (Triple_0 (ptree a b) Bool (ptree a b) (t a b)))
-;                        (Triple_1 (ptree a b) Bool (ptree a b) (t a b)) (Triple_2 (ptree a b) Bool (ptree a b) (t a b)))))))))))
+(assert (par (a b) (forall ((l (ptree a b)) (y a) (z b) (r (ptree a b)) (x a)) (= (splitp a b (NodeP a b l y z r) x)
+  (match (cmp a x y) ((LT (let ((t (splitp a b l x))) (Triple (ptree a b) Bool (ptree a b) (Triple_0 (ptree a b) Bool (ptree a b) (t a b)) (Triple_1 (ptree a b) Bool (ptree a b) (t a b))
+                        (joinp a b (Triple_2 (ptree a b) Bool (ptree a b) (t a b)) y r))))
+                      (EQ (Triple (ptree a b) Bool (ptree a b) l true r))
+                      (GT (let ((t (splitp a b r x))) (Triple (ptree a b) Bool (ptree a b) (joinp a b l y (Triple_0 (ptree a b) Bool (ptree a b) (t a b)))
+                        (Triple_1 (ptree a b) Bool (ptree a b) (t a b)) (Triple_2 (ptree a b) Bool (ptree a b) (t a b)))))))))))
 (declare-fun union (par (a b) ((ptree a b) (ptree a b)) (ptree a b)))
 (assert (par (a b) (forall ((t (ptree a b))) (= (union a b (LeafP a b) t) t))))
 (assert (par (a b) (forall ((t (ptree a b))) (= (union a b t (LeafP a b)) t))))
@@ -899,9 +907,8 @@
 (assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (list_of a (Node a l x r))
   (Cons a x (splice a (list_of a l) (list_of a r)))))))
 (declare-fun lookup1 (par (a) ((tree a) nat) a))
-; TODO this cannot be parsed yet
-;(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a)) (n nat)) (= (lookup1 a (Node a l x r) n)
-;  (ite (= n (s zero)) x (lookup1 a (ite (even n) l r) (div2 n)))))))
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a)) (n nat)) (= (lookup1 a (Node a l x r) n)
+  (ite (= n (s zero)) x (lookup1 a (ite (even n) l r) (div2 n)))))))
 (declare-fun update1 (par (a) (nat a (tree a)) (tree a)))
 (assert (par (a) (forall ((n nat) (x a)) (= (update1 a n x (Leaf a)) (Node a (Leaf a) x (Leaf a))))))
 (assert (par (a) (forall ((n nat) (x a) (l (tree a)) (y a) (r (tree a))) (= (update1 a n x (Node a l y r))
@@ -970,6 +977,18 @@
 (declare-fun brauns1 (par (a) ((list a)) (tree a)))
 (assert (par (a) (forall ((xs (list a))) (= (brauns1 a xs)
   (ite (= xs (Nil a)) (Leaf a) (nth (tree a) (brauns a zero xs) zero))))))
+(declare-fun T_brauns (par (a) (nat (list a)) nat))
+(assert (par (a) (forall ((k nat) (xs (list a))) (= (T_brauns a k xs) (ite (= xs (Nil a)) zero
+  (let ((ys (take a (pow (s (s zero)) k) xs)) (zs (drop a (pow (s (s zero)) k) xs)))
+    (let ((ts (brauns a (s k) (zs a)))) (plus (mult (s (s (s (s zero)))) (min (pow (s (s zero)) k) (len a xs)))
+      (T_brauns a (s k) (zs a))))))))))
+; this cannot be defined because of map and lambdas
+;(declare-fun list_fast_rec (par (a) ((list (tree a))) (list a)))
+;(assert (par (a) (forall ((ts )))))
+(declare-fun braun_of_naive (par (a) (a nat) (tree a)))
+(assert (par (a) (forall ((x a) (n nat)) (= (braun_of_naive a x n) (ite (= n zero) (Leaf a)
+  (let ((m (div2 (s_0 n)))) (ite (odd n) (Node a (braun_of_naive a x m) x (braun_of_naive a x m))
+    (Node a (braun_of_naive a x (s m)) x (braun_of_naive a x m)))))))))
 
 ; Priority queues
 (declare-fun heap (par (a) ((tree a)) Bool))
@@ -993,7 +1012,6 @@
 (assert (par (a) (forall ((l (lheap a)) (m a) (n nat) (r (lheap a))) (= (ltree a (NodeP a nat l m n r))
   (and (leq nat (mht a r) (mht a l)) (= n (s (mht a r))) (ltree a l) (ltree a r))))))
 (declare-fun node_lheap (par (a) ((lheap a) a (lheap a)) (lheap a)))
-; TODO this cannot be parsed yet
 (assert (par (a) (forall ((l (lheap a)) (x a) (r (lheap a))) (= (node a l x r)
   (let ((mhl (mht a l)) (mhr (mht a r))) (ite (leq nat mhr mhl) (NodeP a nat l x (s mhr) r) (NodeP a nat r x (s mhl) l)))))))
 (declare-fun merge_lheap (par (a) ((lheap a) (lheap a)) (lheap a)))
@@ -1029,9 +1047,9 @@
       (Node a (sift_down a l1 y r1) x1 (Node a l2 x2 r2)) (Node a (Node a l1 x1 r1) x2 (sift_down a l2 y r2))))))))
 (declare-fun del_min_braun (par (a) ((tree a)) (tree a)))
 (assert (par (a) (= (del_min_braun a (Leaf a)) (Leaf a))))
-(assert (par (a) (forall ((x a) (r (tree a))) (= (del_min_braun a (Node a (Leaf a) x r)) (Leaf a)))))
 (assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (del_min_braun a (Node a l x r))
-  (let ((yl (del_left a l))) (sift_down a r (Pair_0 a (tree a) (yl a)) (Pair_1 a (tree a) (yl a))))))))
+  (match l (((Leaf a) (Leaf a))
+            (_ (let ((yl (del_left a l))) (sift_down a r (Pair_0 a (tree a) (yl a)) (Pair_1 a (tree a) (yl a)))))))))))
 
 
 ; lemmas
@@ -1297,60 +1315,60 @@
 ; h(join(l,r)) <= max(h(l),h(r)) + 1
 (assert (par (a) (forall ((l (tree a)) (r (tree a))) (leq nat (h a (join a l r)) (s (max nat (h a l) (h a r)))))))
 ; bst(t) = sorted(inorder(t))
-(assert (par (a) (forall ((t (tree a))) (= (bst a t) (sorted a (inorder a t))))))
+(assert (par (a) (forall ((t (tree a))) (= (bst a t) (sorted_s a (inorder a t))))))
 ; set_tree(t) = set(inorder(t))
 (assert (par (a) (forall ((t (tree a)) (x a)) (= (in_set_tree a x t) (in_set a x (inorder a t))))))
 ; sorted(inorder(t)) -> inorder(insert(x,t)) = ins_list(x,inorder(t))
-(assert (par (a) (forall ((x a) (t (tree a))) (=> (sorted a (inorder a t)) (= (inorder a (insert a x t)) (ins_list a x (inorder a t)))))))
+(assert (par (a) (forall ((x a) (t (tree a))) (=> (sorted_s a (inorder a t)) (= (inorder a (insert a x t)) (ins_list a x (inorder a t)))))))
 ; sorted(xs @ y # ys) = (sorted(xs @ [y]) & sorted(y # ys))
-(assert (par (a) (forall ((xs (list a)) (y a) (ys (list a))) (= (sorted a (append a xs (Cons a y ys)))
-  (and (sorted a (append a xs (Cons a y (Nil a)))) (sorted a (Cons a y ys)))))))
+(assert (par (a) (forall ((xs (list a)) (y a) (ys (list a))) (= (sorted_s a (append a xs (Cons a y ys)))
+  (and (sorted_s a (append a xs (Cons a y (Nil a)))) (sorted_s a (Cons a y ys)))))))
 ; sorted(x # xs @ y # ys) = (sorted(x # xs) & x < y & sorted(xs @ [y]) & sorted(y # ys))
-(assert (par (a) (forall ((x a) (xs (list a)) (y a) (ys (list a))) (= (sorted a (append a (Cons a x xs) (Cons a y ys)))
-  (and (sorted a (Cons a x xs)) (less a x y) (sorted a (append a xs (Cons a y (Nil a)))) (sorted a (Cons a y ys)))))))
+(assert (par (a) (forall ((x a) (xs (list a)) (y a) (ys (list a))) (= (sorted_s a (append a (Cons a x xs) (Cons a y ys)))
+  (and (sorted_s a (Cons a x xs)) (less a x y) (sorted_s a (append a xs (Cons a y (Nil a)))) (sorted_s a (Cons a y ys)))))))
 ; sorted(x # xs) -> sorted(xs)
-(assert (par (a) (forall ((x a) (xs (list a))) (=> (sorted a (Cons a x xs)) (sorted a xs)))))
+(assert (par (a) (forall ((x a) (xs (list a))) (=> (sorted_s a (Cons a x xs)) (sorted_s a xs)))))
 ; sorted(xs @ [y]) -> sorted(xs)
-(assert (par (a) (forall ((xs (list a)) (y a)) (=> (sorted a (append a xs (Cons a y (Nil a)))) (sorted a xs)))))
+(assert (par (a) (forall ((xs (list a)) (y a)) (=> (sorted_s a (append a xs (Cons a y (Nil a)))) (sorted_s a xs)))))
 ; sorted(xs @ [a]) -> ins_list(x,xs @ a # ys) =
 ;   if x < a then ins_list(x,xs) @ a # ys else xs @ ins_list(x,a # ys)
-(assert (par (a) (forall ((xs (list a)) (x a) (y a) (ys (list a))) (=> (sorted a (append a xs (Cons a y (Nil a))))
+(assert (par (a) (forall ((xs (list a)) (x a) (y a) (ys (list a))) (=> (sorted_s a (append a xs (Cons a y (Nil a))))
   (= (ins_list a x (append a xs (Cons a y ys))) (ite (less a x y) (append a (ins_list a x xs) (Cons a y ys))
     (append a xs (ins_list a x (Cons a y ys)))))))))
 ; sorted(xs @ a # ys) -> del_list(x, xs @ a # ys) =
 ;   if x < a then del_list(x,xs) @ a # ys else xs @ del_list(x, a # ys)
-(assert (par (a) (forall ((xs (list a)) (x a) (y a) (ys (list a))) (=> (sorted a (append a xs (Cons a y ys)))
+(assert (par (a) (forall ((xs (list a)) (x a) (y a) (ys (list a))) (=> (sorted_s a (append a xs (Cons a y ys)))
   (= (del_list a x (append a xs (Cons a y ys))) (ite (less a x y) (append a (del_list a x xs) (Cons a y ys))
     (append a xs (del_list a x (Cons a y ys)))))))))
 ; sorted(x # xs) = ((!y in set(xs). x < y) & sorted(xs))
-(assert (par (a) (forall ((x a) (xs (list a))) (= (sorted a (Cons a x xs)) (and (forall ((y a)) (=> (in_set a y xs) (less a x y))) (sorted a xs))))))
+(assert (par (a) (forall ((x a) (xs (list a))) (= (sorted_s a (Cons a x xs)) (and (forall ((y a)) (=> (in_set a y xs) (less a x y))) (sorted_s a xs))))))
 ; sorted(xs @ [x]) = (sorted(xs) & (!y in set(xs). y < x))
-(assert (par (a) (forall ((xs (list a)) (x a)) (= (sorted a (append a xs (Cons a x (Nil a)))) (and (sorted a xs) (forall ((y a)) (=> (in_set a y xs) (less a y x))))))))
+(assert (par (a) (forall ((xs (list a)) (x a)) (= (sorted_s a (append a xs (Cons a x (Nil a)))) (and (sorted_s a xs) (forall ((y a)) (=> (in_set a y xs) (less a y x))))))))
 ; set_tree(empty) = {}
 
 ; sorted(inorder(t)) -> set_tree(insert(x,t)) = set_tree(t) U {x}
-(assert (par (a) (forall ((t (tree a)) (x a)) (=> (sorted a (inorder a t))
+(assert (par (a) (forall ((t (tree a)) (x a)) (=> (sorted_s a (inorder a t))
   (forall ((y a)) (= (in_set_tree a y (insert a x t)) (or (in_set_tree a y t) (= x y))))))))
 ; sorted(inorder(t)) -> set_tree(delete(x,t)) = set_tree(t) - {x}
-(assert (par (a) (forall ((t (tree a)) (x a)) (=> (sorted a (inorder a t))
+(assert (par (a) (forall ((t (tree a)) (x a)) (=> (sorted_s a (inorder a t))
   (forall ((y a)) (= (in_set_tree a y (delete a x t)) (and (in_set_tree a y t) (distinct x y))))))))
 ; sorted(inorder(t)) -> isin(t,x) = (x in set_tree(t))
-(assert (par (a) (forall ((t (tree a)) (x a)) (=> (sorted a (inorder a t)) (= (isin a t x) (in_set_tree a x t))))))
+(assert (par (a) (forall ((t (tree a)) (x a)) (=> (sorted_s a (inorder a t)) (= (isin a t x) (in_set_tree a x t))))))
 ; set(ins_list(x,xs)) = set(xs) U {x}
 (assert (par (a) (forall ((xs (list a)) (x a) (y a)) (= (in_set a y (ins_list a x xs)) (or (in_set a y xs) (= x y))))))
 ; sorted(xs) -> set(del_list(x,xs)) = set(xs) - {x}
-(assert (par (a) (forall ((xs (list a)) (x a)) (=> (sorted a xs)
+(assert (par (a) (forall ((xs (list a)) (x a)) (=> (sorted_s a xs)
   (forall ((y a)) (= (in_set a y (del_list a x xs)) (and (in_set a y xs) (distinct x y))))))))
 ; sorted(inorder(empty))
-(assert (par (a) (sorted a (inorder a (empty a)))))
+(assert (par (a) (sorted_s a (inorder a (empty a)))))
 ; sorted(inorder(t)) -> sorted(inorder(insert(x,t)))
-(assert (par (a) (forall ((x a) (t (tree a))) (=> (sorted a (inorder a t)) (sorted a (inorder a (insert a x t)))))))
+(assert (par (a) (forall ((x a) (t (tree a))) (=> (sorted_s a (inorder a t)) (sorted_s a (inorder a (insert a x t)))))))
 ; sorted(inorder(t)) -> sorted(inorder(delete(x,t)))
-(assert (par (a) (forall ((x a) (t (tree a))) (=> (sorted a (inorder a t)) (sorted a (inorder a (delete a x t)))))))
+(assert (par (a) (forall ((x a) (t (tree a))) (=> (sorted_s a (inorder a t)) (sorted_s a (inorder a (delete a x t)))))))
 ; sorted(xs) -> sorted(ins_list(x,xs))
-(assert (par (a) (forall ((x a) (xs (list a))) (=> (sorted a xs) (sorted a (ins_list a x xs))))))
+(assert (par (a) (forall ((x a) (xs (list a))) (=> (sorted_s a xs) (sorted_s a (ins_list a x xs))))))
 ; sorted(xs) -> sorted(del_list(x,xs))
-(assert (par (a) (forall ((x a) (xs (list a))) (=> (sorted a xs) (sorted a (del_list a x xs))))))
+(assert (par (a) (forall ((x a) (xs (list a))) (=> (sorted_s a xs) (sorted_s a (del_list a x xs))))))
 
 ; interval trees:
 
@@ -1361,27 +1379,27 @@
 (assert (par (a) (forall ((t (itree a))) (=> (and (inv_max_hi a t) (distinct t (LeafP (ivl a) a)))
   (exists ((x (ivl a))) (and (in_set_ptree (ivl a) a x t) (= (high a x) (max_hi a t))))))))
 ; sorted(inorder(t)) -> inorder(insert(x,t)) = ins_list(x,inorder(t))
-(assert (par (a) (forall ((t (itree a)) (x (ivl a))) (=> (sorted (ivl a) (inorderp (ivl a) a t))
+(assert (par (a) (forall ((t (itree a)) (x (ivl a))) (=> (sorted_s (ivl a) (inorderp (ivl a) a t))
   (= (inorderp (ivl a) a (insert_ivl a x t)) (ins_list (ivl a) x (inorderp (ivl a) a t)))))))
 ; sorted(inorder(t)) -> inorder(delete(x,t)) = del_list(x,inorder(t))
-(assert (par (a) (forall ((t (itree a)) (x (ivl a))) (=> (sorted (ivl a) (inorderp (ivl a) a t))
+(assert (par (a) (forall ((t (itree a)) (x (ivl a))) (=> (sorted_s (ivl a) (inorderp (ivl a) a t))
   (= (inorderp (ivl a) a (delete_ivl a x t)) (del_list (ivl a) x (inorderp (ivl a) a t)))))))
 ; inv_max_hi(t) -> inv_max_hi(insert(x,t))
 (assert (par (a) (forall ((t (itree a)) (x (ivl a))) (= (inv_max_hi a t) (inv_max_hi a (insert_ivl a x t))))))
 ; inv_max_hi(t) -> inv_max_hi(delete(x,t))
 (assert (par (a) (forall ((t (itree a)) (x (ivl a))) (= (inv_max_hi a t) (inv_max_hi a (delete_ivl a x t))))))
 ; inv_max_hi(s) & sorted(inorder(s)) -> set_tree(insert(x,s)) = set_tree(s) U {x}
-(assert (par (a) (forall ((x (ivl a)) (s (itree a))) (=> (and (inv_max_hi a s) (sorted (ivl a) (inorderp (ivl a) a s)))
+(assert (par (a) (forall ((x (ivl a)) (s (itree a))) (=> (and (inv_max_hi a s) (sorted_s (ivl a) (inorderp (ivl a) a s)))
   (forall ((y (ivl a))) (= (in_set_ptree (ivl a) a y (insert_ivl a x s)) (or (in_set_ptree (ivl a) a y s) (= x y))))))))
 ; inv_max_hi(s) & sorted(inorder(s)) -> set_tree(delete(x,s)) = set_tree(s) - {x}
-(assert (par (a) (forall ((x (ivl a)) (s (itree a))) (=> (and (inv_max_hi a s) (sorted (ivl a) (inorderp (ivl a) a s)))
+(assert (par (a) (forall ((x (ivl a)) (s (itree a))) (=> (and (inv_max_hi a s) (sorted_s (ivl a) (inorderp (ivl a) a s)))
   (forall ((y (ivl a))) (= (in_set_ptree (ivl a) a y (delete_ivl a x s)) (and (in_set_ptree (ivl a) a y s) (distinct x y))))))))
 ; inv_max_hi(s) & sorted(inorder(s)) -> inv_max_hi(insert(x,s)) & sorted(inorder(insert(x,s)))
-(assert (par (a) (forall ((x (ivl a)) (s (itree a))) (=> (and (inv_max_hi a s) (sorted (ivl a) (inorderp (ivl a) a s)))
-  (and (inv_max_hi a (insert_ivl a x s)) (sorted (ivl a) (inorderp (ivl a) a (insert_ivl a x s))))))))
+(assert (par (a) (forall ((x (ivl a)) (s (itree a))) (=> (and (inv_max_hi a s) (sorted_s (ivl a) (inorderp (ivl a) a s)))
+  (and (inv_max_hi a (insert_ivl a x s)) (sorted_s (ivl a) (inorderp (ivl a) a (insert_ivl a x s))))))))
 ; inv_max_hi(s) & sorted(inorder(s)) -> inv_max_hi(delete(x,s)) & sorted(inorder(delete(x,s)))
-(assert (par (a) (forall ((x (ivl a)) (s (itree a))) (=> (and (inv_max_hi a s) (sorted (ivl a) (inorderp (ivl a) a s)))
-  (and (inv_max_hi a (delete_ivl a x s)) (sorted (ivl a) (inorderp (ivl a) a (delete_ivl a x s))))))))
+(assert (par (a) (forall ((x (ivl a)) (s (itree a))) (=> (and (inv_max_hi a s) (sorted_s (ivl a) (inorderp (ivl a) a s)))
+  (and (inv_max_hi a (delete_ivl a x s)) (sorted_s (ivl a) (inorderp (ivl a) a (delete_ivl a x s))))))))
 ; inv_max_hi(t) & sorted(inorder(t)) -> search(t,x) = has_overlap(set_tree(t),x)
 
 ; inv_max_hi(t) & bst(t) -> search1(t,x) = (?iv in set_tree(t). in_ivl(x,iv))
@@ -1390,7 +1408,7 @@
 ; 2-3 trees:
 
 ; complete(t) -> 2^h(t) <= |t| + 1
-(assert (par (a) (forall ((x a) (xs (list a))) (=> (sorted a xs) (sorted a (ins_list a x xs))))))
+(assert (par (a) (forall ((x a) (xs (list a))) (=> (sorted_s a xs) (sorted_s a (ins_list a x xs))))))
 ; |maxn(n)| = (3^n - 1) div 2
 
 ; |t| <= (3^h(t) - 1) div 2
@@ -1638,10 +1656,9 @@
 (assert (par (a) (forall ((t (tree a)) (i nat)) (=> (and (braun a t) (less nat i (size a t)))
   (= (nth a (list_of a t) i) (lookup1 a t (s i)))))))
 ; n < |xs| + |ys| & |ys| <= |xs| & |xs| <= |ys| + 1 -> splice(xs,ys) ! n = (if even(n) then xs else ys) ! (n div 2)
-; TODO this cannot be parsed yet
-;(assert (par (a) (forall ((n nat) (xs (list a)) (ys (list a))) (=> (and (less nat n (plus (len a xs) (len a ys)))
-;  (leq nat (len a ys) (len a xs)) (leq nat (len a xs) (s (len a ys))))
-;  (= (nth a (splice a xs ys) n) (nth a (ite (even n) xs ys) (div2 n)))))))
+(assert (par (a) (forall ((n nat) (xs (list a)) (ys (list a))) (=> (and (less nat n (plus (len a xs) (len a ys)))
+  (leq nat (len a ys) (len a xs)) (leq nat (len a xs) (s (len a ys))))
+  (= (nth a (splice a xs ys) n) (nth a (ite (even n) xs ys) (div2 n)))))))
 ; braun(t) -> list(t) = map(lookup1(t)) [1..<|t|+1]
 ;(assert (par (a) (forall ((t (tree a))) (=> (braun a t) (= (list_of a t) (map (lookup1 a t ???))))))
 ; braun(t) & n in {1..|t|} -> |update1(n,x,t)| = |t|
@@ -1744,21 +1761,39 @@
 ; braun(brauns1(xs)) & list(brauns1(xs)) = xs
 (assert (par (a) (forall ((xs (list a))) (and (braun a (brauns1 a xs)) (= (list_of a (brauns1 a xs)) xs)))))
 ; T_brauns(k,xs) = 4 * |xs|
+(assert (par (a) (forall ((k nat) (xs (list a))) (= (T_brauns a k xs) (mult (s (s (s (s zero)))) (len a xs))))))
 ; |ts| = 2^k & (!i<2^k.braun_list(ts ! i, take_nths(i,k,xs))) -> list_fast_rec(ts) = xs
+;(assert (par (a) (forall ((k nat) (ts (list a)) (xs (list a))) (=> (and (= (len a ts) (pow (s (s zero)) k))
+;  (forall ((i nat)) (=> (less nat i (pow (s (s zero)) k)) (braun_list a (nths a ts i) (take_nths a i k xs)))))
+;    (= (list_fast_rec a ts) xs)))))
 ; map_value(ts) = take(2^k,xs)
+
 ; list_fast_rec(map(left,ts) @ map(right,ts)) = drop(2^k,xs)
+
 ; (!t in set(ts).t != <>) -> ...
+
 ; Theorem 11.9
+
 ; braun(t) -> h(t) = ceil(lg(|t|_1))
+
 ; braun(t) -> 2^h(t) <= 2 * |t| + 1
+(assert (par (a) (forall ((t (tree a))) (=> (braun a t) (leq nat (pow (s (s zero)) (h a t)) (s (mult (s (s zero)) (size a t))))))))
 ; n <= |xs| & bal(n,xs) = (t,zs) -> braun(t)
+(assert (par (a) (forall ((n nat) (xs (list a)) (t (tree a)) (zs (list a))) (=> (and (leq nat n (len a xs))
+  (= (balance a n xs) (Pair (tree a) (list a) t zs))) (braun a t)))))
 ; braun(t) & nat_of(bs) in {1..|t|} -> lookup_trie(t,bs) = lookup1(t,nat_of(bs))
+
 ; update_trie(bs,x,t) = update1(nat_of(bs),x,t)
+
 ; del_lo2(t) = del_lo(t)
+
 ; braun(t) -> lh(t) = h(t)
+(assert (par (a) (forall ((t (tree a))) (=> (braun a t) (= (lh a t) (h a t))))))
 ; T_size_fast(t) <= h(t)^2
+
 ; list(braun_of_naive(x,n)) = replicate(n,x)
-; 
+(assert (par (a) (forall ((x a) (n nat)) (= (list_of a (braun_of_naive a x n)) (replicate a n x)))))
+ 
 ; Tries:
 ; ...
 ; 
@@ -1837,7 +1872,8 @@
 (assert (par (a) (forall ((t (tree a))) (=> (and (heap a t) (braun a t)) (heap a (del_min_braun a t))))))
 ; braun t -> |del_min t| = |t| - 1
 (assert (par (a) (forall ((t (tree a))) (=> (braun a t) (= (s (size a (del_min_braun a t))) (size a t))))))
-; braun t & t != <> -> mset_tree (del_min t) = mset_tree t - {{ get_min t }} 
+; braun t & t != <> -> mset_tree (del_min t) = mset_tree t - {{ get_min t }}
+
 
 ; Binomial heaps
 ; invar_btree t -> |mset_tree t| = 2^(rank t)
