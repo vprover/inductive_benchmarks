@@ -7,6 +7,10 @@
 (declare-fun mult (nat nat) nat)
 (assert (forall ((x nat)) (= (mult zero x) zero)))
 (assert (forall ((x nat) (y nat)) (= (mult (s x) y) (plus (mult x y) y))))
+(declare-fun minus (nat nat) nat)
+(assert (forall ((n nat)) (= (minus zero n) zero) ))
+(assert (forall ((n nat)) (= (minus n zero) n) ))
+(assert (forall ((n nat) (m nat)) (= (minus (s n) (s m)) (minus n m)) ))
 
 (declare-datatype list (par (a) ((Nil) (Cons (Cons_0 a) (Cons_1 (list a))))))
 (define-sort lists (a) (list (list a)))
@@ -35,6 +39,7 @@
 (declare-datatype trieP ((LfP) (NdP (NdP_0 (list Bool)) (NdP_1 Bool) (NdP_2 trieP) (NdP_3 trieP))))
 ;(declare-datatype rbt (par (a) ((LeafRB) (NodeRB (NodeR_0 (rbt a)) (NodeR_1 (pair a color)) (NodeR_2 (rbt a))))))
 (define-sort rbt (a) (ptree a color))
+(declare-datatype treeh (par (a) ((LeafH (LeafH_0 nat) (LeafH_1 a)) (NodeH (NodeH_0 nat) (NodeH_1 (treeh a)) (NodeH_2 (treeh a))))))
 (define-sort tree_ht (a) (ptree a nat))
 (declare-datatype triple (par (a b c) ((Triple (Triple_0 a) (Triple_1 b) (Triple_2 c)))))
 (define-sort lheap (a) (ptree a nat))
@@ -325,13 +330,11 @@
 (assert (par (a) (complete a (Leaf a))))
 (assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (complete a (Node a l x r)) (and (= (h a l) (h a r)) (complete a l) (complete a r))))))
 (declare-fun acomplete (par (a) ((tree a)) Bool))
-; TODO minus is missing
-;(assert (par (a) (forall ((t (tree a))) (= (acomplete a t) (leq nat (- (h a t) (mh a t)) 1)))))
+(assert (par (a) (forall ((t (tree a))) (= (acomplete a t) (leq nat (minus (h a t) (mh a t)) (s zero))))))
 (declare-fun balance (par (a) (nat (list a)) (pair (tree a) (list a))))
-; TODO this cannot be parsed yet
-;(assert (par (a) (forall ((n nat) (xs (list a))) (= (balance a n xs) (ite (= n zero) (Pair (tree a) (list a) (Leaf a) xs)
-;  (let ((m (div2 n))) (let ((lys (balance a (m a) xs))) (let ((rzs (balance a (- n (s (m a))) (Cons_1 a (Pair_1 (tree a) (list a) lys)))))
-;    (Pair (tree a) (list a) (Node a (Pair_0 (tree a) (list a) lys) (Cons_0 a (Pair_1 (tree a) (list a) lys)) (Pair_0 (tree a) (list a) rzs)) (Pair_1 (tree a) (list a) rzs))))))))))
+(assert (par (a) (forall ((n nat) (xs (list a))) (= (balance a n xs) (ite (= n zero) (Pair (tree a) (list a) (Leaf a) xs)
+  (let ((m (div2 n))) (let ((lys (balance a m xs))) (let ((rzs (balance a (minus n (s m)) (Cons_1 a (Pair_1 (tree a) (list a) (lys a))))))
+    (Pair (tree a) (list a) (Node a (Pair_0 (tree a) (list a) (lys a)) (Cons_0 a (Pair_1 (tree a) (list a) (lys a))) (Pair_0 (tree a) (list a) (rzs a))) (Pair_1 (tree a) (list a) (rzs a)))))))))))
 (declare-fun bal_list (par (a) (nat (list a)) (tree a)))
 (assert (par (a) (forall ((n nat) (xs (list a))) (= (bal_list a n xs) (Pair_0 (tree a) (list a) (balance a n xs))))))
 (declare-fun balance_list (par (a) ((list a)) (tree a)))
@@ -647,22 +650,10 @@
 (assert (par (a) (forall ((l (rbt a)) (t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)) (z a) (t4 (rbt a)))
   (= (baliL a l z t4) (ite (or (= l (R a (R a t1 x t2) y t3)) (= l (R a t1 x (R a t2 y t3))))
     (R a (B a t1 x t2) y (B a t3 z t4)) (B a l z t4))))))
-; original definition
-;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)) (z a) (t4 (rbt a)))
-;  (= (baliL a (R a (R a t1 x t2) y t3) z t4) (R a (B a t1 x t2) y (B a t3 z t4))))))
-;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)) (z a) (t4 (rbt a)))
-;  (= (baliL a (R a t1 x (R a t2 y t3)) z t4) (R a (B a t1 x t2) y (B a t3 z t4))))))
-;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a))) (= (baliL a t1 x t2) (B a t1 x t2)))))
 (declare-fun baliR (par (a) ((rbt a) a (rbt a)) (rbt a)))
 (assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)) (z a) (t4 (rbt a)) (r (rbt a)))
   (= (baliR a t1 x r) (ite (or (= r (R a t2 y (R a t3 z t4))) (= r (R a (R a t2 y t3) z t4)))
     (R a (B a t1 x t2) y (B a t3 z t4)) (B a t1 x r))))))
-; original definition
-;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)) (z a) (t4 (rbt a)))
-;  (= (baliR a t1 x (R a t2 y (R a t3 z t4))) (R a (B a t1 x t2) y (B a t3 z t4))))))
-;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)) (z a) (t4 (rbt a)))
-;  (= (baliR a t1 x (R a (R a t2 y t3) z t4)) (R a (B a t1 x t2) y (B a t3 z t4))))))
-;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a))) (= (baliR a t1 x t2) (B a t1 x t2)))))
 (declare-fun insRB (par (a) (a (rbt a)) (rbt a)))
 (assert (par (a) (forall ((x a)) (= (insRB a x (Leaf (pair a color))) (R a (Leaf (pair a color)) x (Leaf (pair a color)))))))
 (assert (par (a) (forall ((x a) (l (rbt a)) (y a) (r (rbt a))) (= (insRB a x (B a l y r))
@@ -683,27 +674,11 @@
   (= (baldL a l x r) (ite (= l (R a l1 xl l2)) (R a (B a l1 xl l2) x r)
     (ite (= r (B a r1 xr1 r2)) (baliR a l x (R a r1 xr1 r2)) (ite (= r (R a (B a r3 xr2 r4) xr3 r5))
       (R a (B a l x r3) xr2 (baliR a r4 xr3 (paint a Red r5))) (R a l x r))))))))
-; original definition
-;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)))
-;  (= (baldL a (R a t1 x t2) y t3) (R a (B a t1 x t2) y t3)))))
-;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)))
-;  (= (baldL a t1 x (B a t2 y t3)) (baliR a t1 x (R a t2 y t3))))))
-;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)) (z a) (t4 (rbt a)))
-;  (= (baldL a t1 x (R a (B a t2 y t3) z t4)) (R a (B a t1 x t2) y (baliR a t3 z (paint a Red t4)))))))
-;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a))) (= (baldL a t1 x t2) (R a t1 x t2)))))
 (declare-fun baldR (par (a) ((rbt a) a (rbt a)) (rbt a)))
 (assert (par (a) (forall ((l (rbt a)) (x a) (r (rbt a)) (r1 (rbt a)) (r2 (rbt a)) (l1 (rbt a)) (l2 (rbt a)) (l3 (rbt a)) (l4 (rbt a)) (l5 (rbt a)) (xr a) (xl1 a) (xl2 a) (xl3 a))
   (= (baldR a l x r) (ite (= r (R a r1 xr r2)) (R a l x (B a r1 xr r2))
     (ite (= l (B a l1 xl1 l2)) (baliL a (R a l1 xl1 l2) x r) (ite (= l (R a l3 xl2 (B a l4 xl3 l5)))
       (R a (baliL a (paint a Red l3) xl2 l4) xl3 (B a l5 x r)) (R a l x r))))))))
-; original definition
-;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)))
-;  (= (baldR a t1 x (R a t2 y t3)) (R a t1 x (B a t2 y t3))))))
-;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)))
-;  (= (baldR a (B a t1 x t2) y t3) (baliL a (R a t1 x t2) y t3)))))
-;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a)) (y a) (t3 (rbt a)) (z a) (t4 (rbt a)))
-;  (= (baldR a (R a t1 x (B a t2 y t3)) z t4) (R a (baliL a (paint a Red t1) x t2) y (B a t3 z t4))))))
-;(assert (par (a) (forall ((t1 (rbt a)) (x a) (t2 (rbt a))) (= (baldR a t1 x t2) (R a t1 x t2)))))
 (declare-fun split_minRB (par (a) ((rbt a)) (pair a (rbt a))))
 (assert (par (a) (forall ((l (rbt a)) (x a) (c color) (r (rbt a))) (= (split_minRB a (Node (pair a color) l (Pair a color x c) r))
   (ite (= l (Leaf (pair a color))) (Pair a (rbt a) x r) (let ((xl (split_minRB a l)))
@@ -734,7 +709,9 @@
   (match (cmp a x y) ((LT (let ((ll (delRB2 a x l))) (ite (and (distinct l (Leaf (pair a color))) (= (color_of a l) Black)) (baldL a (ll a) y r) (R a (ll a) y r))))
                       (EQ (joinRB a l r))
                       (GT (let ((rr (delRB2 a x r))) (ite (and (distinct r (Leaf (pair a color))) (= (color_of a r) Black)) (baldR a l y (rr a)) (R a l y (rr a)))))))))))
+; TODO define this
 ;(declare-fun rbt_of_list (par (a) ((list a)) (rbt a)))
+;(assert (par (a) (forall ((xs (list a))) (= (rbt_of_list a xs) (join_all a (leaves a xs))))))
 
 ; AVL trees
 (declare-fun ht (par (a) ((tree_ht a)) nat))
@@ -872,20 +849,20 @@
 (declare-fun union (par (a b) ((ptree a b) (ptree a b)) (ptree a b)))
 (assert (par (a b) (forall ((t (ptree a b))) (= (union a b (LeafP a b) t) t))))
 (assert (par (a b) (forall ((t (ptree a b))) (= (union a b t (LeafP a b)) t))))
-(assert (par (a b) (forall ((l1 (ptree a b)) (x a) (y b) (r1 (ptree a b)) (t (ptree a b))) (= (union a b (NodeP a b l1 x y r1) t)
-  (let ((t' (splitp a b t x))) (joinp a b (union a b l1 (Triple_0 (ptree a b) Bool (ptree a b) (t' a b))) x (union a b r1 (Triple_2 (ptree a b) Bool (ptree a b) (t' a b)))))))))
+(assert (par (a b) (forall ((l1 (ptree a b)) (x a) (y b) (r1 (ptree a b)) (t (ptree a b))) (=> (distinct t (LeafP a b)) (= (union a b (NodeP a b l1 x y r1) t)
+  (let ((t' (splitp a b t x))) (joinp a b (union a b l1 (Triple_0 (ptree a b) Bool (ptree a b) (t' a b))) x (union a b r1 (Triple_2 (ptree a b) Bool (ptree a b) (t' a b))))))))))
 (declare-fun inter (par (a b) ((ptree a b) (ptree a b)) (ptree a b)))
 (assert (par (a b) (forall ((t (ptree a b))) (= (inter a b (LeafP a b) t) (LeafP a b)))))
 (assert (par (a b) (forall ((t (ptree a b))) (= (inter a b t (LeafP a b)) (LeafP a b)))))
-(assert (par (a b) (forall ((l1 (ptree a b)) (x a) (y b) (r1 (ptree a b)) (t (ptree a b))) (= (inter a b (NodeP a b l1 x y r1) t)
+(assert (par (a b) (forall ((l1 (ptree a b)) (x a) (y b) (r1 (ptree a b)) (t (ptree a b))) (=> (distinct t (LeafP a b)) (= (inter a b (NodeP a b l1 x y r1) t)
   (let ((t' (splitp a b t x))) (let ((l' (inter a b l1 (Triple_0 (ptree a b) Bool (ptree a b) (t' a b))))
     (r' (inter a b r1 (Triple_2 (ptree a b) Bool (ptree a b) (t' a b)))))
-      (ite (Triple_1 (ptree a b) Bool (ptree a b) (t' a b)) (joinp a b (l' a b) x (r' a b)) (join2 a b (l' a b) (r' a b)))))))))
+      (ite (Triple_1 (ptree a b) Bool (ptree a b) (t' a b)) (joinp a b (l' a b) x (r' a b)) (join2 a b (l' a b) (r' a b))))))))))
 (declare-fun diff (par (a b) ((ptree a b) (ptree a b)) (ptree a b)))
 (assert (par (a b) (forall ((t (ptree a b))) (= (diff a b (LeafP a b) t) (LeafP a b)))))
 (assert (par (a b) (forall ((t (ptree a b))) (= (diff a b t (LeafP a b)) t))))
-(assert (par (a b) (forall ((l2 (ptree a b)) (x a) (y b) (r2 (ptree a b)) (t (ptree a b))) (= (diff a b t (NodeP a b l2 x y r2))
-  (let ((t' (splitp a b t x))) (join2 a b (diff a b (Triple_0 (ptree a b) Bool (ptree a b) (t' a b)) l2) (diff a b (Triple_2 (ptree a b) Bool (ptree a b) (t' a b)) r2)))))))
+(assert (par (a b) (forall ((l2 (ptree a b)) (x a) (y b) (r2 (ptree a b)) (t (ptree a b))) (=> (distinct t (LeafP a b)) (= (diff a b t (NodeP a b l2 x y r2))
+  (let ((t' (splitp a b t x))) (join2 a b (diff a b (Triple_0 (ptree a b) Bool (ptree a b) (t' a b)) l2) (diff a b (Triple_2 (ptree a b) Bool (ptree a b) (t' a b)) r2))))))))
 (declare-fun joinL (par (a) ((rbt a) a (rbt a)) (rbt a)))
 ; TODO define this
 ;(assert (par (a) (forall ((l (rbt a)) (x a) (r (rbt a))) (= (joinL a l x r) (ite (leq a (bh a r) (bh a l)) (R a l x r)
@@ -989,6 +966,113 @@
 (assert (par (a) (forall ((x a) (n nat)) (= (braun_of_naive a x n) (ite (= n zero) (Leaf a)
   (let ((m (div2 (s_0 n)))) (ite (odd n) (Node a (braun_of_naive a x m) x (braun_of_naive a x m))
     (Node a (braun_of_naive a x (s m)) x (braun_of_naive a x m)))))))))
+(declare-fun nat_of ((list Bool)) nat)
+(assert (= (nat_of (Nil Bool)) (s zero)))
+(assert (forall ((b Bool) (bs (list Bool))) (= (nat_of (Cons Bool b bs)) (plus (mult (s (s zero)) (nat_of bs)) (ite b (s zero) zero)))))
+; TODO define this
+(declare-fun lookup_trie (par (a) ((tree a) (list Bool)) a))
+; TODO define this
+(declare-fun update_trie (par (a) ((list Bool) a (tree a)) (tree a)))
+
+; Huffman's algorithm
+(declare-fun cachedWeight (par (a) ((treeh a)) nat))
+(assert (par (a) (forall ((w nat) (x a)) (= (cachedWeight a (LeafH a w x)) w))))
+(assert (par (a) (forall ((w nat) (l (treeh a)) (r (treeh a))) (= (cachedWeight a (NodeH a w l r)) w))))
+(declare-fun uniteTrees (par (a) ((treeh a) (treeh a)) (treeh a)))
+(assert (par (a) (forall ((t1 (treeh a)) (t2 (treeh a))) (= (uniteTrees a t1 t2)
+  (NodeH a (plus (cachedWeight a t1) (cachedWeight a t2)) t1 t2)))))
+(declare-fun insortTree (par (a) ((treeh a) (list (treeh a))) (list (treeh a))))
+(assert (par (a) (forall ((u (treeh a))) (= (insortTree a u (Nil (treeh a))) (Cons (treeh a) u (Nil (treeh a)))))))
+(assert (par (a) (forall ((u (treeh a)) (t (treeh a)) (ts (list (treeh a)))) (= (insortTree a u (Cons (treeh a) t ts))
+  (ite (leq nat (cachedWeight a u) (cachedWeight a t)) (Cons (treeh a) u (Cons (treeh a) t ts))
+    (Cons (treeh a) t (insortTree a u ts)))))))
+(declare-fun huffman (par (a) ((list (treeh a))) (treeh a)))
+(assert (par (a) (forall ((t (treeh a))) (= (huffman a (Cons (treeh a) t (Nil (treeh a)))) t))))
+(assert (par (a) (forall ((t1 (treeh a)) (t2 (treeh a)) (ts (list (treeh a)))) (= (huffman a (Cons (treeh a) t1 (Cons (treeh a) t2 ts)))
+  (huffman a (insortTree a (uniteTrees a t1 t2) ts))))))
+(declare-fun in_alphabet (par (a) (a (treeh a)) Bool))
+(assert (par (a) (forall ((w nat) (x a) (y a)) (= (in_alphabet a x (LeafH a w y)) (= x y)))))
+(assert (par (a) (forall ((w nat) (x a) (t1 (treeh a)) (t2 (treeh a))) (= (in_alphabet a x (NodeH a w t1 t2))
+  (or (in_alphabet a x t1) (in_alphabet a x t2))))))
+(declare-fun in_alphabet_F (par (a) (a (list (treeh a))) Bool))
+(assert (par (a) (forall ((x a)) (not (in_alphabet_F a x (Nil (treeh a)))))))
+(assert (par (a) (forall ((x a) (t (treeh a)) (ts (list (treeh a)))) (= (in_alphabet_F a x (Cons (treeh a) t ts))
+  (or (in_alphabet a x t) (in_alphabet_F a x ts))))))
+(declare-fun consistent (par (a) ((treeh a)) Bool))
+(assert (par (a) (forall ((w nat) (x a)) (consistent a (LeafH a w x)))))
+; TODO the distinct here is not appropriate for empty intersection
+;(assert (par (a) (forall ((w nat) (t1 (treeh a)) (t2 (treeh a))) (= (consistent a (NodeH a w t1 t2))
+;  (and (forall ((x a)) (distinct (in_alphabet a x t1) (in_alphabet a x t2))) (consistent a t1) (consistent a t2))))))
+(declare-fun consistent_F (par (a) ((list (treeh a))) Bool))
+(assert (par (a) (consistent_F a (Nil (treeh a)))))
+(assert (par (a) (forall ((t (treeh a)) (ts (list (treeh a)))) (= (consistent_F a (Cons (treeh a) t ts))
+  (and (consistent a t) (consistent_F a ts))))))
+(declare-fun depth (par (a) ((treeh a) a) nat))
+(assert (par (a) (forall ((w nat) (x a) (y a)) (= (depth a (LeafH a w x) y) zero))))
+(assert (par (a) (forall ((w nat) (t1 (treeh a)) (t2 (treeh a)) (x a)) (= (depth a (NodeH a w t1 t2) x)
+  (ite (in_alphabet a x t1) (s (depth a t1 x)) (ite (in_alphabet a x t2) (s (depth a t2 x)) zero))))))
+(declare-fun height (par (a) ((treeh a)) nat))
+(assert (par (a) (forall ((w nat) (x a)) (= (height a (LeafH a w x)) zero))))
+(assert (par (a) (forall ((w nat) (t1 (treeh a)) (t2 (treeh a))) (= (height a (NodeH a w t1 t2))
+  (s (max nat (height a t1) (height a t2)))))))
+(declare-fun height_F (par (a) ((list (treeh a))) nat))
+(assert (par (a) (= (height_F a (Nil (treeh a))) zero)))
+(assert (par (a) (forall ((t (treeh a)) (ts (list (treeh a)))) (= (height_F a (Cons (treeh a) t ts))
+  (max nat (height a t) (height_F a ts))))))
+(declare-fun freq (par (a) ((treeh a) a) nat))
+(assert (par (a) (forall ((w nat) (x a) (y a)) (= (freq a (LeafH a w x) y) (ite (= x y) w zero)))))
+(assert (par (a) (forall ((w nat) (t1 (treeh a)) (t2 (treeh a)) (x a)) (= (freq a (NodeH a w t1 t2) x)
+  (plus (freq a t1 x) (freq a t2 x))))))
+(declare-fun freq_F (par (a) ((list (treeh a)) a) nat))
+(assert (par (a) (forall ((x a)) (= (freq_F a (Nil (treeh a)) x) zero))))
+(assert (par (a) (forall ((t (treeh a)) (ts (list (treeh a))) (x a)) (= (freq_F a (Cons (treeh a) t ts) x)
+  (plus (freq a t x) (freq_F a ts x))))))
+(declare-fun weight (par (a) ((treeh a)) nat))
+(assert (par (a) (forall ((w nat) (x a)) (= (weight a (LeafH a w x)) w))))
+(assert (par (a) (forall ((w nat) (t1 (treeh a)) (t2 (treeh a))) (= (weight a (NodeH a w t1 t2))
+  (plus (weight a t1) (weight a t2))))))
+(declare-fun cost (par (a) ((treeh a)) nat))
+(assert (par (a) (forall ((w nat) (x a)) (= (cost a (LeafH a w x)) zero))))
+(assert (par (a) (forall ((w nat) (t1 (treeh a)) (t2 (treeh a))) (= (cost a (NodeH a w t1 t2))
+  (plus (plus (weight a t1) (cost a t1)) (plus (weight a t2) (cost a t2)))))))
+(declare-fun optimum (par (a) ((treeh a)) Bool))
+(assert (par (a) (forall ((t (treeh a))) (= (optimum a t) (forall ((u (treeh a))) (=> (consistent a u)
+  (=> (forall ((x a)) (= (in_alphabet a x t) (in_alphabet a x u))) (=> (forall ((y a)) (= (freq a u y) (freq a t y)))
+    (leq nat (cost a t) (cost a u))))))))))
+; TODO define this
+(declare-fun swapLeaves (par (a) ((treeh a) nat a nat a) (treeh a)))
+(declare-fun swapSyms (par (a) ((treeh a) a a) (treeh a)))
+(assert (par (a) (forall ((t (treeh a)) (x a) (y a)) (= (swapSyms a t x y) (swapLeaves a t (freq a t x) x (freq a t y) y)))))
+(declare-fun swapFourSyms (par (a) ((treeh a) a a a a) (treeh a)))
+(assert (par (a) (forall ((t (treeh a)) (x a) (y a) (z a) (u a)) (= (swapFourSyms a t x y z u)
+  (ite (= x u) (swapSyms a t y z) (ite (= y z) (swapSyms a t x u) (swapSyms a (swapSyms a t x z) y u)))))))
+; TODO define this
+(declare-fun sibling (par (a) ((treeh a) a) a))
+(declare-fun mergeSibling (par (a) ((treeh a) a) (treeh a)))
+(assert (par (a) (forall ((w nat) (x a) (y a)) (= (mergeSibling a (LeafH a w x) y) (LeafH a w x)))))
+(assert (par (a) (forall ((w nat) (wx nat) (x a) (wy nat) (y a) (z a)) (= (mergeSibling a (NodeH a w (LeafH a wx x) (LeafH a wy y)) z)
+  (ite (or (= z x) (= z y)) (LeafH a (plus wx wy) z) (NodeH a w (LeafH a wx x) (LeafH a wy y)))))))
+(assert (par (a) (forall ((w nat) (v nat) (va (treeh a)) (vb (treeh a)) (t2 (treeh a)) (x a))
+  (= (mergeSibling a (NodeH a w (NodeH a v va vb) t2) x) (NodeH a w (mergeSibling a (NodeH a v va vb) x) (mergeSibling a t2 x))))))
+(assert (par (a) (forall ((w nat) (t1 (treeh a)) (v nat) (va (treeh a)) (vb (treeh a)) (x a))
+  (= (mergeSibling a (NodeH a w t1 (NodeH a v va vb)) x) (NodeH a w (mergeSibling a t1 x) (mergeSibling a (NodeH a v va vb) x))))))
+(declare-fun splitLeaf (par (a) ((treeh a) nat a nat a) (treeh a)))
+(assert (par (a) (forall ((wx nat) (x a) (wy nat) (y a) (wz nat) (z a)) (= (splitLeaf a (LeafH a wx x) wy y wz z)
+  (ite (= x y) (NodeH a wx (LeafH a wx x) (LeafH a wz z)) (LeafH a wx x))))))
+(assert (par (a) (forall ((w nat) (t1 (treeh a)) (t2 (treeh a)) (wx nat) (x a) (wy nat) (y a))
+  (= (splitLeaf a (NodeH a w t1 t2) wx x wy y) (NodeH a w (splitLeaf a t1 wx x wy y) (splitLeaf a t2 wx x wy y))))))
+; TODO define this
+(declare-fun splitLeaf_F (par (a) ((list (treeh a)) nat a nat a) (list (treeh a))))
+(declare-fun minima (par (a) ((treeh a) a a) Bool))
+(assert (par (a) (forall ((t (treeh a)) (x a) (y a)) (= (minima a t x y) (and (in_alphabet a x t) (in_alphabet a y t)
+  (distinct x y) (forall ((z a)) (=> (in_alphabet a z t) (=> (distinct z x) (=> (distinct z y)
+    (and (leq nat (freq a t x) (freq a t z)) (leq nat (freq a t y) (freq a t z))))))))))))
+; TODO this definition is not fixed, so we can use the other variant with the inner forall in the recursive case
+(declare-fun sortedByWeight (par (a) ((list (treeh a))) Bool))
+(assert (par (a) (sortedByWeight a (Nil (treeh a)))))
+(assert (par (a) (forall ((t (treeh a))) (sortedByWeight a (Cons (treeh a) t (Nil (treeh a)))))))
+(assert (par (a) (forall ((t1 (treeh a)) (t2 (treeh a)) (ts (list (treeh a)))) (= (sortedByWeight a (Cons (treeh a) t1 (Cons (treeh a) t2 ts)))
+  (and (leq nat (weight a t1) (weight a t2)) (sortedByWeight a (Cons (treeh a) t2 ts)))))))
 
 ; Priority queues
 (declare-fun heap (par (a) ((tree a)) Bool))
@@ -1490,11 +1574,11 @@
        (=> (= (color_of a t) Black) (and (= (s (bh a t')) (bh a t)) (invc2 a t'))))))))
 ; invh(t) & invc(t) & t' = del(x,t) -> invh(t') & (color(t) = Red -> bh(t') = bh(t) & invc(t')) &
 ;   (color(t) = Black -> bh(t') = bh(t) - 1 & invc2(t'))
-; TODO this is unsat for some reason
-;(assert (par (a) (forall ((t (rbt a)) (x a) (t' (rbt a))) (=> (and (invh a t) (invc a t) (= (delRB a x t) t'))
-;  (and (invh a t')
-;       (=> (= (color_of a t) Red) (and (= (bh a t') (bh a t)) (invc a t')))
-;       (=> (= (color_of a t) Black) (and (= (s (bh a t')) (bh a t)))))))))
+; deliberate use of s_0 here since t can be a leaf as well
+(assert (par (a) (forall ((t (rbt a)) (x a) (t' (rbt a))) (=> (and (invh a t) (invc a t) (= (delRB a x t) t'))
+  (and (invh a t')
+       (=> (= (color_of a t) Red) (and (= (bh a t') (bh a t)) (invc a t')))
+       (=> (= (color_of a t) Black) (and (= (bh a t') (s_0 (bh a t))))))))))
 ; rbt(t) -> rbt(delete(x,t))
 (assert (par (a) (forall ((t (rbt a)) (x a)) (=> (inv_rbt a t) (inv_rbt a (deleteRB a x t))))))
 ; invh(l) & invh(r) & bh(l) + 1 = bh(r) & invc2(l) & invc(r) & t' = baldL(l,a,r) ->
@@ -1594,7 +1678,11 @@
 (assert (par (a b) (forall ((l (ptree a b)) (r (ptree a b))) (=> (and (invp a b l) (invp a b r)) (invp a b (join2 a b l r))))))
 ; split(t,x) = (l,b,r) & bst(t) ->
 ;   set_tree(l) = { a in set_tree(t) | a < x } & set_tree(r) = { a in set_tree(t) | x < a } & b = (x in set_tree(t)) & bst(l) & bst(r)
-
+(assert (par (a b) (forall ((t (ptree a b)) (x a) (y Bool) (l (ptree a b)) (r (ptree a b))) (=> (and (= (splitp a b t x) (Triple (ptree a b) Bool (ptree a b) l y r))
+  (bst (pair a b) t)) (and
+    (forall ((z a)) (= (in_set_ptree a b z l) (and (in_set_ptree a b z t) (less a z x))))
+    (forall ((z a)) (= (in_set_ptree a b z r) (and (in_set_ptree a b z t) (less a x z))))
+    (= y (in_set_ptree a b x t)) (bst (pair a b) l) (bst (pair a b) r))))))
 ; split(t,x) = (l,b,r) & inv(t) -> inv(l) & inv(r)
 (assert (par (a b) (forall ((t (ptree a b)) (x a) (y Bool) (l (ptree a b)) (r (ptree a b))) (=> (and (= (splitp a b t x) (Triple (ptree a b) Bool (ptree a b) l y r))
   (invp a b t)) (and (invp a b l) (invp a b r))))))
@@ -1712,7 +1800,8 @@
 ; braun(t) -> size_fast(t) = |t|
 (assert (par (a) (forall ((t (tree a))) (=> (braun a t) (= (size_fast a t) (size a t))))))
 ; braun(t) & |t| in {n,n+1} -> diff(t,n) = |t| - n
-
+(assert (par (a) (forall ((t (tree a)) (n nat)) (=> (and (braun a t) (or (= (size a t) n) (= (size a t) (s n))))
+  (= (diff_braun a t n) (minus (size a t) n))))))
 ; list(braun_of(x,n)) = replicate(n,x)
 (assert (par (a) (forall ((x a) (n nat)) (= (list_of a (braun_of a x n)) (replicate a n x)))))
 ; braun(braun_of(x,n))
@@ -1734,7 +1823,8 @@
 (assert (par (a) (forall ((i nat) (m nat) (j nat) (n nat) (xs (list a)))
   (= (take_nths a i m (take_nths a j n xs)) (take_nths a (plus (mult i (pow (s (s zero)) n)) j) (plus m n) xs)))))
 ; take_nths(i,k,xs) = [] <-> |xs| <= i
-(assert (par (a) (forall ((i nat) (k nat) (xs (list a))) (= (= (take_nths a i k  xs) (Nil a)) (leq nat (len a xs) i)))))
+; TODO unsat
+;(assert (par (a) (forall ((i nat) (k nat) (xs (list a))) (= (= (take_nths a i k  xs) (Nil a)) (leq nat (len a xs) i)))))
 ; i < |xs| -> hd(take_nths(i,k,xs)) = xs ! i
 (assert (par (a) (forall ((i nat) (k nat) (xs (list a))) (=> (less nat i (len a xs))
   (= (hd a (take_nths a i k xs)) (nth a xs i))))))
@@ -1763,6 +1853,7 @@
 ; T_brauns(k,xs) = 4 * |xs|
 (assert (par (a) (forall ((k nat) (xs (list a))) (= (T_brauns a k xs) (mult (s (s (s (s zero)))) (len a xs))))))
 ; |ts| = 2^k & (!i<2^k.braun_list(ts ! i, take_nths(i,k,xs))) -> list_fast_rec(ts) = xs
+; TODO list_fast_rec needs map function
 ;(assert (par (a) (forall ((k nat) (ts (list a)) (xs (list a))) (=> (and (= (len a ts) (pow (s (s zero)) k))
 ;  (forall ((i nat)) (=> (less nat i (pow (s (s zero)) k)) (braun_list a (nths a ts i) (take_nths a i k xs)))))
 ;    (= (list_fast_rec a ts) xs)))))
@@ -1770,8 +1861,8 @@
 
 ; list_fast_rec(map(left,ts) @ map(right,ts)) = drop(2^k,xs)
 
+; TODO these two need sum functions
 ; (!t in set(ts).t != <>) -> ...
-
 ; Theorem 11.9
 
 ; braun(t) -> h(t) = ceil(lg(|t|_1))
@@ -1782,7 +1873,8 @@
 (assert (par (a) (forall ((n nat) (xs (list a)) (t (tree a)) (zs (list a))) (=> (and (leq nat n (len a xs))
   (= (balance a n xs) (Pair (tree a) (list a) t zs))) (braun a t)))))
 ; braun(t) & nat_of(bs) in {1..|t|} -> lookup_trie(t,bs) = lookup1(t,nat_of(bs))
-
+(assert (par (a) (forall ((t (tree a)) (bs (list Bool))) (=> (and (braun a t) (leq nat (s zero) (nat_of bs)) (leq nat (nat_of bs) (size a t)))
+  (= (lookup_trie a t bs) (lookup1 a t (nat_of bs)))))))
 ; update_trie(bs,x,t) = update1(nat_of(bs),x,t)
 
 ; del_lo2(t) = del_lo(t)
@@ -1793,14 +1885,49 @@
 
 ; list(braun_of_naive(x,n)) = replicate(n,x)
 (assert (par (a) (forall ((x a) (n nat)) (= (list_of a (braun_of_naive a x n)) (replicate a n x)))))
- 
+
+; TODO most of these contain lambdas
 ; Tries:
 ; ...
+
+
 ; 
 ; Huffman's algorithm:
-; consistent(t) & a in alphabet(t) & b in alphabet(t) & freq(t,a) <= freq(t,b) & depth(t,a) < depth(t,b) -> cost(swapSyms(t,a,b)) <= cost(t)
+; consistent(t) & a in alphabet(t) & b in alphabet(t) & freq(t,a) <= freq(t,b) & depth(t,a) <= depth(t,b) -> cost(swapSyms(t,a,b)) <= cost(t)
+(assert (par (a) (forall ((t (treeh a)) (x a) (y a)) (=> (and (consistent a t) (in_alphabet a x t) (in_alphabet a y t)
+  (leq nat (freq a t x) (freq a t y)) (leq nat (depth a t x) (depth a t y))) (leq nat (cost a (swapSyms a t x y)) (cost a t))))))
 ; consistent(t) & sibling(t,a) != a -> cost(mergeSibling(t,a)) + freq(t,a) + freq(t,sibling(t,a)) = cost(t)
+(assert (par (a) (forall ((t (treeh a)) (x a)) (=> (and (consistent a t) (distinct (sibling a t x) x))
+  (= (plus (plus (cost a (mergeSibling a t x)) (freq a t x)) (freq a t (sibling a t x))) (cost a t))))))
 ; consistent(t) & a in alphabet(t) & freq(t,a) = wa + wb -> cost(splitLeaf(t,wa,a,wb,b)) = cost(t) + wa + wb
+(assert (par (a) (forall ((t (treeh a)) (x a) (wx nat) (y a) (wy nat)) (=> (and (consistent a t) (in_alphabet a x t) (= (freq a t x) (plus wx wy)))
+  (= (cost a (splitLeaf a t wx x wy y)) (plus (plus (cost a t) wx) wy))))))
+; ts != [] -> alphabet (huffman ts) = alphabet_F ts
+(assert (par (a) (forall ((ts (list (treeh a)))) (=> (distinct ts (Nil (treeh a)))
+  (forall ((x a)) (= (in_alphabet a x (huffman a ts)) (in_alphabet_F a x ts)))))))
+; consistent_F ts & ts != [] -> consistent (huffman ts)
+(assert (par (a) (forall ((ts (list (treeh a)))) (=> (and (consistent_F a ts) (distinct ts (Nil (treeh a))))
+  (consistent a (huffman a ts))))))
+; ts != [] -> freq (huffman ts) a = freq_F ts a
+(assert (par (a) (forall ((ts (list (treeh a)))) (=> (distinct ts (Nil (treeh a)))
+  (forall ((x a)) (= (freq a (huffman a ts) x) (freq_F a ts x)))))))
+; consistent t & minima t a b & c in alphabet t & d in alphabet t & depth t c = height t & depth t d = height t & c != d
+;   -> cost (swapFourSyms t a b c d) <= cost t
+(assert (par (a) (forall ((t (treeh a)) (x a) (y a) (z a) (u a)) (=> (and (consistent a t) (minima a t x y) (in_alphabet a z t)
+  (in_alphabet a u t) (= (depth a t z) (height a t)) (= (depth a t u) (height a t)) (distinct z u))
+    (leq nat (cost a (swapFourSyms a t x y z u)) (cost a t))))))
+; consistent t & optimum t & a in alphabet t & b not in alphabet t & freq t a = wa + wb &
+;   (!c in alphabet t. wa <= freq t c & wb <= freq t c) -> optimum (splitLeaf t wa a wb b)
+(assert (par (a) (forall ((t (treeh a)) (x a) (y a) (wx nat) (wy nat)) (=> (and (consistent a t) (optimum a t) (in_alphabet a x t)
+  (not (in_alphabet a y t)) (= (freq a t x) (plus wx wy)) (forall ((z a)) (=> (in_alphabet a z t) (and (leq nat wx (freq a t z))
+    (leq nat wy (freq a t z)))))) (optimum a (splitLeaf a t wx x wy y))))))
+; consistent_F ts & ts != [] & a in alphabet_F ts & freq_F ts a = wa + wb
+;   -> splitLeaf (huffman ts) wa a wb b = huffman (splitLeaf_F ts wa a wb b)
+(assert (par (a) (forall ((ts (list (treeh a))) (x a) (y a) (wx nat) (wy nat)) (=> (and (consistent_F a ts) (distinct ts (Nil (treeh a)))
+  (in_alphabet_F a x ts) (= (freq_F a ts x) (plus wx wy))) (= (splitLeaf a (huffman a ts) wx x wy y) (huffman a (splitLeaf_F a ts wx x wy y)))))))
+; consistent_F ts & height_F ts = 0 & sortedByWeight ts & ts != [] -> optimum (huffman ts)
+(assert (par (a) (forall ((ts (list (treeh a)))) (=> (and (consistent_F a ts) (= (height_F a ts) zero) (sortedByWeight a ts)
+  (distinct ts (Nil (treeh a)))) (optimum a (huffman a ts))))))
 
 ; Priority queues
 
@@ -1871,7 +1998,8 @@
 ; heap t & braun t -> heap (del_min t)
 (assert (par (a) (forall ((t (tree a))) (=> (and (heap a t) (braun a t)) (heap a (del_min_braun a t))))))
 ; braun t -> |del_min t| = |t| - 1
-(assert (par (a) (forall ((t (tree a))) (=> (braun a t) (= (s (size a (del_min_braun a t))) (size a t))))))
+; deliberate use of s_0 to be consistent with the case of t being a leaf
+(assert (par (a) (forall ((t (tree a))) (=> (braun a t) (= (size a (del_min_braun a t)) (s_0 (size a t)))))))
 ; braun t & t != <> -> mset_tree (del_min t) = mset_tree t - {{ get_min t }}
 
 

@@ -7,12 +7,6 @@
 (assert (forall ((x nat) (y nat)) (=> (and (leq x y) (leq y x)) (= x y))))
 (assert (forall ((x nat) (y nat)) (or (leq x y) (leq y x))))
 
-(declare-fun leq (nat nat) Bool)
-(assert (forall ((x nat)) (leq x x)))
-(assert (forall ((x nat) (y nat) (z nat)) (=> (and (leq x y) (leq y z)) (leq x z))))
-(assert (forall ((x nat) (y nat)) (=> (and (leq x y) (leq y x)) (= x y))))
-(assert (forall ((x nat) (y nat)) (or (leq x y) (leq y x))))
-
 (declare-fun len (lst) Int)
 (assert (= (len nil) 0))
 (assert (forall ((x nat) (y lst)) (= (len (cons x y)) (+ (len y) 1)) ))
