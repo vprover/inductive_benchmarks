@@ -1,6 +1,7 @@
 (set-logic UFDT)
 (declare-datatypes ((nat 0) (lst 0)) (((zero) (s (s0 nat))) ((nil) (cons (cons0 nat) (cons1 lst)))))
 (declare-fun app (lst lst) lst)
+(non-erasing app 2)
 (injective app (true true))
 (declare-fun rev (lst) lst)
 (declare-fun revAcc (lst) lst)

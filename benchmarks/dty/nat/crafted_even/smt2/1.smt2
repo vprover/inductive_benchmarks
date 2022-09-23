@@ -2,6 +2,7 @@
 (declare-datatypes ((nat 0))
   (((zero) (s (s0 nat)))))
 (declare-fun add (nat nat) nat)
+(non-erasing add 2)
 (injective add (true true))
 (declare-fun even (nat) Bool)
 (declare-fun mul (nat nat) nat)
