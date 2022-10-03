@@ -309,7 +309,9 @@
 (declare-fun median (par (a) ((list a)) a))
 (declare-fun chop (nat (list nat)) (lists nat))
 (declare-fun min (nat nat) nat)
+(assert (forall ((x nat) (y nat)) (= (min x y) (ite (leq nat x y) x y))))
 (declare-fun max (par (a) (a a) a))
+(assert (par (a) (forall ((x a) (y a)) (= (max a x y) (ite (leq a x y) y x)))))
 
 (declare-fun inorder (par (a) ((tree a)) (list a)))
 (assert (par (a) (= (inorder a (Leaf a)) (Nil a))))
