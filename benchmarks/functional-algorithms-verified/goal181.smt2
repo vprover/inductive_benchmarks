@@ -1103,7 +1103,7 @@
 (assert (par (a) (forall ((l (lheap a)) (m a) (n nat) (r (lheap a))) (= (ltree a (NodeP a nat l m n r))
   (and (leq nat (mht a r) (mht a l)) (= n (s (mht a r))) (ltree a l) (ltree a r))))))
 (declare-fun node_lheap (par (a) ((lheap a) a (lheap a)) (lheap a)))
-(assert (par (a) (forall ((l (lheap a)) (x a) (r (lheap a))) (= (node a l x r)
+(assert (par (a) (forall ((l (lheap a)) (x a) (r (lheap a))) (= (node_lheap a l x r)
   (let ((mhl (mht a l)) (mhr (mht a r))) (ite (leq nat mhr mhl) (NodeP a nat l x (s mhr) r) (NodeP a nat r x (s mhl) l)))))))
 (declare-fun merge_lheap (par (a) ((lheap a) (lheap a)) (lheap a)))
 (assert (par (a) (forall ((t (lheap a))) (= (merge_lheap a (LeafP a nat) t) t))))
