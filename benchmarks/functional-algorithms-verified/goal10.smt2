@@ -13,6 +13,8 @@
 (declare-fun pow (nat nat) nat)
 (assert (forall ((x nat)) (= (pow x zero) (s zero))))
 (assert (forall ((x nat) (e nat)) (= (pow x (s e)) (mult x (pow x e)))))
+(declare-fun pow2 (nat) nat)
+(assert (forall ((x nat)) (= (pow2 x) (pow (s (s zero)) x))))
 (declare-fun len (par (a) ((list a)) nat))
 (assert (par (a) (= (len a (Nil a)) zero)))
 (assert (par (a) (forall ((x a) (xs (list a))) (= (len a (Cons a x xs)) (s (len a xs))))))

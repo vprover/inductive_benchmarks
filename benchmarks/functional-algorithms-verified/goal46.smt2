@@ -20,6 +20,8 @@
 (declare-fun pow (nat nat) nat)
 (assert (forall ((x nat)) (= (pow x zero) (s zero))))
 (assert (forall ((x nat) (e nat)) (= (pow x (s e)) (mult x (pow x e)))))
+(declare-fun pow2 (nat) nat)
+(assert (forall ((x nat)) (= (pow2 x) (pow (s (s zero)) x))))
 (declare-fun len (par (a) ((list a)) nat))
 (assert (par (a) (= (len a (Nil a)) zero)))
 (assert (par (a) (forall ((x a) (xs (list a))) (= (len a (Cons a x xs)) (s (len a xs))))))
@@ -52,4 +54,4 @@
 (assert (par (a) (forall ((xs (list a))) (= (C_msort_bu a xs) (C_merge_all a (map_list_lists a xs))))))
 
 ; |xs| = 2^k -> C_msort_bu(xs) <= k * 2^k
-(assert-not (par (a) (forall ((xs (list a)) (k nat)) (=> (= (len a xs) (pow (s (s zero)) k)) (leq nat (C_msort_bu a xs) (mult k (pow (s (s zero)) k)))))))
+(assert-not (par (a) (forall ((xs (list a)) (k nat)) (=> (= (len a xs) (pow2 k)) (leq nat (C_msort_bu a xs) (mult k (pow2 k)))))))

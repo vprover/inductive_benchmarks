@@ -83,6 +83,12 @@
 (declare-fun filter_less (par (a) (a (list a)) (list a)))
 (assert (par (a) (forall ((x a)) (= (filter_less a x (Nil a)) (Nil a)))))
 (assert (par (a) (forall ((x a) (y a) (ys (list a))) (= (filter_less a x (Cons a y ys)) (ite (less a y x) (Cons a y (filter_less a x ys)) (filter_less a x ys))))))
+(declare-fun filter_greater (par (a) (a (list a)) (list a)))
+(assert (par (a) (forall ((x a)) (= (filter_greater a x (Nil a)) (Nil a)))))
+(assert (par (a) (forall ((x a) (y a) (ys (list a))) (= (filter_greater a x (Cons a y ys)) (ite (less a x y) (Cons a y (filter_greater a x ys)) (filter_greater a x ys))))))
+(declare-fun filter_eq (par (a) (a (list a)) (list a)))
+(assert (par (a) (forall ((x a)) (= (filter_eq a x (Nil a)) (Nil a)))))
+(assert (par (a) (forall ((x a) (y a) (ys (list a))) (= (filter_eq a x (Cons a y ys)) (ite (= x y) (Cons a y (filter_eq a x ys)) (filter_eq a x ys))))))
 (declare-fun filter_ge (par (a) (a (list a)) (list a)))
 (assert (par (a) (forall ((x a)) (= (filter_ge a x (Nil a)) (Nil a)))))
 (assert (par (a) (forall ((x a) (y a) (ys (list a))) (= (filter_ge a x (Cons a y ys)) (ite (not (less a y x)) (Cons a y (filter_ge a x ys)) (filter_ge a x ys))))))
@@ -94,6 +100,8 @@
 (declare-fun pow (nat nat) nat)
 (assert (forall ((x nat)) (= (pow x zero) (s zero))))
 (assert (forall ((x nat) (e nat)) (= (pow x (s e)) (mult x (pow x e)))))
+(declare-fun pow2 (nat) nat)
+(assert (forall ((x nat)) (= (pow2 x) (pow (s (s zero)) x))))
 (declare-fun fib (nat) nat)
 (assert (= (fib zero) zero))
 (assert (= (fib (s zero)) (s zero)))
@@ -180,8 +188,14 @@
 (assert (par (a) (forall ((ys (list a))) (= (quicksort2 a (Nil a) ys) ys))))
 (assert (par (a) (forall ((x a) (xs (list a)) (ys (list a))) (= (quicksort2 a (Cons a x xs) ys)
   (quicksort2 a (filter_less a x xs) (Cons a x (quicksort2 a (filter_ge a x xs) ys)))))))
-;(declare-fun partition3 (nat (list nat)) tuple((list nat),(list nat),(list nat)))
-;(declare-fun quicksort3 ((list nat)) (list nat))
+(declare-fun partition3 (par (a) (a (list a)) (triple (list a) (list a) (list a))))
+(assert (par (a) (forall ((x a) (xs (list a))) (= (partition3 a x xs)
+  (Triple (list a) (list a) (list a) (filter_less a x xs) (filter_eq a x xs) (filter_greater a x xs))))))
+(declare-fun quicksort3 (par (a) ((list a)) (list a)))
+(assert (par (a) (= (quicksort3 a (Nil a)) (Nil a))))
+(assert (par (a) (forall ((x a) (xs (list a))) (= (quicksort3 a (Cons a x xs)) (let ((t (partition3 a x xs)))
+  (append a (quicksort3 a (Triple_0 (list a) (list a) (list a) (t a)))
+    (append a (Cons a x (Triple_1 (list a) (list a) (list a) (t a))) (quicksort3 a (Triple_2 (list a) (list a) (list a) (t a))))))))))
 (declare-fun T_quicksort (par (a) ((list a)) nat))
 (assert (par (a) (= (T_quicksort a (Nil a)) (s zero))))
 (assert (par (a) (forall ((x a) (xs (list a))) (= (T_quicksort a (Cons a x xs))
@@ -938,7 +952,7 @@
 (declare-fun take_nths (par (a) (nat nat (list a)) (list a)))
 (assert (par (a) (forall ((i nat) (k nat)) (= (take_nths a i k (Nil a)) (Nil a)))))
 (assert (par (a) (forall ((i nat) (k nat) (x a) (xs (list a))) (= (take_nths a i k (Cons a x xs))
-  (ite (= i zero) (Cons a x (take_nths a (s_0 (pow (s (s zero)) k)) k xs)) (take_nths a (s_0 i) k xs))))))
+  (ite (= i zero) (Cons a x (take_nths a (s_0 (pow2 k)) k xs)) (take_nths a (s_0 i) k xs))))))
 (declare-fun braun_list (par (a) ((tree a) (list a)) Bool))
 (assert (par (a) (forall ((xs (list a))) (= (braun_list a (Leaf a) xs) (= xs (Nil a))))))
 (assert (par (a) (forall ((l (tree a)) (x a) (r (tree a)) (xs (list a))) (= (braun_list a (Node a l x r) xs)
@@ -956,15 +970,15 @@
                     ((Cons (tree a) r rs0) (Cons (tree a) (Node a l x r) (nodes a ls0 xs0 rs0)))))))))))))))
 (declare-fun brauns (par (a) (nat (list a)) (list (tree a))))
 (assert (par (a) (forall ((k nat) (xs (list a))) (= (brauns a k xs)
-  (ite (= xs (Nil a)) (Nil (tree a)) (let ((ys (take a (pow (s (s zero)) k) xs)) (zs (drop a (pow (s (s zero)) k) xs)))
-    (let ((ts (brauns a (s k) (zs a)))) (nodes a (ts a) (ys a) (drop (tree a) (pow (s (s zero)) k) (ts a))))))))))
+  (ite (= xs (Nil a)) (Nil (tree a)) (let ((ys (take a (pow2 k) xs)) (zs (drop a (pow2 k) xs)))
+    (let ((ts (brauns a (s k) (zs a)))) (nodes a (ts a) (ys a) (drop (tree a) (pow2 k) (ts a))))))))))
 (declare-fun brauns1 (par (a) ((list a)) (tree a)))
 (assert (par (a) (forall ((xs (list a))) (= (brauns1 a xs)
   (ite (= xs (Nil a)) (Leaf a) (nth (tree a) (brauns a zero xs) zero))))))
 (declare-fun T_brauns (par (a) (nat (list a)) nat))
 (assert (par (a) (forall ((k nat) (xs (list a))) (= (T_brauns a k xs) (ite (= xs (Nil a)) zero
-  (let ((ys (take a (pow (s (s zero)) k) xs)) (zs (drop a (pow (s (s zero)) k) xs)))
-    (let ((ts (brauns a (s k) (zs a)))) (plus (mult (s (s (s (s zero)))) (min (pow (s (s zero)) k) (len a xs)))
+  (let ((ys (take a (pow2 k) xs)) (zs (drop a (pow2 k) xs)))
+    (let ((ts (brauns a (s k) (zs a)))) (plus (mult (s (s (s (s zero)))) (min (pow2 k) (len a xs)))
       (T_brauns a (s k) (zs a))))))))))
 ; this cannot be defined because of map and lambdas
 ;(declare-fun list_fast_rec (par (a) ((list (tree a))) (list a)))
@@ -1119,6 +1133,19 @@
 (assert (par (a) (= (del_min_lheap a (LeafP a nat)) (LeafP a nat))))
 (assert (par (a) (forall ((l (lheap a)) (x a) (n nat) (r (lheap a))) (= (del_min_lheap a (NodeP a nat l x n r))
   (merge_lheap a l r)))))
+(declare-fun T_merge_lheap (par (a) ((lheap a) (lheap a)) nat))
+(assert (par (a) (forall ((t (lheap a))) (= (T_merge_lheap a (LeafP a nat) t) (s zero)))))
+(assert (par (a) (forall ((t (lheap a))) (= (T_merge_lheap a t (LeafP a nat)) (s zero)))))
+(assert (par (a) (forall ((l1 (lheap a)) (a1 a) (n1 nat) (r1 (lheap a)) (l2 (lheap a)) (a2 a) (n2 nat) (r2 (lheap a)))
+  (= (T_merge_lheap a (NodeP a nat l1 a1 n1 r1) (NodeP a nat l2 a2 n2 r2))
+    (s (ite (leq a a1 a2) (T_merge_lheap a r1 (NodeP a nat l2 a2 n2 r2)) (T_merge_lheap a (NodeP a nat l1 a1 n1 r1) r2)))))))
+(declare-fun T_insert_lheap (par (a) (a (lheap a)) nat))
+(assert (par (a) (forall ((x a) (t (lheap a))) (= (T_insert_lheap a x t)
+  (s (T_merge_lheap a (NodeP a nat (LeafP a nat) x (s zero) (LeafP a nat)) t))))))
+(declare-fun T_del_min_lheap (par (a) ((lheap a)) nat))
+(assert (par (a) (= (T_del_min_lheap a (LeafP a nat)) (s zero))))
+(assert (par (a) (forall ((l (lheap a)) (x a) (n nat) (r (lheap a)))
+  (= (T_del_min_lheap a (NodeP a nat l x n r)) (s (T_merge_lheap a l r))))))
 
 (declare-fun insert_braun (par (a) (a (tree a)) (tree a)))
 (assert (par (a) (forall ((x a)) (= (insert_braun a x (Leaf a)) (Node a (Leaf a) x (Leaf a))))))
@@ -1275,7 +1302,7 @@
 ; quicksort2(xs,ys) = quicksort(xs) @ ys
 (assert (par (a) (forall ((xs (list a)) (ys (list a))) (= (quicksort2 a xs ys) (append a (quicksort a xs) ys)))))
 ; quicksort3(xs) = quicksort(xs)
-
+(assert (par (a) (forall ((xs (list a))) (= (quicksort3 a xs) (quicksort a xs)))))
 ; sorted(xs) -> T_quicksort(xs) = a * |xs|^2 + b * |xs| + c
 
 ; T_quicksort(xs) <= a * |xs|^2 + b * |xs| + c
@@ -1297,7 +1324,7 @@
 ; C_merge(xs,ys) <= |xs| + |ys|
 (assert (par (a) (forall ((xs (list a)) (ys (list a))) (leq nat (C_merge a xs ys) (plus (len a xs) (len a ys))))))
 ; |xs| = 2^k -> C_msort(xs) <= k * 2^k
-(assert (par (a) (forall ((xs (list a)) (k nat)) (=> (= (len a xs) (pow (s (s zero)) k)) (leq nat (C_msort a xs) (mult k (pow (s (s zero)) k)))))))
+(assert (par (a) (forall ((xs (list a)) (k nat)) (=> (= (len a xs) (pow2 k)) (leq nat (C_msort a xs) (mult k (pow2 k)))))))
 ; mset(msort2(xs)) = mset(xs)
 (assert (par (a) (forall ((xs (list a))) (same_mset a (msort2 a xs) xs))))
 ; sorted(msort2(xs))
@@ -1324,9 +1351,9 @@
   (leq nat (C_merge_adj a xss) (mult m (len (list a) xss)))))))
 ; (!xs in set(xss). |xs| = m) & |xss| = 2^k -> C_merge_all(xss) <= m * k * 2^k
 (assert (par (a) (forall ((xss (lists a)) (m nat) (k nat)) (=> (and (forall ((xs (list a))) (=> (in_set (list a) xs xss) (= (len a xs) m)))
-  (= (len (list a ) xss) (pow (s (s zero)) k))) (leq nat (C_merge_all a xss) (mult m (mult k (pow (s (s zero)) k))))))))
+  (= (len (list a ) xss) (pow2 k))) (leq nat (C_merge_all a xss) (mult m (mult k (pow2 k))))))))
 ; |xs| = 2^k -> C_msort_bu(xs) <= k * 2^k
-(assert (par (a) (forall ((xs (list a)) (k nat)) (=> (= (len a xs) (pow (s (s zero)) k)) (leq nat (C_msort_bu a xs) (mult k (pow (s (s zero)) k)))))))
+(assert (par (a) (forall ((xs (list a)) (k nat)) (=> (= (len a xs) (pow2 k)) (leq nat (C_msort_bu a xs) (mult k (pow2 k)))))))
 ; (!xs, ys. f (xs @ ys) = f(xs) @ ys) -> mset_mset(asc x f ys) = {{x}} + mset(f([])) + mset(ys)
 
 ; mset_mset(desc(x,xs,ys)) = {{x}} + mset(xs) + mset(ys)
@@ -1423,21 +1450,21 @@
 ; mh(t) <= h(t)
 (assert (par (a) (forall ((t (tree a))) (leq nat (mh a t) (h a t)))))
 ; 2^mh(t) <= |t|_1
-(assert (par (a) (forall ((t (tree a))) (leq nat (pow (s (s zero)) (mh a t)) (size1 a t)))))
+(assert (par (a) (forall ((t (tree a))) (leq nat (pow2 (mh a t)) (size1 a t)))))
 ; |t|_1 <= 2^h(t)
-(assert (par (a) (forall ((t (tree a))) (leq nat (size1 a t) (pow (s (s zero)) (h a t))))))
+(assert (par (a) (forall ((t (tree a))) (leq nat (size1 a t) (pow2 (h a t))))))
 ; inorder2(t,xs) = inorder(t) @ xs
 (assert (par (a) (forall ((t (tree a)) (xs (list a))) (= (inorder2 a t xs) (append a (inorder a t) xs)))))
 ; complete(t) <-> mh(t) = h(t)
 (assert (par (a) (forall ((t (tree a))) (= (complete a t) (= (mh a t) (h a t))))))
 ; complete(t) -> |t|_1 = 2^h(t)
-(assert (par (a) (forall ((t (tree a))) (=> (complete a t) (= (size1 a t) (pow (s (s zero)) (h a t)))))))
+(assert (par (a) (forall ((t (tree a))) (=> (complete a t) (= (size1 a t) (pow2 (h a t)))))))
 ; ~complete(t) -> |t|_1 < 2^h(t)
-(assert (par (a) (forall ((t (tree a))) (=> (not (complete a t)) (less nat (size1 a t) (pow (s (s zero)) (h a t)))))))
+(assert (par (a) (forall ((t (tree a))) (=> (not (complete a t)) (less nat (size1 a t) (pow2 (h a t)))))))
 ; ~complete(t) -> 2^mh(t) < |t|_1
-(assert (par (a) (forall ((t (tree a))) (=> (not (complete a t)) (less nat (pow (s (s zero)) (mh a t)) (size1 a t))))))
+(assert (par (a) (forall ((t (tree a))) (=> (not (complete a t)) (less nat (pow2 (mh a t)) (size1 a t))))))
 ; complete(t) <-> |t|_1 = 2^h(t)
-(assert (par (a) (forall ((t (tree a))) (= (complete a t) (= (size1 a t) (pow (s (s zero)) (h a t)))))))
+(assert (par (a) (forall ((t (tree a))) (= (complete a t) (= (size1 a t) (pow2 (h a t)))))))
 ; u in subtrees(t) & complete(u) -> h(u) <= h(mcs(t))
 
 ; acomplete(s) & |s| <= |t| -> h(s) <= h(t)
@@ -1631,11 +1658,11 @@
 ; invc(t) & invh(t) -> h(t) <= 2 * bh(t) + (if color(t) = Black then 0 else 1)
 (assert (par (a) (forall ((t (rbt a))) (=> (and (invc a t) (invh a t)) (leq nat (h (pair a color) t) (plus (mult (s (s zero)) (bh a t)) (ite (= (color_of a t) Black) zero (s zero))))))))
 ; invc(t) & invh(t) -> 2^bh(t) <= |t|_1
-(assert (par (a) (forall ((t (rbt a))) (=> (and (invc a t) (invh a t)) (leq nat (pow (s (s zero)) (bh a t)) (size1 (pair a color) t))))))
+(assert (par (a) (forall ((t (rbt a))) (=> (and (invc a t) (invh a t)) (leq nat (pow2 (bh a t)) (size1 (pair a color) t))))))
 ; 2^(h(t)/2) <= 2^bh(t) <= |t|_1
 
-; rbt(t) -> h(t) <= 2 * lg(|t|_1)
-
+; rbt(t) -> h(t) <= 2 * lg(|t|_1) ; TODO double check this
+(assert (par (a) (forall ((t (rbt a))) (=> (inv_rbt a t) (leq nat (pow2 (h (pair a color) t)) (mult (size1 (pair a color) t) (size1 (pair a color) t)))))))
 ; invh(l) & invh(r) & invc2(l) & invc(r) & bh(l) = bh(r) ->
 ;   invc(baliL(l,a,r)) & invh(baliL(l,a,r)) & bh(baliL(l,a,r)) = bh(l) + 1
 (assert (par (a) (forall ((l (rbt a)) (x a) (r (rbt a))) (=> (and (invh a l) (invh a r) (invc2 a l) (invc a r) (= (bh a l) (bh a r)))
@@ -1710,9 +1737,9 @@
 (assert (par (a) (forall ((x a) (t (tree_ht a)) (t' (tree_ht a))) (=> (and (avl a t) (= t' (deleteAVL a x t)))
   (and (avl a t') (or (= (h (pair a nat) t) (h (pair a nat) t')) (= (h (pair a nat) t) (s (h (pair a nat) t')))))))))
 ; avl(t) & h(t) = n -> 2^(n div 2) <= |t|_1
-(assert (par (a) (forall ((t (tree_ht a)) (n nat)) (=> (avl a t) (= (h (pair a nat) t) n) (leq nat (pow (s (s zero)) (div2 n)) (size1 (pair a nat) t))))))
-; avl(t) -> h(t) <= 2 * lg(|t|_1)
-
+(assert (par (a) (forall ((t (tree_ht a)) (n nat)) (=> (avl a t) (= (h (pair a nat) t) n) (leq nat (pow2 (div2 n)) (size1 (pair a nat) t))))))
+; avl(t) -> h(t) <= 2 * lg(|t|_1) ; TODO double check this
+(assert (par (a) (forall ((t (tree_ht a))) (=> (avl a t) (leq nat (pow2 (h (pair a nat) t)) (mult (size1 (pair a nat) t) (size1 (pair a nat) t)))))))
 ; avl0(fibt(n))
 (assert (forall ((n nat)) (avl0 unit (fibt n))))
 ; |fibt(n)|_1 = fib(n + 2)
@@ -1904,7 +1931,7 @@
   (take_nths a (s zero) (s zero) xs)) xs))))
 ; take_nths(i,m,take_nths(j,n,xs)) = take_nths(i * 2^n + j, m + n, xs)
 (assert (par (a) (forall ((i nat) (m nat) (j nat) (n nat) (xs (list a)))
-  (= (take_nths a i m (take_nths a j n xs)) (take_nths a (plus (mult i (pow (s (s zero)) n)) j) (plus m n) xs)))))
+  (= (take_nths a i m (take_nths a j n xs)) (take_nths a (plus (mult i (pow2 n)) j) (plus m n) xs)))))
 ; take_nths(i,k,xs) = [] <-> |xs| <= i
 ; TODO unsat
 ;(assert (par (a) (forall ((i nat) (k nat) (xs (list a))) (= (= (take_nths a i k  xs) (Nil a)) (leq nat (len a xs) i)))))
@@ -1927,9 +1954,9 @@
   (= (nth (tree a) (nodes a ls xs rs) i) (Node a (ite (less nat i (len (tree a) ls)) (nth (tree a) ls i) (Leaf a))
     (nth a xs i) (ite (less nat i (len (tree a) rs)) (nth (tree a) rs i) (Leaf a))))))))
 ; |brauns(k,xs)| = min(|xs|,2^k)
-(assert (par (a) (forall ((k nat) (xs (list a))) (= (len (tree a) (brauns a k xs)) (min (len a xs) (pow (s (s zero)) k))))))
+(assert (par (a) (forall ((k nat) (xs (list a))) (= (len (tree a) (brauns a k xs)) (min (len a xs) (pow2 k))))))
 ; i < min(|xs|,2^k) -> braun_list(brauns(k,xs) ! i, take_nths(i,k,xs))
-(assert (par (a) (forall ((i nat) (k nat) (xs (list a))) (=> (less nat i (min (len a xs) (pow (s (s zero)) k)))
+(assert (par (a) (forall ((i nat) (k nat) (xs (list a))) (=> (less nat i (min (len a xs) (pow2 k)))
   (braun_list a (nth (tree a) (brauns a k xs) i) (take_nths a i k xs))))))
 ; braun(brauns1(xs)) & list(brauns1(xs)) = xs
 (assert (par (a) (forall ((xs (list a))) (and (braun a (brauns1 a xs)) (= (list_of a (brauns1 a xs)) xs)))))
@@ -1937,8 +1964,8 @@
 (assert (par (a) (forall ((k nat) (xs (list a))) (= (T_brauns a k xs) (mult (s (s (s (s zero)))) (len a xs))))))
 ; |ts| = 2^k & (!i<2^k.braun_list(ts ! i, take_nths(i,k,xs))) -> list_fast_rec(ts) = xs
 ; TODO list_fast_rec needs map function
-;(assert (par (a) (forall ((k nat) (ts (list a)) (xs (list a))) (=> (and (= (len a ts) (pow (s (s zero)) k))
-;  (forall ((i nat)) (=> (less nat i (pow (s (s zero)) k)) (braun_list a (nths a ts i) (take_nths a i k xs)))))
+;(assert (par (a) (forall ((k nat) (ts (list a)) (xs (list a))) (=> (and (= (len a ts) (pow2 k))
+;  (forall ((i nat)) (=> (less nat i (pow2 k)) (braun_list a (nths a ts i) (take_nths a i k xs)))))
 ;    (= (list_fast_rec a ts) xs)))))
 ; map_value(ts) = take(2^k,xs)
 
@@ -1951,7 +1978,7 @@
 ; braun(t) -> h(t) = ceil(lg(|t|_1))
 
 ; braun(t) -> 2^h(t) <= 2 * |t| + 1
-(assert (par (a) (forall ((t (tree a))) (=> (braun a t) (leq nat (pow (s (s zero)) (h a t)) (s (mult (s (s zero)) (size a t))))))))
+(assert (par (a) (forall ((t (tree a))) (=> (braun a t) (leq nat (pow2 (h a t)) (s (mult (s (s zero)) (size a t))))))))
 ; n <= |xs| & bal(n,xs) = (t,zs) -> braun(t)
 (assert (par (a) (forall ((n nat) (xs (list a)) (t (tree a)) (zs (list a))) (=> (and (leq nat n (len a xs))
   (= (balance a n xs) (Pair (tree a) (list a) t zs))) (braun a t)))))
@@ -2026,9 +2053,11 @@
 ; heap l & heap r -> heap (merge l r)
 (assert (par (a) (forall ((l (lheap a)) (r (lheap a))) (=> (and (heapp a nat l) (heapp a nat r)) (heapp a nat (merge_lheap a l r))))))
 ; mset_tree (insert x t) = mset_tree t + {{x}}
-
+(assert (par (a) (forall ((x a) (y a) (t (lheap a))) (= (count_ptree a nat y (insert_lheap a x t))
+  (ite (= x y) (s (count_ptree a nat y t)) (count_ptree a nat y t))))))
 ; mset_tree (del_min t) = mset_tree t - {{ get_min t}}
-
+(assert (par (a) (forall ((x a) (t (lheap a))) (= (count_ptree a nat x (del_min_lheap a t))
+  (ite (= x (get_minp a nat t)) (s_0 (count_ptree a nat x t)) (count_ptree a nat x t))))))
 ; ltree t -> ltree (insert x t)
 (assert (par (a) (forall ((x a) (t (lheap a))) (=> (ltree a t) (ltree a (insert_lheap a x t))))))
 ; heap t -> heap (insert x t)
@@ -2038,24 +2067,30 @@
 ; heap t -> heap (del_min t)
 (assert (par (a) (forall ((t (lheap a))) (=> (heapp a nat t) (heapp a nat (del_min_lheap a t))))))
 ; ltree l & ltree r -> T_merge l r <= mh l + mh r + 1
-
-; ltree l & ltree r -> T_merge l r <= lg |l|_1 + lg |r|_1 + 1
-
-; ltree t -> T_insert x t <= lg |t|_1 + 3
-
-; ltree t -> T_del_min t <= 2 * lg |t|_1 + 1
-
+(assert (par (a) (forall ((l (lheap a)) (r (lheap a))) (=> (and (ltree a l) (ltree a r))
+  (leq nat (T_merge_lheap a l r) (plus (plus (mh (pair a nat) l) (mh (pair a nat) r)) (s zero)))))))
+; ltree l & ltree r -> T_merge l r <= lg |l|_1 + lg |r|_1 + 1 ; TODO double check this
+(assert (par (a) (forall ((l (lheap a)) (r (lheap a))) (=> (and (ltree a l) (ltree a r))
+  (leq nat (pow2 (T_merge_lheap a l r)) (mult (mult (size1 (pair a nat) l) (size1 (pair a nat) r)) (s (s zero))))))))
+; ltree t -> T_insert x t <= lg |t|_1 + 3 ; TODO double check this
+(assert (par (a) (forall ((x a) (t (lheap a))) (=> (ltree a t)
+  (leq nat (pow2 (T_insert_lheap a x t)) (mult (size1 (pair a nat) t) (pow2 (s (s (s zero))))))))))
+; ltree t -> T_del_min t <= 2 * lg |t|_1 + 1 ; TODO double check this
+(assert (par (a) (forall ((t (lheap a))) (=> (ltree a t)
+  (leq nat (pow2 (T_del_min_lheap a t)) (mult (mult (size1 (pair a nat) t) (size1 (pair a nat) t)) (s (s zero))))))))
 ; Braun tree priority queues
 ; |insert x t| = |t| + 1
 (assert (par (a) (forall ((x a) (t (tree a))) (= (size a (insert_braun a x t)) (s (size a t))))))
 ; mset_tree (insert x t) = {{x}} + mset_tree t
-
+(assert (par (a) (forall ((x a) (y a) (t (tree a))) (= (count_tree a y (insert_braun a x t))
+  (ite (= x y) (s (count_tree a y t)) (count_tree a y t))))))
 ; braun t -> braun (insert x t)
 (assert (par (a) (forall ((x a) (t (tree a))) (=> (braun a t) (braun a (insert_braun a x t))))))
 ; heap t -> heap (insert x t)
 (assert (par (a) (forall ((x a) (t (tree a))) (=> (heap a t) (heap a (insert_braun a x t))))))
 ; del_left t = (x,t') & t != <> -> mset_tree t = {{x}} + mset_tree t'
-
+(assert (par (a) (forall ((x a) (t (tree a)) (t' (tree a))) (=> (and (= (del_left a t) (Pair a (tree a) x t')) (distinct t (Leaf a)))
+  (forall ((y a)) (= (count_tree a y t) (ite (= x y) (count_tree a y t') (s (count_tree a y t')))))))))
 ; del_left t = (x,t') & t != <> & heap t -> heap t'
 (assert (par (a) (forall ((x a) (t (tree a)) (t' (tree a))) (=> (and (= (del_left a t) (Pair a (tree a) x t'))
   (distinct t (Leaf a)) (heap a t)) (heap a t')))))
@@ -2072,7 +2107,9 @@
 (assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (=> (braun a (Node a l x r))
   (braun a (sift_down a l x r))))))
 ; braun <l,a,r> -> mset_tree (sift_down l a r) = {{a}} + (mset_tree l + mset_tree r)
-
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (=> (braun a (Node a l x r))
+  (forall ((y a)) (= (count_tree a y (sift_down a l x r)) (ite (= x y)
+    (s (plus (count_tree a y l) (count_tree a y r))) (plus (count_tree a y l) (count_tree a y r)))))))))
 ; braun <l,a,r> & heap l & heap r -> heap (sift_down l a r)
 (assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (=> (and (braun a (Node a l x r))
   (heap a l) (heap a r)) (heap a (sift_down a l x r))))))
@@ -2084,6 +2121,8 @@
 ; deliberate use of s_0 to be consistent with the case of t being a leaf
 (assert (par (a) (forall ((t (tree a))) (=> (braun a t) (= (size a (del_min_braun a t)) (s_0 (size a t)))))))
 ; braun t & t != <> -> mset_tree (del_min t) = mset_tree t - {{ get_min t }}
+(assert (par (a) (forall ((x a) (t (tree a))) (=> (and (braun a t) (distinct t (Leaf a)))
+  (= (count_tree a x (del_min_braun a t)) (ite (= x (get_min a t)) (s_0 (count_tree a x t)) (count_tree a x t)))))))
 
 
 ; Binomial heaps
@@ -2180,13 +2219,13 @@
 ; heap t1 & heap t2 -> heap (merge t1 t2)
 (assert (par (a) (forall ((t1 (tree a)) (t2 (tree a))) (=> (and (heap a t1) (heap a t2)) (heap a (merge_skew a t1 t2))))))
 ; 2^(lrh t) <= |t| + 1
-(assert (par (a) (forall ((t (tree a))) (leq nat (pow (s (s zero)) (lrh a t)) (s (size a t))))))
+(assert (par (a) (forall ((t (tree a))) (leq nat (pow2 (lrh a t)) (s (size a t))))))
 ; 2^(rlh t) <= |t| + 1
-(assert (par (a) (forall ((t (tree a))) (leq nat (pow (s (s zero)) (rlh a t)) (s (size a t))))))
+(assert (par (a) (forall ((t (tree a))) (leq nat (pow2 (rlh a t)) (s (size a t))))))
 ; lrh t <= lg |t|_1
-
+(assert (par (a) (forall ((t (tree a))) (leq nat (pow2 (lrh a t)) (size1 a t)))))
 ; rlh t <= lg |t|_1
-
+(assert (par (a) (forall ((t (tree a))) (leq nat (pow2 (rlh a t)) (size1 a t)))))
 ; T_merge t1 t2 + psi (merge t1 t2) - psi t1 - psi t2 <= lrh (merge t1 t2) + rlh t1 + rlh t2 + 1
 (assert (par (a) (forall ((t1 (tree a)) (t2 (tree a))) (leq nat (minus (minus (plus (T_merge_skew a t1 t2) (psi_skew a (merge_skew a t1 t2)))
   (psi_skew a t1)) (psi_skew a t2)) (s (plus (plus (lrh a (merge_skew a t1 t2)) (rlh a t1)) (rlh a t2)))))))

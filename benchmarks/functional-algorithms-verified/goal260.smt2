@@ -16,13 +16,15 @@
 (declare-fun pow (nat nat) nat)
 (assert (forall ((x nat)) (= (pow x zero) (s zero))))
 (assert (forall ((x nat) (e nat)) (= (pow x (s e)) (mult x (pow x e)))))
+(declare-fun pow2 (nat) nat)
+(assert (forall ((x nat)) (= (pow2 x) (pow (s (s zero)) x))))
 (declare-fun len (par (a) ((list a)) nat))
 (assert (par (a) (= (len a (Nil a)) zero)))
 (assert (par (a) (forall ((x a) (xs (list a))) (= (len a (Cons a x xs)) (s (len a xs))))))
 (declare-fun take_nths (par (a) (nat nat (list a)) (list a)))
 (assert (par (a) (forall ((i nat) (k nat)) (= (take_nths a i k (Nil a)) (Nil a)))))
 (assert (par (a) (forall ((i nat) (k nat) (x a) (xs (list a))) (= (take_nths a i k (Cons a x xs))
-  (ite (= i zero) (Cons a x (take_nths a (s_0 (pow (s (s zero)) k)) k xs)) (take_nths a (s_0 i) k xs))))))
+  (ite (= i zero) (Cons a x (take_nths a (s_0 (pow2 k)) k xs)) (take_nths a (s_0 i) k xs))))))
 
 ; TODO unsat ; take_nths(i,k,xs) = [] <-> |xs| <= i
 ;(assert-not (par (a) (forall ((i nat) (k nat) (xs (list a))) (= (= (take_nths a i k xs) (Nil a)) (leq nat (len a xs) i)))))

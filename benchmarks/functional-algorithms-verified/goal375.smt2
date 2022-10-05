@@ -20,6 +20,8 @@
 (declare-fun pow (nat nat) nat)
 (assert (forall ((x nat)) (= (pow x zero) (s zero))))
 (assert (forall ((x nat) (e nat)) (= (pow x (s e)) (mult x (pow x e)))))
+(declare-fun pow2 (nat) nat)
+(assert (forall ((x nat)) (= (pow2 x) (pow (s (s zero)) x))))
 (declare-fun size (par (a) ((tree a)) nat))
 (assert (par (a) (= (size a (Leaf a)) zero)))
 (assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (size a (Node a l x r)) (s (plus (size a l) (size a r)))))))
@@ -31,4 +33,4 @@
 (assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (rlh a (Node a l x r)) (plus (minus (s zero) (rh a l r)) (rlh a l))))))
 
 ; 2^(rlh t) <= |t| + 1
-(assert-not (par (a) (forall ((t (tree a))) (leq nat (pow (s (s zero)) (rlh a t)) (s (size a t))))))
+(assert-not (par (a) (forall ((t (tree a))) (leq nat (pow2 (rlh a t)) (s (size a t))))))

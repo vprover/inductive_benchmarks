@@ -16,6 +16,8 @@
 (declare-fun pow (nat nat) nat)
 (assert (forall ((x nat)) (= (pow x zero) (s zero))))
 (assert (forall ((x nat) (e nat)) (= (pow x (s e)) (mult x (pow x e)))))
+(declare-fun pow2 (nat) nat)
+(assert (forall ((x nat)) (= (pow2 x) (pow (s (s zero)) x))))
 (declare-fun max (par (a) (a a) a))
 (assert (par (a) (forall ((x a) (y a)) (= (max a x y) (ite (leq a x y) y x)))))
 (declare-fun size (par (a) ((tree a)) nat))
@@ -30,4 +32,4 @@
   (and (or (= (size a l) (size a r)) (= (size a l) (s (size a r)))) (braun a l) (braun a r))))))
 
 ; braun(t) -> 2^h(t) <= 2 * |t| + 1
-(assert-not (par (a) (forall ((t (tree a))) (=> (braun a t) (leq nat (pow (s (s zero)) (h a t)) (s (mult (s (s zero)) (size a t))))))))
+(assert-not (par (a) (forall ((t (tree a))) (=> (braun a t) (leq nat (pow2 (h a t)) (s (mult (s (s zero)) (size a t))))))))

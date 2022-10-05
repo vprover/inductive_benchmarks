@@ -20,6 +20,8 @@
 (declare-fun pow (nat nat) nat)
 (assert (forall ((x nat)) (= (pow x zero) (s zero))))
 (assert (forall ((x nat) (e nat)) (= (pow x (s e)) (mult x (pow x e)))))
+(declare-fun pow2 (nat) nat)
+(assert (forall ((x nat)) (= (pow2 x) (pow (s (s zero)) x))))
 (declare-fun len (par (a) ((list a)) nat))
 (assert (par (a) (= (len a (Nil a)) zero)))
 (assert (par (a) (forall ((x a) (xs (list a))) (= (len a (Cons a x xs)) (s (len a xs))))))
@@ -50,4 +52,4 @@
   (= (C_merge_all a xss) (plus (C_merge_adj a xss) (C_merge_all a (merge_adj a xss))))))))
 
 ; (!xs in set(xss). |xs| = m) & |xss| = 2^k -> C_merge_all(xss) <= m * k * 2^k
-(assert-not (par (a) (forall ((xss (lists a)) (m nat) (k nat)) (=> (and (forall ((xs (list a))) (=> (in_set (list a) xs xss) (= (len a xs) m))) (= (len (list a) xss) (pow (s (s zero)) k))) (leq nat (C_merge_all a xss) (mult m (mult k (pow (s (s zero)) k))))))))
+(assert-not (par (a) (forall ((xss (lists a)) (m nat) (k nat)) (=> (and (forall ((xs (list a))) (=> (in_set (list a) xs xss) (= (len a xs) m))) (= (len (list a) xss) (pow2 k))) (leq nat (C_merge_all a xss) (mult m (mult k (pow2 k))))))))

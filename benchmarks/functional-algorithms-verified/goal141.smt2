@@ -16,6 +16,8 @@
 (declare-fun pow (nat nat) nat)
 (assert (forall ((x nat)) (= (pow x zero) (s zero))))
 (assert (forall ((x nat) (e nat)) (= (pow x (s e)) (mult x (pow x e)))))
+(declare-fun pow2 (nat) nat)
+(assert (forall ((x nat)) (= (pow2 x) (pow (s (s zero)) x))))
 (declare-fun max (par (a) (a a) a))
 (assert (par (a) (forall ((x a) (y a)) (= (max a x y) (ite (leq a x y) y x)))))
 (declare-fun size23 (par (a) ((tree23 a)) nat))
@@ -38,4 +40,4 @@
   (and (= (h23 a l) (h23 a m)) (= (h23 a m) (h23 a r)) (complete23 a l) (complete23 a m) (complete23 a r))))))
 
 ; complete(t) -> 2^h(t) <= |t| + 1
-(assert-not (par (a) (forall ((t (tree23 a))) (=> (complete23 a t) (leq nat (pow (s (s zero)) (h23 a t)) (s (size23 a t)))))))
+(assert-not (par (a) (forall ((t (tree23 a))) (=> (complete23 a t) (leq nat (pow2 (h23 a t)) (s (size23 a t)))))))

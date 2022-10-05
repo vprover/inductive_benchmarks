@@ -23,6 +23,8 @@
 (declare-fun pow (nat nat) nat)
 (assert (forall ((x nat)) (= (pow x zero) (s zero))))
 (assert (forall ((x nat) (e nat)) (= (pow x (s e)) (mult x (pow x e)))))
+(declare-fun pow2 (nat) nat)
+(assert (forall ((x nat)) (= (pow2 x) (pow (s (s zero)) x))))
 (declare-fun div2 (nat) nat)
 (assert (= (div2 zero) zero))
 (assert (= (div2 (s zero)) zero))
@@ -41,4 +43,4 @@
   (let ((hl (h (pair a nat) l)) (hr (h (pair a nat) r))) (and (or (= hl hr) (= (s hl) hr) (= hl (s hr))) (= n (s (max nat hl hr))) (avl a l) (avl a r)))))))
 
 ; avl(t) & h(t) = n -> 2^(n div 2) <= |t|_1
-(assert-not (par (a) (forall ((t (tree_ht a)) (n nat)) (=> (avl a t) (= (h (pair a nat) t) n) (leq nat (pow (s (s zero)) (div2 n)) (size1 (pair a nat) t))))))
+(assert-not (par (a) (forall ((t (tree_ht a)) (n nat)) (=> (avl a t) (= (h (pair a nat) t) n) (leq nat (pow2 (div2 n)) (size1 (pair a nat) t))))))
