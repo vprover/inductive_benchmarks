@@ -1178,7 +1178,7 @@
     (((Node a C z D) (Node a (Node a (Node a A x B') y C) z D))
      (_ (splay_undefined a)))))))))
 (declare-fun isin_splay (par (a) ((tree a) a) Bool))
-(assert (par (a) (forall ((t (tree a)) (x a)) (= (isin a t x) (match (splay a x t)
+(assert (par (a) (forall ((t (tree a)) (x a)) (= (isin_splay a t x) (match (splay a x t)
   (((Leaf a) false)
    ((Node a A y B') (= x y))))))))
 (declare-fun insert_splay (par (a) (a (tree a)) (tree a)))
