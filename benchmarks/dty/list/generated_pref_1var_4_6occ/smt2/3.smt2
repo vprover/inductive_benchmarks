@@ -1,7 +1,6 @@
 (set-logic UFDT)
 (declare-datatypes ((lst 0) (nat 0)) (((nil) (cons (cons0 nat) (cons1 lst))) ((zero) (s (s0 nat)))))
 (declare-fun app (lst lst) lst)
-(injective app (true true))
 (declare-fun pref (lst lst) Bool)
 (assert (forall ((r lst)) (= (app nil r) r)))
 (assert (forall ((a nat) (l lst) (r lst)) (= (app (cons a l) r) (cons a (app l r)))))

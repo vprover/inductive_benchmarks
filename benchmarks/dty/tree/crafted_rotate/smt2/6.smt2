@@ -4,7 +4,6 @@
    ((nil) (cons (head nat) (tail list)))
    ((Nil) (node (lc tree) (val nat) (rc tree)))))
 (declare-fun add (nat nat) nat)
-(injective add (true true))
 (assert (forall ((y nat)) (= (add zero y) y)))
 (assert (forall ((x nat) (y nat)) (= (add (s x) y) (s (add x y)))))
 (declare-fun app (list list) list)
