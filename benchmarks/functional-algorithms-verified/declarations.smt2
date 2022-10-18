@@ -43,6 +43,7 @@
 (define-sort tree_ht (a) (ptree a nat))
 (declare-datatype triple (par (a b c) ((Triple (Triple_0 a) (Triple_1 b) (Triple_2 c)))))
 (define-sort lheap (a) (ptree a nat))
+(declare-datatype heap (par (a) ((Empty) (Hp (Hp_0 a) (Hp_1 (list (heap a)))))))
 
 ; uninterpreted functions
 (declare-fun f (par (a) ((list a)) (list a)))
@@ -72,6 +73,21 @@
 (assert (par (a b) (forall ((x a)) (= (count_ptree a b x (LeafP a b)) zero))))
 (assert (par (a b) (forall ((x a) (l (ptree a b)) (y a) (z b) (r (ptree a b))) (= (count_ptree a b x (NodeP a b l y z r))
   (let ((lc (count_ptree a b x l)) (rc (count_ptree a b x r))) (ite (= x y) (s (plus lc rc)) (plus lc rc)))))))
+(declare-fun in_heap (par (a) (a (heap a)) Bool))
+(declare-fun in_heap_inner (par (a) (a (list (heap a))) Bool))
+(assert (par (a) (forall ((x a)) (not (in_heap_inner a x (Nil (heap a)))))))
+(assert (par (a) (forall ((x a) (h (heap a)) (hs (list (heap a)))) (= (in_heap_inner a x (Cons (heap a) h hs))
+  (or (in_heap a x h) (in_heap_inner a x hs))))))
+(assert (par (a) (forall ((x a)) (not (in_heap a x (Empty a))))))
+(assert (par (a) (forall ((x a) (y a) (ys (list (heap a)))) (= (in_heap a x (Hp a y ys)) (or (= x y) (in_heap_inner a x ys))))))
+(declare-fun count_heap (par (a) (a (heap a)) nat))
+(declare-fun count_heap_inner (par (a) (a (list (heap a))) nat))
+(assert (par (a) (forall ((x a)) (= (count_heap_inner a x (Nil (heap a))) zero))))
+(assert (par (a) (forall ((x a) (h (heap a)) (hs (list (heap a)))) (= (count_heap_inner a x (Cons (heap a) h hs))
+  (plus (count_heap a x h) (count_heap_inner a x hs))))))
+(assert (par (a) (forall ((x a)) (= (count_heap a x (Empty a)) zero))))
+(assert (par (a) (forall ((x a) (y a) (ys (list (heap a)))) (= (count_heap a x (Hp a y ys))
+  (ite (= x y) (s (count_heap_inner a x ys)) (count_heap_inner a x ys))))))
 
 ; filter and map functions -- remove these once a higher-order setting is used
 (declare-fun less (par (a) (a a) Bool))
@@ -1096,10 +1112,10 @@
   (and (leq nat (weight a t1) (weight a t2)) (sortedByWeight a (Cons (treeh a) t2 ts)))))))
 
 ; Priority queues
-(declare-fun heap (par (a) ((tree a)) Bool))
-(assert (par (a) (heap a (Leaf a))))
-(assert (par (a) (forall ((l (tree a)) (m a) (r (tree a))) (= (heap a (Node a l m r))
-  (and (forall ((x a)) (=> (and (in_set_tree a x l) (in_set_tree a x r)) (leq a m x))) (heap a l) (heap a r))))))
+(declare-fun inv_heap (par (a) ((tree a)) Bool))
+(assert (par (a) (inv_heap a (Leaf a))))
+(assert (par (a) (forall ((l (tree a)) (m a) (r (tree a))) (= (inv_heap a (Node a l m r))
+  (and (forall ((x a)) (=> (and (in_set_tree a x l) (in_set_tree a x r)) (leq a m x))) (inv_heap a l) (inv_heap a r))))))
 (declare-fun heapp (par (a b) ((ptree a b)) Bool))
 (assert (par (a b) (heapp a b (LeafP a b))))
 (assert (par (a b) (forall ((l (ptree a b)) (m a) (n b) (r (ptree a b))) (= (heapp a b (NodeP a b l m n r))
@@ -1219,7 +1235,20 @@
   (match (splay a x t) (((Node a l y r) (ite (distinct x y) (Node a l y r) (ite (= l (Leaf a)) r
     (match (splay_max a l) (((Node a l' z r') (Node a l' z r))
                             (_ (splay_undefined a))))))) (_ (splay_undefined a)))))))))
-
+(declare-fun T_splay (par (a) (a (tree a)) nat))
+(assert (par (a) (forall ((x a)) (= (T_splay a x (Leaf a)) (s zero)))))
+(assert (par (a) (forall ((x a) (AB (tree a)) (b a) (CD (tree a))) (= (T_splay a x (Node a AB b CD))
+  (match (cmp a x b) ((LT (match AB (((Leaf a) (s zero))
+                                     ((Node a A y B') (match (cmp a x y)
+                                        ((LT (ite (= A (Leaf a)) (s zero) (s (T_splay a x A))))
+                                         (EQ (s zero))
+                                         (GT (ite (= B' (Leaf a)) (s zero) (s (T_splay a x B'))))))))))
+                      (EQ (s zero))
+                      (GT (match CD (((Leaf a) (s zero))
+                                     ((Node a C c D) (match (cmp a x c)
+                                        ((LT (ite (= C (Leaf a)) (s zero) (s (T_splay a x C))))
+                                         (EQ (s zero))
+                                         (GT (ite (= D (Leaf a)) (s zero) (s (T_splay a x D))))))))))))))))
 
 ; Skew heaps
 (declare-fun merge_skew (par (a) ((tree a) (tree a)) (tree a)))
@@ -1227,6 +1256,12 @@
 (assert (par (a) (forall ((t (tree a))) (= (merge_skew a t (Leaf a)) t))))
 (assert (par (a) (forall ((l1 (tree a)) (a1 a) (r1 (tree a)) (l2 (tree a)) (a2 a) (r2 (tree a))) (= (merge_skew a (Node a l1 a1 r1) (Node a l2 a2 r2))
   (ite (leq a a1 a2) (Node a (merge_skew a (Node a l2 a2 r2) r1) a1 l1) (Node a (merge_skew a (Node a l1 a1 r1) r2) a2 l2))))))
+(declare-fun insert_skew (par (a) (a (tree a)) (tree a)))
+(assert (par (a) (forall ((x a) (t (tree a))) (= (insert_skew a x t)
+  (merge_skew a (Node a (Leaf a) x (Leaf a)) t)))))
+(declare-fun del_min_skew (par (a) ((tree a)) (tree a)))
+(assert (par (a) (= (del_min_skew a (Leaf a)) (Leaf a))))
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (del_min_skew a (Node a l x r)) (merge_skew a l r)))))
 (declare-fun rh (par (a) ((tree a) (tree a)) nat))
 (assert (par (a) (forall ((l (tree a)) (r (tree a))) (= (rh a l r) (ite (leq nat (size a l) (size a r)) (s zero) zero)))))
 (declare-fun psi_skew (par (a) ((tree a)) nat))
@@ -1244,6 +1279,34 @@
 (assert (par (a) (forall ((t (tree a))) (= (T_merge_skew a t (Leaf a)) (s zero)))))
 (assert (par (a) (forall ((l1 (tree a)) (a1 a) (r1 (tree a)) (l2 (tree a)) (a2 a) (r2 (tree a))) (= (T_merge_skew a (Node a l1 a1 r1) (Node a l2 a2 r2))
   (s (ite (leq a a1 a2) (T_merge_skew a (Node a l2 a2 r2) r1) (T_merge_skew a (Node a l1 a1 r1) r2)))))))
+(declare-fun T_insert_skew (par (a) (a (tree a)) nat))
+(assert (par (a) (forall ((x a) (t (tree a))) (= (T_insert_skew a x t)
+  (s (T_merge_skew a (Node a (Leaf a) x (Leaf a)) t))))))
+(declare-fun T_del_min_skew (par (a) ((tree a)) nat))
+(assert (par (a) (= (T_del_min_skew a (Leaf a)) (s zero))))
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (T_del_min_skew a (Node a l x r)) (s (T_merge_skew a l r))))))
+
+; Pairing heaps
+(declare-fun pheap (par (a) ((heap a)) Bool))
+(assert (par (a) (pheap a (Empty a))))
+(assert (par (a) (forall ((x a) (hs (list (heap a)))) (= (pheap a (Hp a x hs)) (forall ((h (heap a))) (=> (in_set (heap a) h hs)
+  (and (forall ((y a)) (=> (in_heap a y h) (leq a x y))) (pheap a h))))))))
+(declare-fun merge_heap (par (a) ((heap a) (heap a)) (heap a)))
+(assert (par (a) (forall ((h (heap a))) (= (merge_heap a h (Empty a)) h))))
+(assert (par (a) (forall ((h (heap a))) (= (merge_heap a (Empty a) h) h))))
+(assert (par (a) (forall ((x a) (hsx (list (heap a))) (y a) (hsy (list (heap a)))) (= (merge_heap a (Hp a x hsx) (Hp a y hsy))
+  (ite (less a x y) (Hp a x (Cons (heap a) (Hp a y hsy) hsx)) (Hp a y (Cons (heap a) (Hp a x hsx) hsy)))))))
+(declare-fun get_min_heap (par (a) ((heap a)) a))
+(assert (par (a) (forall ((x a) (hs (list (heap a)))) (= (get_min_heap a (Hp a x hs)) x))))
+(declare-fun merge_pairs (par (a) ((list (heap a))) (heap a)))
+(assert (par (a) (= (merge_pairs a (Nil (heap a))) (Empty a))))
+(assert (par (a) (forall ((h (heap a))) (= (merge_pairs a (Cons (heap a) h (Nil (heap a)))) h))))
+(assert (par (a) (forall ((h1 (heap a)) (h2 (heap a)) (hs (list (heap a)))) (= (merge_pairs a (Cons (heap a) h1 (Cons (heap a) h2 hs)))
+  (merge_heap a (merge_heap a h1 h2) (merge_pairs a hs))))))
+(declare-fun del_min_heap (par (a) ((heap a)) (heap a)))
+(assert (par (a) (= (del_min_heap a (Empty a)) (Empty a))))
+(assert (par (a) (forall ((x a) (hs (list (heap a)))) (= (del_min_heap a (Hp a x hs)) (merge_pairs a hs)))))
+
 ; (check-sat)
 
 ; lemmas
@@ -1704,7 +1767,8 @@
 (assert (par (a) (forall ((l (rbt a)) (r (rbt a)) (t' (rbt a))) (=> (and (invh a l) (invh a r) (= (bh a l) (bh a r)) (invc a l) (invc a r) (= t' (joinRB a l r)))
   (and (invh a t') (= (bh a t') (bh a l)) (invc2 a t') (=> (= (color_of a l) Black) (invc a t')))))))
 ; invc(t) & invh(t) -> h(t) <= 2 * lg(|t|_1) + 2
-
+(assert (par (a) (forall ((t (rbt a))) (=> (and (invc a t) (invh a t))
+  (leq nat (pow2 (h (pair a color) t)) (mult (mult (size1 (pair a color) t) (size1 (pair a color) t)) (s (s (s (s zero))))))))))
 ; invh(t) <-> bhs(t) = { bh(t) }
 
 ; inorder(rbt_of_list(as)) = as
@@ -2087,13 +2151,13 @@
 ; braun t -> braun (insert x t)
 (assert (par (a) (forall ((x a) (t (tree a))) (=> (braun a t) (braun a (insert_braun a x t))))))
 ; heap t -> heap (insert x t)
-(assert (par (a) (forall ((x a) (t (tree a))) (=> (heap a t) (heap a (insert_braun a x t))))))
+(assert (par (a) (forall ((x a) (t (tree a))) (=> (inv_heap a t) (inv_heap a (insert_braun a x t))))))
 ; del_left t = (x,t') & t != <> -> mset_tree t = {{x}} + mset_tree t'
 (assert (par (a) (forall ((x a) (t (tree a)) (t' (tree a))) (=> (and (= (del_left a t) (Pair a (tree a) x t')) (distinct t (Leaf a)))
   (forall ((y a)) (= (count_tree a y t) (ite (= x y) (count_tree a y t') (s (count_tree a y t')))))))))
 ; del_left t = (x,t') & t != <> & heap t -> heap t'
 (assert (par (a) (forall ((x a) (t (tree a)) (t' (tree a))) (=> (and (= (del_left a t) (Pair a (tree a) x t'))
-  (distinct t (Leaf a)) (heap a t)) (heap a t')))))
+  (distinct t (Leaf a)) (inv_heap a t)) (inv_heap a t')))))
 ; del_left t = (x,t') & t != <> -> |t| = |t'| + 1
 (assert (par (a) (forall ((x a) (t (tree a)) (t' (tree a))) (=> (and (= (del_left a t) (Pair a (tree a) x t'))
   (distinct t (Leaf a))) (= (size a t) (s (size a t')))))))
@@ -2112,11 +2176,11 @@
     (s (plus (count_tree a y l) (count_tree a y r))) (plus (count_tree a y l) (count_tree a y r)))))))))
 ; braun <l,a,r> & heap l & heap r -> heap (sift_down l a r)
 (assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (=> (and (braun a (Node a l x r))
-  (heap a l) (heap a r)) (heap a (sift_down a l x r))))))
+  (inv_heap a l) (inv_heap a r)) (inv_heap a (sift_down a l x r))))))
 ; braun t -> braun (del_min t)
 (assert (par (a) (forall ((t (tree a))) (=> (braun a t) (braun a (del_min_braun a t))))))
 ; heap t & braun t -> heap (del_min t)
-(assert (par (a) (forall ((t (tree a))) (=> (and (heap a t) (braun a t)) (heap a (del_min_braun a t))))))
+(assert (par (a) (forall ((t (tree a))) (=> (and (inv_heap a t) (braun a t)) (inv_heap a (del_min_braun a t))))))
 ; braun t -> |del_min t| = |t| - 1
 ; deliberate use of s_0 to be consistent with the case of t being a leaf
 (assert (par (a) (forall ((t (tree a))) (=> (braun a t) (= (size a (del_min_braun a t)) (s_0 (size a t)))))))
@@ -2217,7 +2281,7 @@
 (assert (par (a) (forall ((x a) (t1 (tree a)) (t2 (tree a))) (= (count_tree a x (merge_skew a t1 t2))
   (plus (count_tree a x t1) (count_tree a x t2))))))
 ; heap t1 & heap t2 -> heap (merge t1 t2)
-(assert (par (a) (forall ((t1 (tree a)) (t2 (tree a))) (=> (and (heap a t1) (heap a t2)) (heap a (merge_skew a t1 t2))))))
+(assert (par (a) (forall ((t1 (tree a)) (t2 (tree a))) (=> (and (inv_heap a t1) (inv_heap a t2)) (inv_heap a (merge_skew a t1 t2))))))
 ; 2^(lrh t) <= |t| + 1
 (assert (par (a) (forall ((t (tree a))) (leq nat (pow2 (lrh a t)) (s (size a t))))))
 ; 2^(rlh t) <= |t| + 1
@@ -2229,21 +2293,34 @@
 ; T_merge t1 t2 + psi (merge t1 t2) - psi t1 - psi t2 <= lrh (merge t1 t2) + rlh t1 + rlh t2 + 1
 (assert (par (a) (forall ((t1 (tree a)) (t2 (tree a))) (leq nat (minus (minus (plus (T_merge_skew a t1 t2) (psi_skew a (merge_skew a t1 t2)))
   (psi_skew a t1)) (psi_skew a t2)) (s (plus (plus (lrh a (merge_skew a t1 t2)) (rlh a t1)) (rlh a t2)))))))
-; T_insert a t + psi (insert a t) - psi t <= 3 * lg(|t|_1 + 2) + 2
-
-; T_del_min t + psi (del_min t) - psi t <= 3 * lg(|t|_1 + 2) + 2
-
+; T_insert a t + psi (insert a t) - psi t <= 3 * lg(|t|_1 + 2) + 2 ; TODO double check this
+(assert (par (a) (forall ((x a) (t (tree a))) (leq nat (pow2 (minus (plus (T_insert_skew a x t) (psi_skew a (insert_skew a x t))) (psi_skew a t)))
+  (mult (mult (mult (s (s (size1 a t))) (s (s (size1 a t)))) (s (s (size1 a t)))) (s (s (s (s zero)))))))))
+; T_del_min t + psi (del_min t) - psi t <= 3 * lg(|t|_1 + 2) + 2 ; TODO double check this
+(assert (par (a) (forall ((t (tree a))) (leq nat (pow2 (minus (plus (T_del_min_skew a t) (psi_skew a (del_min_skew a t))) (psi_skew a t)))
+  (mult (mult (mult (s (s (size1 a t))) (s (s (size1 a t)))) (s (s (size1 a t)))) (s (s (s (s zero)))))))))
 
 ; Pairing heaps
 ; h != Empty -> get_min h in mset_heap h
+(assert (par (a) (forall ((h (heap a))) (=> (distinct h (Empty a)) (in_heap a (get_min_heap a h) h)))))
 ; h != Empty & pheap h  & x in mset_heap h -> get_min h <= x
+(assert (par (a) (forall ((x a) (h (heap a))) (=> (and (distinct h (Empty a)) (pheap a h) (in_heap a x h))
+  (leq a (get_min_heap a h) x)))))
 ; mset_heap (merge h1 h2) = mset_heap h1 + mset_heap h2
+(assert (par (a) (forall ((x a) (h1 (heap a)) (h2 (heap a))) (= (count_heap a x (merge_heap a h1 h2)) (plus (count_heap a x h1) (count_heap a x h2))))))
 ; mset_heap (merge_pairs hs) = sum (image_mset mset_heap (mset hs))
+
 ; h != Empty -> mset_heap (del_min h) = mset_heap h - {{get_min h}}
+(assert (par (a) (forall ((x a) (h (heap a))) (=> (distinct h (Empty a)) (= (count_heap a x (del_min_heap a h))
+  (ite (= x (get_min_heap a h)) (s_0 (count_heap a x h)) (count_heap a x h)))))))
 ; pheap h1 & pheap h2 -> pheap (merge h1 h2)
+(assert (par (a) (forall ((h1 (heap a)) (h2 (heap a))) (=> (and (pheap a h1) (pheap a h2)) (pheap a (merge_heap a h1 h2))))))
 ; (!h in set hs. pheap h) -> pheap (merge_pairs hs)
+(assert (par (a) (forall ((h (heap a)) (hs (list (heap a)))) (=> (=> (in_set (heap a) h hs) (pheap a h)) (pheap a (merge_pairs a hs))))))
 ; pheap h -> pheap (del_min h)
+(assert (par (a) (forall ((h (heap a))) (=> (pheap a h) (pheap a (del_min_heap a h))))))
 ; |link hp| = |hp|
+
 ; |pass1 hp| = |hp|
 ; |pass2 hp| = |hp|
 ; is_root h1 & is_root h2 -> |merge h1 h2| = |h1| + |h2|

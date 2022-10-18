@@ -1084,10 +1084,10 @@
   (and (leq nat (weight a t1) (weight a t2)) (sortedByWeight a (Cons (treeh a) t2 ts)))))))
 
 ; Priority queues
-(declare-fun heap (par (a) ((tree a)) Bool))
-(assert (par (a) (heap a (Leaf a))))
-(assert (par (a) (forall ((l (tree a)) (m a) (r (tree a))) (= (heap a (Node a l m r))
-  (and (forall ((x a)) (=> (and (in_set_tree a x l) (in_set_tree a x r)) (leq a m x))) (heap a l) (heap a r))))))
+(declare-fun inv_heap (par (a) ((tree a)) Bool))
+(assert (par (a) (inv_heap a (Leaf a))))
+(assert (par (a) (forall ((l (tree a)) (m a) (r (tree a))) (= (inv_heap a (Node a l m r))
+  (and (forall ((x a)) (=> (and (in_set_tree a x l) (in_set_tree a x r)) (leq a m x))) (inv_heap a l) (inv_heap a r))))))
 (declare-fun heapp (par (a b) ((ptree a b)) Bool))
 (assert (par (a b) (heapp a b (LeafP a b))))
 (assert (par (a b) (forall ((l (ptree a b)) (m a) (n b) (r (ptree a b))) (= (heapp a b (NodeP a b l m n r))
