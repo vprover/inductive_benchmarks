@@ -1236,4 +1236,4 @@
 
 
 ; (!xs,ys. f(xs @ ys) = f(xs) @ ys) -> |asc(a,f(ys))| <= 1 + |ys|
-
+(parse-error)

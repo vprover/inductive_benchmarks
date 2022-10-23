@@ -28,3 +28,4 @@
 
 ; TODO unsat ; take_nths(i,k,xs) = [] <-> |xs| <= i
 ;(assert-not (par (a) (forall ((i nat) (k nat) (xs (list a))) (= (= (take_nths a i k xs) (Nil a)) (leq nat (len a xs) i)))))
+(parse-error)

@@ -1236,4 +1236,4 @@
 
 
 ; t != <> & bst t -> (?y in set_tree t. splay y t = splay x t & T_splay y t = T_splay x t)
-
+(parse-error)

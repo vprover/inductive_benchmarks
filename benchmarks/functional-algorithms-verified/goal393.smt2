@@ -1236,4 +1236,4 @@
 
 
 ; is_root hp -> psi (insert x hp) - psi hp <= lg (|hp| + 1)
-
+(parse-error)

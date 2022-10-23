@@ -1236,4 +1236,4 @@
 
 
 ; invar_sz(t) = sz(t) = |t|
-
+(parse-error)

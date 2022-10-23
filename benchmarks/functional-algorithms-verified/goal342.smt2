@@ -1236,4 +1236,4 @@
 
 
 ; T_ins_tree t ts + |ins_tree t ts| = 2 + |ts|
-
+(parse-error)

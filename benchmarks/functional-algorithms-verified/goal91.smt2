@@ -1236,4 +1236,4 @@
 
 
 ; acomplete(t) -> mh(t) = floor(lg(|t|_1))
-
+(parse-error)

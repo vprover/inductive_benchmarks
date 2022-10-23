@@ -1236,4 +1236,4 @@
 
 
 ; invar t -> invar (insert x t)
-
+(parse-error)

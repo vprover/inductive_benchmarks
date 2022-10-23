@@ -1236,4 +1236,4 @@
 
 
 ; invar ts & ts != [] -> T_del_min ts <= 6 * lg(|mset_heap ts| + 1) + 3
-
+(parse-error)

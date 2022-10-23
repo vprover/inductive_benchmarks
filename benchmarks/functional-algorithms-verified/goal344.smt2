@@ -1236,4 +1236,4 @@
 
 
 ; invar ts1 & invar ts2 -> T_merge ts1 ts2 <= 4 * lg (|mset_heap ts1| + |mset_heap ts2| + 1) + 1
-
+(parse-error)

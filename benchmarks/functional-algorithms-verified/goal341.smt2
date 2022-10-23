@@ -1236,4 +1236,4 @@
 
 
 ; invar ts -> T_insert x ts <= lg (|mset_heap ts| + 1) + 2
-
+(parse-error)

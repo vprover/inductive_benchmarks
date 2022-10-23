@@ -1236,4 +1236,4 @@
 
 
 ; hs != <> -> psi (pass2 hs) - psi hs <= lg |hs|
-
+(parse-error)

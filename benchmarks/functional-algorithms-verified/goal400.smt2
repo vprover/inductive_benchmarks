@@ -1236,4 +1236,4 @@
 
 
 ; is_root h1 & is_root h2 -> T_merge h1 h2 + psi (merge h1 h2) - psi h1 - psi h2 <= lg (|h1| + |h2| + 1) + 2
-
+(parse-error)

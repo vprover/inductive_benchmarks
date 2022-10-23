@@ -1236,4 +1236,4 @@
 
 
 ; ts != [] & invar ts -> invar (del_min ts)
-
+(parse-error)

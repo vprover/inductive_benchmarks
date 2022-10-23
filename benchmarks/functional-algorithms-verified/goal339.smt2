@@ -1236,4 +1236,4 @@
 
 
 ; ts != [] & get_min_rest ts = (t',ts') -> root t' = get_min ts
-
+(parse-error)

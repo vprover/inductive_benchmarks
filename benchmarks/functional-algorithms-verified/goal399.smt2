@@ -1236,4 +1236,4 @@
 
 
 ; is_root h -> T_insert a h + psi (insert a h) - psi h <= lg (|h| + 1) + 1
-
+(parse-error)

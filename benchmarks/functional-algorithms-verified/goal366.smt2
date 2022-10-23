@@ -1236,4 +1236,4 @@
 
 
 ; bst t -> A_splay x t <= 3 * phi t + 1
-
+(parse-error)

@@ -1236,4 +1236,4 @@
 
 
 ; bst t -> T_delete a t + psi (delete a t) - psi t <= 6 * phi t + 3
-
+(parse-error)

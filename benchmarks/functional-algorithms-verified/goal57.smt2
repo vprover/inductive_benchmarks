@@ -1237,3 +1237,4 @@
 
 ; (!xs,ys. f(xs @ ys) = f(xs) @ ys) -> |concat(asc(a,f(ys)))| = 1 + |f([])| + |ys|
 ;(assert-not (par (a) (forall ((x a) (xs (list a))) (=> (forall ((ys (list a)) (zs (list a))) (= (f a (append a xs ys)) (append a (f a xs) ys))) (= (len a (concat a (asc a x (f a xs)))) (s (plus (len a (f a (Nil a))) (len a xs))))))))
+(parse-error)

@@ -1237,3 +1237,4 @@
 
 ; TODO I think this is not valid and the -1 is superfluous ; C_runs(xs) <= |xs| - 1
 ;(assert-not (par (a) (forall ((xs (list a))) (leq nat (C_runs a xs) (- (len a xs) 1)))))
+(parse-error)

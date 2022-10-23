@@ -1236,4 +1236,4 @@
 
 
 ; invar_f(t) -> b_val(t) = F(t)
-
+(parse-error)

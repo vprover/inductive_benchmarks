@@ -50,4 +50,3 @@
 ; ltree t -> T_del_min t <= 2 * lg |t|_1 + 1 ; TODO double check this
 (assert-not (par (a) (forall ((t (lheap a))) (=> (ltree a t)
   (leq nat (pow2 (T_del_min_lheap a t)) (mult (mult (size1 (pair a nat) t) (size1 (pair a nat) t)) (s (s zero))))))))
-

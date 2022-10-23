@@ -1236,4 +1236,4 @@
 
 
 ; (!x.P(x)=(~Q(x))) -> filter_mset(P,M) + filter_mset(Q,M) = M
-
+(parse-error)

@@ -1236,4 +1236,4 @@
 
 
 ; u in subtrees(t) & complete(u) -> h(u) <= h(mcs(t))
-
+(parse-error)

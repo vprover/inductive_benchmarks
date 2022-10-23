@@ -1236,4 +1236,4 @@
 
 
 ; |merge ts1 ts2| + T_merge ts1 ts2 <= 2 * (|ts1| + |ts2|) + 1
-
+(parse-error)

@@ -1236,4 +1236,4 @@
 
 
 ; t != <> -> A_splay_max t <= 3 * (phi t - 1) + 1
-
+(parse-error)

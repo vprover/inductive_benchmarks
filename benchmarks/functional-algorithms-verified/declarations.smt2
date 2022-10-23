@@ -1602,7 +1602,7 @@
 ; sorted(xs @ [x]) = (sorted(xs) & (!y in set(xs). y < x))
 (assert (par (a) (forall ((xs (list a)) (x a)) (= (sorted_s a (append a xs (Cons a x (Nil a)))) (and (sorted_s a xs) (forall ((y a)) (=> (in_set a y xs) (less a y x))))))))
 ; set_tree(empty) = {}
-
+(assert (par (a) (forall ((x a)) (not (in_set_tree a x (empty a))))))
 ; sorted(inorder(t)) -> set_tree(insert(x,t)) = set_tree(t) U {x}
 (assert (par (a) (forall ((t (tree a)) (x a)) (=> (sorted_s a (inorder a t))
   (forall ((y a)) (= (in_set_tree a y (insert a x t)) (or (in_set_tree a y t) (= x y))))))))
@@ -1669,7 +1669,7 @@
 ; |maxn(n)| = (3^n - 1) div 2
 
 ; |t| <= (3^h(t) - 1) div 2
-
+(assert (par (a) (forall ((t (tree23 a))) (leq nat (size23 a t) (div2 (s_0 (pow (s (s (s zero))) (h23 a t))))))))
 ; complete(t) -> complete(treeI(ins(a,t))) & hI(ins(a,t)) = h(t)
 (assert (par (a) (forall ((x a) (t (tree23 a))) (=> (complete23 a t) (and (complete23 a (treeI a (ins a x t))) (= (hI a (ins a x t)) (h23 a t)))))))
 ; complete(t) -> complete(insert(a,t))

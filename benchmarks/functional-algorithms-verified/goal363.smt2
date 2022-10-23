@@ -1236,4 +1236,4 @@
 
 
 ; bst t & <l,x,r> in subtrees t -> A_splay x t <= 3 * (phi t - phi <l,x,r>) + 1
-
+(parse-error)

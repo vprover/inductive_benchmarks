@@ -1236,4 +1236,4 @@
 
 
 ; bst t -> T_insert x t + psi (insert x t) - psi t <= 4 * phi t + 3
-
+(parse-error)

@@ -1236,4 +1236,4 @@
 
 
 ; is_root h1 & is_root h2 -> |merge h1 h2| = |h1| + |h2|
-
+(parse-error)

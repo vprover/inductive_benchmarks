@@ -1236,4 +1236,4 @@
 
 
 ; h1 = <hs1, x1, <>> & h2 = <hs2,x2,<>> -> psi (merge h1 h2) - psi h1 - psi h2 <= lg (|h1| + |h2|) + 1
-
+(parse-error)

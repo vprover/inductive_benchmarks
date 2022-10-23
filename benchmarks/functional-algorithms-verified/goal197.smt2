@@ -1237,3 +1237,4 @@
 
 ; avl(avl_of_list(as))
 ;(assert-not (par (a) (forall ((xs (list a))) (avl a (avl_of_list a xs)))))
+(parse-error)

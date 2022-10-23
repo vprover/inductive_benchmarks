@@ -1236,4 +1236,4 @@
 
 
 ; sorted(map(f,xs)) & P(x) -> filter(P, insort_key(f,x,xs)) = insort_key(f,x,filter(P,xs))
-
+(parse-error)

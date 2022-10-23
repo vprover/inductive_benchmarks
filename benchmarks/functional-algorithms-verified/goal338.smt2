@@ -1236,4 +1236,4 @@
 
 
 ; get_min_rest ts = (t',ts') & ts != [] & invar ts -> invar ts'
-
+(parse-error)

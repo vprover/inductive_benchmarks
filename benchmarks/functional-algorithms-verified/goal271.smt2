@@ -1237,3 +1237,4 @@
 
 ; TODO list_fast_rec needs map function ; |ts| = 2^k & (!i<2^k.braun_list(ts ! i, take_nths(i,k,xs))) -> list_fast_rec(ts) = xs
 ;(assert-not (par (a) (forall ((k nat) (ts (list a)) (xs (list a))) (=> (and (= (len a ts) (pow2 k)) (forall ((i nat)) (=> (less nat i (pow2 k)) (braun_list a (nths a ts i) (take_nths a i k xs))))) (= (list_fast_rec a ts) xs)))))
+(parse-error)

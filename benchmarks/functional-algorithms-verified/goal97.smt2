@@ -1236,4 +1236,4 @@
 
 
 ; n <= |xs| & bal(n,xs) = (t,zs) -> h(t) = ceil(lg(n+1))
-
+(parse-error)

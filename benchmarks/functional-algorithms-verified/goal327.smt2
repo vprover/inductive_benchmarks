@@ -1236,4 +1236,4 @@
 
 
 ; invar_tree t & invar ts & (!t' in set ts. rank t <= rank t') -> invar (ins_tree t ts)
-
+(parse-error)

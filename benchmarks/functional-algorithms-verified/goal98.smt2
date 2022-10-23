@@ -1236,4 +1236,4 @@
 
 
 ; n <= |xs| & bal(n,xs) = (t,zs) -> mh(t) = floor(lg(n+1))
-
+(parse-error)

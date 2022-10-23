@@ -1236,4 +1236,4 @@
 
 
 ; T_deq (fs, rs) + psi(deq (fs, rs)) - psi(fs,rs) <= 3
-
+(parse-error)

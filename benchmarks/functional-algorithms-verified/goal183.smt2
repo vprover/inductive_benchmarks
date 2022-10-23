@@ -1236,4 +1236,4 @@
 
 
 ; ((1 + sqrt(5))/2)^n <= fib(n + 2)
-
+(parse-error)

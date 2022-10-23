@@ -1236,4 +1236,4 @@
 
 
 ; |link hp| = |hp|
-
+(parse-error)

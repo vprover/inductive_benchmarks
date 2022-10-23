@@ -1238,3 +1238,4 @@
 ; avl(t) -> avl_ht(debal(t))
 ; TODO find out what is the intended theorem here
 ;(assert-not (par (a) (forall ((t (tree_bal a))) (=> (avl_bal a t) (avl a (debal a t))))))
+(parse-error)

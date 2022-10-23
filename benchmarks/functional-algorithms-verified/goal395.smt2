@@ -1236,4 +1236,4 @@
 
 
 ; psi (del_min <hs,x,<>>) - psi <hs,x,<>> <= 2 * lg (|hs| + 1) - len hs + 2
-
+(parse-error)

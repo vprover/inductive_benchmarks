@@ -1236,4 +1236,4 @@
 
 
 ; inv_max_hi(t) & bst(t) -> search1(t,x) = (?iv in set_tree(t). in_ivl(x,iv))
-
+(parse-error)

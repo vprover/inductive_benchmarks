@@ -1237,3 +1237,4 @@
 
 ; braun(t) -> list(t) = map(lookup1(t)) [1..<|t|+1]
 ;(assert-not (par (a) (forall ((t (tree a))) (=> (braun a t) (= (list_of a t) (map (lookup1 a t ???))))))
+(parse-error)

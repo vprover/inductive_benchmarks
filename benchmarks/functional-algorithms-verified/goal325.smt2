@@ -1236,4 +1236,4 @@
 
 
 ; invar_tree t1 & invar_tree t2 & rank t1 = rank t2 -> invar_tree (link t1 t2)
-
+(parse-error)

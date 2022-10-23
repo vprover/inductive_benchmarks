@@ -1236,4 +1236,4 @@
 
 
 ; t' in set (merge ts1 ts2) & (!t1 in set ts1. rank t < rank t1) & (!t2 in set ts2. rank t < rank t2) -> rank t < rank t'
-
+(parse-error)

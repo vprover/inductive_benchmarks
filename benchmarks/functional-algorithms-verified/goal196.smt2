@@ -1237,3 +1237,4 @@
 
 ; inorder(avl_of_list(as)) = as
 ;(assert-not (par (a) (forall ((xs (list a))) (= (inorder (pair a nat) (avl_of_list a xs)) xs))))
+(parse-error)

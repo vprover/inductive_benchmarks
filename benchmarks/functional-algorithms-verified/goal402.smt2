@@ -1236,4 +1236,4 @@
 
 
 ; is_root h -> T_del_min h + psi (del_min h) - psi h <= 2 * lg (|h| + 1) + 5
-
+(parse-error)

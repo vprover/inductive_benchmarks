@@ -1236,4 +1236,4 @@
 
 
 ; bst t & x in set_tree t -> A_splay x t <= 3 * (phi t - 1) + 1
-
+(parse-error)

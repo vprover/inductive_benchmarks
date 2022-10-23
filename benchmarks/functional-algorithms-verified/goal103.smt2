@@ -1236,4 +1236,4 @@
 
 
 ; invar_ch(l) & invar_ch(r) -> invar_ch(node_ch(l,a,r))
-
+(parse-error)

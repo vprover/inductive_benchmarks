@@ -1237,3 +1237,4 @@
 
 ; rbt(rbt_of_list(as))
 ;(assert-not (par (a) (forall ((xs (list a))) (inv_rbt a (rbt_of_list a xs)))))
+(parse-error)

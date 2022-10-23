@@ -1236,4 +1236,4 @@
 
 
 ; invar ts1 & invar ts2 -> invar (merge ts1 ts2)
-
+(parse-error)
