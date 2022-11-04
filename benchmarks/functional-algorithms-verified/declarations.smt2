@@ -64,10 +64,15 @@
 (declare-fun count (par (a) (a (list a)) nat))
 (assert (par (a) (forall ((x a)) (= (count a x (Nil a)) zero))))
 (assert (par (a) (forall ((x a) (y a) (ys (list a))) (= (count a x (Cons a y ys)) (ite (= x y) (s (count a x ys)) (count a x ys))))))
+(declare-fun counts (par (a) (a (lists a)) nat))
+(assert (par (a) (forall ((x a)) (= (counts a x (Nil (list a))) zero))))
+(assert (par (a) (forall ((x a) (ys (list a)) (yss (lists a))) (= (counts a x (Cons (list a) ys yss)) (plus (count a x ys) (counts a x yss))))))
 (declare-fun same_set (par (a) ((list a) (list a)) Bool))
 (assert (par (a) (forall ((xs (list a)) (ys (list a))) (= (same_set a xs ys) (forall ((x a)) (= (in_set a x xs) (in_set a x ys)))))))
 (declare-fun same_mset (par (a) ((list a) (list a)) Bool))
 (assert (par (a) (forall ((xs (list a)) (ys (list a))) (= (same_mset a xs ys) (forall ((x a)) (= (count a x xs) (count a x ys)))))))
+(declare-fun same_mset_mset (par (a) ((lists a) (lists a)) Bool))
+(assert (par (a) (forall ((xss (lists a)) (yss (lists a))) (= (same_mset_mset a xss yss) (forall ((x a)) (= (counts a x xss) (counts a x yss)))))))
 (declare-fun count_tree (par (a) (a (tree a)) nat))
 (assert (par (a) (forall ((x a)) (= (count_tree a x (Leaf a)) zero))))
 (assert (par (a) (forall ((x a) (l (tree a)) (y a) (r (tree a))) (= (count_tree a x (Node a l y r))
@@ -731,7 +736,10 @@
 
 (declare-fun deleteRB (par (a) (a (rbt a)) (rbt a)))
 (assert (par (a) (forall ((x a) (t (rbt a))) (= (deleteRB a x t) (paint a Black (delRB a x t))))))
-;(declare-fun bhs ((rbt a)) set)
+(declare-fun in_bhs (par (a) (nat (rbt a)) Bool))
+(assert (par (a) (forall ((x nat)) (= (in_bhs a x (LeafP a color)) (= x zero)))))
+(assert (par (a) (forall ((x nat) (l (rbt a)) (y a) (c color) (r (rbt a))) (= (in_bhs a x (NodeP a color l y c r))
+  (ite (and (= c Black) (= x zero)) false (ite (= c Black) (or (in_bhs a (s_0 x) l) (in_bhs a (s_0 x) r)) (or (in_bhs a x l) (in_bhs a x r))))))))
 (declare-fun joinRB (par (a) ((rbt a) (rbt a)) (rbt a)))
 ; TODO not well-defined
 ;(assert (par (a) (forall ((t (rbt a))) (= (joinRB a t (LeafP a color)) t))))
@@ -1343,9 +1351,9 @@
 ; Section 2
 
 ; sorted(sort(xs))
-;(assert (forall ((xs (list nat))) (sorted (sort xs))))
+;removed
 ; mset(sort(xs)) = mset(xs)
-;(assert (forall ((xs (list nat))) (same_mset (sort xs) xs)))
+;removed
 ; mset(insort(x,xs)) = {{x}} + mset(xs)
 (assert (par (a) (forall ((x a) (xs (list a)) (y a)) (= (count a y (insort a x xs)) (ite (= x y) (s (count a y xs)) (count a y xs))))))
 ; sorted(isort(xs))
@@ -1370,9 +1378,9 @@
 ; mset(quicksort(xs)) = mset(xs)
 (assert (par (a) (forall ((xs (list a))) (same_mset a (quicksort a xs) xs))))
 ; mset(filter(P(xs))) = filter_mset(P,mset(xs))
-
+;removed
 ; (!x.P(x)=(~Q(x))) -> filter_mset(P,M) + filter_mset(Q,M) = M
-
+;removed
 ; sorted(quicksort(xs))
 (assert (par (a) (forall ((xs (list a))) (sorted a (quicksort a xs)))))
 ; sorted(xs @ ys) = (sorted xs & sorted ys & (!x in set(xs). !y in set(ys). x <= y))
@@ -1385,9 +1393,9 @@
 ; quicksort3(xs) = quicksort(xs)
 (assert (par (a) (forall ((xs (list a))) (= (quicksort3 a xs) (quicksort a xs)))))
 ; sorted(xs) -> T_quicksort(xs) = a * |xs|^2 + b * |xs| + c
-
+;removed
 ; T_quicksort(xs) <= a * |xs|^2 + b * |xs| + c
-
+;removed
 ; mset(merge(xs,ys)) = mset(xs) + mset(ys)
 (assert (par (a) (forall ((xs (list a)) (ys (list a)) (x a)) (= (count a x (merge a xs ys)) (plus (count a x xs) (count a x ys))))))
 ; set(merge(xs,ys)) = set(xs) U set(ys)
@@ -1413,9 +1421,9 @@
 ; |merge_adj(xs)| = (|xs| + 1) div 2
 (assert (par (a) (forall ((xs (lists a))) (= (len (list a) (merge_adj a xs)) (div2 (s (len (list a) xs)))))))
 ; mset_mset (merge_adj(xss)) = mset_mset(xss)
-
+(assert (par (a) (forall ((xss (lists a))) (same_mset_mset a (merge_adj a xss) xss))))
 ; mset(merge_all(xss)) = mset_mset(xss)
-
+(assert (par (a) (forall ((x a) (xss (lists a))) (= (count a x (merge_all a xss)) (counts a x xss)))))
 ; mset(msort_bu(xs)) = mset(xs)
 (assert (par (a) (forall ((xs (list a))) (same_mset a xs (msort_bu a xs)))))
 ; Ball(set(xss),sorted) -> Ball(set(merge_adj(xss)),sorted)
@@ -1788,7 +1796,7 @@
 (assert (par (a) (forall ((t (rbt a))) (=> (and (invc a t) (invh a t))
   (leq nat (pow2 (h (pair a color) t)) (mult (mult (size1 (pair a color) t) (size1 (pair a color) t)) (s (s (s (s zero))))))))))
 ; invh(t) <-> bhs(t) = { bh(t) }
-
+(assert (par (a) (forall ((t (rbt a))) (= (invh a t) (in_bhs a (bh a t) t)))))
 ; inorder(rbt_of_list(as)) = as
 (assert (par (a) (forall ((xs (list a))) (= (inorderp a color (rbt_of_list a xs)) xs))))
 ; rbt(rbt_of_list(as))
