@@ -45,10 +45,10 @@
   (Pair a (upD a) x (TD a (Node2 a (Leaf23 a) y (Leaf23 a))))))))
 (assert (par (a) (forall ((l (tree23 a)) (x a) (r (tree23 a))) (=> (and (distinct l (Leaf23 a)) (distinct r (Leaf23 a)))
   (= (split_min23 a (Node2 a l x r))
-    (let ((xl (split_min23 a l))) (Pair a (upD a) (Pair_0 a (upD a) (xl a)) (node21 a (Pair_1 a (upD a) (xl a)) x r))))))))
+    (let ((xl (split_min23 a l))) (Pair a (upD a) (Pair_0 a (upD a) xl) (node21 a (Pair_1 a (upD a) xl) x r))))))))
 (assert (par (a) (forall ((l (tree23 a)) (x a) (m (tree23 a)) (y a) (r (tree23 a))) (=> (and (distinct l (Leaf23 a)) (distinct m (Leaf23 a)) (distinct r (Leaf23 a)))
   (= (split_min23 a (Node3 a l x m y r))
-    (let ((xl (split_min23 a l))) (Pair a (upD a) (Pair_0 a (upD a) (xl a)) (node31 a (Pair_1 a (upD a) (xl a)) x m y r))))))))
+    (let ((xl (split_min23 a l))) (Pair a (upD a) (Pair_0 a (upD a) xl) (node31 a (Pair_1 a (upD a) xl) x m y r))))))))
 
 ; split_min(t) = (x,t') & 0 < h(t) & complete(t) -> hD(t') = h(t)
 (assert-not (par (a) (forall ((x a) (t (tree23 a)) (t' (upD a))) (=> (and (= (split_min23 a t) (Pair a (upD a) x t')) (less nat zero (h23 a t)) (complete23 a t)) (= (hD a t') (h23 a t))))))

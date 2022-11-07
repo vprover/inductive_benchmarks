@@ -26,8 +26,8 @@
 (declare-fun quicksort3 (par (a) ((list a)) (list a)))
 (assert (par (a) (= (quicksort3 a (Nil a)) (Nil a))))
 (assert (par (a) (forall ((x a) (xs (list a))) (= (quicksort3 a (Cons a x xs)) (let ((t (partition3 a x xs)))
-  (append a (quicksort3 a (Triple_0 (list a) (list a) (list a) (t a)))
-    (append a (Cons a x (Triple_1 (list a) (list a) (list a) (t a))) (quicksort3 a (Triple_2 (list a) (list a) (list a) (t a))))))))))
+  (append a (quicksort3 a (Triple_0 (list a) (list a) (list a) t))
+    (append a (Cons a x (Triple_1 (list a) (list a) (list a) t)) (quicksort3 a (Triple_2 (list a) (list a) (list a) t)))))))))
 
 ; quicksort3(xs) = quicksort(xs)
 (assert-not (par (a) (forall ((xs (list a))) (= (quicksort3 a xs) (quicksort a xs)))))

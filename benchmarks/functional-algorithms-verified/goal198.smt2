@@ -58,9 +58,9 @@
 (declare-fun insert_bal (par (a) (a (tree_bal a)) (tree_bal a)))
 (assert (par (a) (forall ((x a)) (= (insert_bal a x (LeafP a bal)) (NodeP a bal (LeafP a bal) x Bal (LeafP a bal))))))
 (assert (par (a) (forall ((x a) (l (tree_bal a)) (y a) (b bal) (r (tree_bal a))) (= (insert_bal a x (NodeP a bal l y b r))
-  (match (cmp a x y) ((LT (let ((l' (insert_bal a x l))) (ite (incr a a l (l' a)) (balL_bal a (l' a) y b r) (NodeP a bal (l' a) y b r))))
+  (match (cmp a x y) ((LT (let ((l' (insert_bal a x l))) (ite (incr a a l l') (balL_bal a l' y b r) (NodeP a bal l' y b r))))
                       (EQ (NodeP a bal l y b r))
-                      (GT (let ((r' (insert_bal a x r))) (ite (incr a a r (r' a)) (balR_bal a l y b (r' a)) (NodeP a bal l y b (r' a)))))))))))
+                      (GT (let ((r' (insert_bal a x r))) (ite (incr a a r r') (balR_bal a l y b r') (NodeP a bal l y b r'))))))))))
 
 ; avl(t) & t' = insert(x,t) -> avl(t') & h(t') = h(t) + if incr(t,t') then 1 else 0
 (assert-not (par (a) (forall ((x a) (t (tree_bal a)) (t' (tree_bal a))) (=> (and (avl_bal a t) (= t' (insert_bal a x t)))

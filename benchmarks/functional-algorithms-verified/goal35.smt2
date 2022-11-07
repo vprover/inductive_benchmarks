@@ -24,7 +24,7 @@
 (assert (par (a) (= (msort2 a (Nil a)) (Nil a))))
 (assert (par (a) (forall ((x a)) (= (msort2 a (Cons a x (Nil a))) (Cons a x (Nil a))))))
 (assert (par (a) (forall ((x1 a) (x2 a) (xs (list a))) (= (msort2 a (Cons a x1 (Cons a x2 xs)))
-  (let ((p (halve a (Cons a x1 (Cons a x2 xs)) (Nil a) (Nil a)))) (merge a (msort2 a (Pair_0 (list a) (list a) (p a))) (msort2 a (Pair_1 (list a) (list a) (p a)))))))))
+  (let ((p (halve a (Cons a x1 (Cons a x2 xs)) (Nil a) (Nil a)))) (merge a (msort2 a (Pair_0 (list a) (list a) p)) (msort2 a (Pair_1 (list a) (list a) p))))))))
 
 ; sorted(msort2(xs))
 (assert-not (par (a) (forall ((xs (list a))) (sorted a (msort2 a xs)))))

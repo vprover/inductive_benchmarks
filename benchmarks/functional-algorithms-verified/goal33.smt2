@@ -48,7 +48,7 @@
   (s (ite (leq a x y) (C_merge a xs (Cons a y ys)) (C_merge a (Cons a x xs) ys)))))))
 (declare-fun C_msort (par (a) ((list a)) nat))
 (assert (par (a) (forall ((xs (list a))) (= (C_msort a xs) (let ((n (len a xs))) (let ((ys (take a (div2 n) xs)) (zs (drop a (div2 n) xs)))
-  (ite (leq nat n (s zero)) zero (plus (plus (C_msort a (ys a)) (C_msort a (zs a))) (C_merge a (msort a (ys a)) (msort a (zs a)))))))))))
+  (ite (leq nat n (s zero)) zero (plus (plus (C_msort a ys) (C_msort a zs)) (C_merge a (msort a ys) (msort a zs))))))))))
 
 ; |xs| = 2^k -> C_msort(xs) <= k * 2^k
 (assert-not (par (a) (forall ((xs (list a)) (k nat)) (=> (= (len a xs) (pow2 k)) (leq nat (C_msort a xs) (mult k (pow2 k)))))))

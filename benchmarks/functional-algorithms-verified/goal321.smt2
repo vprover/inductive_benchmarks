@@ -18,7 +18,7 @@
 (declare-fun del_left (par (a) ((tree a)) (pair a (tree a))))
 (assert (par (a) (forall ((x a) (r (tree a))) (= (del_left a (Node a (Leaf a) x r)) (Pair a (tree a) x r)))))
 (assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (del_left a (Node a l x r))
-  (let ((yl (del_left a l))) (Pair a (tree a) (Pair_0 a (tree a) (yl a)) (Node a r x (Pair_1 a (tree a) (yl a)))))))))
+  (let ((yl (del_left a l))) (Pair a (tree a) (Pair_0 a (tree a) yl) (Node a r x (Pair_1 a (tree a) yl))))))))
 (declare-fun sift_down (par (a) ((tree a) a (tree a)) (tree a)))
 (assert (par (a) (forall ((x a) (t (tree a))) (= (sift_down a (Leaf a) x t) (Node a (Leaf a) x (Leaf a))))))
 (assert (par (a) (forall ((x a) (t (tree a)) (y a)) (= (sift_down a (Node a (Leaf a) x t) y (Leaf a))
@@ -31,7 +31,7 @@
 (assert (par (a) (= (del_min_braun a (Leaf a)) (Leaf a))))
 (assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (del_min_braun a (Node a l x r))
   (match l (((Leaf a) (Leaf a))
-            (_ (let ((yl (del_left a l))) (sift_down a r (Pair_0 a (tree a) (yl a)) (Pair_1 a (tree a) (yl a)))))))))))
+            (_ (let ((yl (del_left a l))) (sift_down a r (Pair_0 a (tree a) yl) (Pair_1 a (tree a) yl))))))))))
 
 ; braun t -> |del_min t| = |t| - 1 ; deliberate use of s_0 to be consistent with the case of t being a leaf
 (assert-not (par (a) (forall ((t (tree a))) (=> (braun a t) (= (size a (del_min_braun a t)) (s_0 (size a t)))))))

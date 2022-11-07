@@ -36,7 +36,7 @@
              ((Leaf (pair a nat)) (node a XY z Z)))) (node a XY z Z))))))
 (declare-fun split_max (par (a) ((tree_ht a)) (pair (tree_ht a) a)))
 (assert (par (a) (forall ((l (tree_ht a)) (x a) (n nat) (r (tree_ht a))) (= (split_max a (NodeP a nat l x n r))
-  (ite (= r (LeafP a nat)) (Pair (tree_ht a) a l x) (let ((rx (split_max a r))) (Pair (tree_ht a) a (balL a l x (Pair_0 (tree_ht a) a (rx a))) (Pair_1 (tree_ht a) a (rx a)))))))))
+  (ite (= r (LeafP a nat)) (Pair (tree_ht a) a l x) (let ((rx (split_max a r))) (Pair (tree_ht a) a (balL a l x (Pair_0 (tree_ht a) a rx)) (Pair_1 (tree_ht a) a rx))))))))
 
 ; avl(t) & t != <> -> avl(fst(split_max(t))) & h(t) in { h(fst(split_max(t))), h(fst(split_max(t))) + 1 }
-(assert-not (par (a) (forall ((t (tree_ht a))) (=> (and (avl a t) (distinct t (LeafP a nat))) (let ((sm (split_max a t))) (and (avl a (Pair_0 (tree_ht a) a (sm a))) (or (= (h (pair a nat) t) (h (pair a nat) (Pair_0 (tree_ht a) a (sm a)))) (= (h (pair a nat) t) (s (h (pair a nat) (Pair_0 (tree_ht a) a (sm a))))))))))))
+(assert-not (par (a) (forall ((t (tree_ht a))) (=> (and (avl a t) (distinct t (LeafP a nat))) (let ((sm (split_max a t))) (and (avl a (Pair_0 (tree_ht a) a sm)) (or (= (h (pair a nat) t) (h (pair a nat) (Pair_0 (tree_ht a) a sm))) (= (h (pair a nat) t) (s (h (pair a nat) (Pair_0 (tree_ht a) a sm)))))))))))

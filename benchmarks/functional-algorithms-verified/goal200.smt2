@@ -47,8 +47,8 @@
 (declare-fun split_max_bal (par (a) ((tree_bal a)) (pair (tree_bal a) a)))
 (assert (par (a) (forall ((l (tree_bal a)) (x a) (b bal) (r (tree_bal a))) (= (split_max_bal a (NodeP a bal l x b r))
   (ite (= r (LeafP a bal)) (Pair (tree_bal a) a l x) (let ((rx (split_max_bal a r)))
-    (let ((t (ite (decr a a r (Pair_0 (tree_bal a) a (rx a))) (balL_bal a l x b (Pair_0 (tree_bal a) a (rx a)))
-      (NodeP a bal l x b (Pair_0 (tree_bal a) a (rx a)))))) (Pair (tree_bal a) a (t a) (Pair_1 (tree_bal a) a (rx a))))))))))
+    (let ((t (ite (decr a a r (Pair_0 (tree_bal a) a rx)) (balL_bal a l x b (Pair_0 (tree_bal a) a rx))
+      (NodeP a bal l x b (Pair_0 (tree_bal a) a rx))))) (Pair (tree_bal a) a t (Pair_1 (tree_bal a) a rx)))))))))
 
 ; split_max(t) = (t',a) & avl(t) & t != <> -> avl(t') & h(t) = h(t') + if decr(t,t') then 1 else 0
 (assert-not (par (a) (forall ((x a) (t (tree_bal a)) (t' (tree_bal a))) (=> (and (= (split_max_bal a t) (Pair (tree_bal a) a t' x)) (avl_bal a t) (distinct t (LeafP a bal)))

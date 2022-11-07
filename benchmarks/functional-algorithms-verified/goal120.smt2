@@ -20,12 +20,12 @@
 (assert (par (a) (forall ((x a) (y a)) (= (cmp a x y) (ite (less a x y) LT (ite (= x y) EQ GT))))))
 (declare-fun split_min (par (a) ((tree a)) (pair a (tree a))))
 (assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (split_min a (Node a l x r))
-  (ite (= l (Leaf a)) (Pair a (tree a) x r) (let ((xl (split_min a l))) (Pair a (tree a) (Pair_0 a (tree a) (xl a)) (Node a (Pair_1 a (tree a) (xl a)) x r))))))))
+  (ite (= l (Leaf a)) (Pair a (tree a) x r) (let ((xl (split_min a l))) (Pair a (tree a) (Pair_0 a (tree a) xl) (Node a (Pair_1 a (tree a) xl) x r))))))))
 (declare-fun delete (par (a) (a (tree a)) (tree a)))
 (assert (par (a) (forall ((x a)) (= (delete a x (Leaf a)) (Leaf a)))))
 (assert (par (a) (forall ((x a) (l (tree a)) (y a) (r (tree a))) (= (delete a x (Node a l y r))
   (match (cmp a x y) ((LT (Node a (delete a x l) y r))
-                      (EQ (ite (= r (Leaf a)) l (let ((ar (split_min a r))) (Node a l (Pair_0 a (tree a) (ar a)) (Pair_1 a (tree a) (ar a))))))
+                      (EQ (ite (= r (Leaf a)) l (let ((ar (split_min a r))) (Node a l (Pair_0 a (tree a) ar) (Pair_1 a (tree a) ar)))))
                       (GT (Node a l y (delete a x r)))))))))
 
 ; sorted(inorder(t)) -> set_tree(delete(x,t)) = set_tree(t) - {x}

@@ -59,13 +59,13 @@
 (declare-fun split_minRB (par (a) ((rbt a)) (pair a (rbt a))))
 (assert (par (a) (forall ((l (rbt a)) (x a) (c color) (r (rbt a))) (= (split_minRB a (NodeP a color l x c r))
   (ite (= l (LeafP a color)) (Pair a (rbt a) x r) (let ((xl (split_minRB a l)))
-    (Pair a (rbt a) (Pair_0 a (rbt a) (xl a)) (ite (= (color_of a l) Black) (baldL a (Pair_1 a (rbt a) (xl a)) x r) (R a (Pair_1 a (rbt a) (xl a)) x r)))))))))
+    (Pair a (rbt a) (Pair_0 a (rbt a) xl) (ite (= (color_of a l) Black) (baldL a (Pair_1 a (rbt a) xl) x r) (R a (Pair_1 a (rbt a) xl) x r)))))))))
 (declare-fun delRB (par (a) (a (rbt a)) (rbt a)))
 (assert (par (a) (forall ((x a) (l (rbt a)) (y a) (c color) (r (rbt a))) (= (delRB a x (NodeP a color l y c r))
-  (match (cmp a x y) ((LT (let ((ll (delRB a x l))) (ite (and (distinct l (LeafP a color)) (= (color_of a l) Black)) (baldL a (ll a) y r) (R a (ll a) y r))))
+  (match (cmp a x y) ((LT (let ((ll (delRB a x l))) (ite (and (distinct l (LeafP a color)) (= (color_of a l) Black)) (baldL a ll y r) (R a ll y r))))
                       (EQ (ite (= r (LeafP a color)) l (let ((ar (split_minRB a r))) (ite (= (color_of a r) Black)
-                        (baldR a l (Pair_0 a (rbt a) (ar a)) (Pair_1 a (rbt a) (ar a))) (R a l (Pair_0 a (rbt a) (ar a)) (Pair_1 a (rbt a) (ar a)))))))
-                      (GT (let ((rr (delRB a x r))) (ite (and (distinct r (LeafP a color)) (= (color_of a r) Black)) (baldR a l y (rr a)) (R a l y (rr a)))))))))))
+                        (baldR a l (Pair_0 a (rbt a) ar) (Pair_1 a (rbt a) ar)) (R a l (Pair_0 a (rbt a) ar) (Pair_1 a (rbt a) ar))))))
+                      (GT (let ((rr (delRB a x r))) (ite (and (distinct r (LeafP a color)) (= (color_of a r) Black)) (baldR a l y rr) (R a l y rr))))))))))
 
 ; invh(t) & invc(t) & t' = del(x,t) -> invh(t') & (color(t) = Red -> bh(t') = bh(t) & invc(t')) & (color(t) = Black -> bh(t') = bh(t) - 1 & invc2(t'))
 ; deliberate use of s_0 here since t can be a leaf as well

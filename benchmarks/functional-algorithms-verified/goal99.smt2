@@ -34,8 +34,8 @@
 (assert (par (a) (forall ((t (tree a))) (= (acomplete a t) (leq nat (minus (h a t) (mh a t)) (s zero))))))
 (declare-fun balance (par (a) (nat (list a)) (pair (tree a) (list a))))
 (assert (par (a) (forall ((n nat) (xs (list a))) (= (balance a n xs) (ite (= n zero) (Pair (tree a) (list a) (Leaf a) xs)
-  (let ((m (div2 n))) (let ((lys (balance a m xs))) (let ((rzs (balance a (minus n (s m)) (Cons_1 a (Pair_1 (tree a) (list a) (lys a))))))
-    (Pair (tree a) (list a) (Node a (Pair_0 (tree a) (list a) (lys a)) (Cons_0 a (Pair_1 (tree a) (list a) (lys a))) (Pair_0 (tree a) (list a) (rzs a))) (Pair_1 (tree a) (list a) (rzs a)))))))))))
+  (let ((m (div2 n))) (let ((lys (balance a m xs))) (let ((rzs (balance a (minus n (s m)) (Cons_1 a (Pair_1 (tree a) (list a) lys)))))
+    (Pair (tree a) (list a) (Node a (Pair_0 (tree a) (list a) lys) (Cons_0 a (Pair_1 (tree a) (list a) lys)) (Pair_0 (tree a) (list a) rzs)) (Pair_1 (tree a) (list a) rzs))))))))))
 
 ; n <= |xs| & bal(n,xs) = (t,ys) -> acomplete(t)
 (assert-not (par (a) (forall ((n nat) (xs (list a)) (t (tree a)) (ys (list a))) (=> (and (leq nat n (len a xs)) (= (balance a n xs) (Pair (tree a) (list a) t ys))) (acomplete a t)))))

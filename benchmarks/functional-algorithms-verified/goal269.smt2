@@ -63,7 +63,7 @@
 (declare-fun brauns (par (a) (nat (list a)) (list (tree a))))
 (assert (par (a) (forall ((k nat) (xs (list a))) (= (brauns a k xs)
   (ite (= xs (Nil a)) (Nil (tree a)) (let ((ys (take a (pow2 k) xs)) (zs (drop a (pow2 k) xs)))
-    (let ((ts (brauns a (s k) (zs a)))) (nodes a (ts a) (ys a) (drop (tree a) (pow2 k) (ts a))))))))))
+    (let ((ts (brauns a (s k) zs))) (nodes a ts ys (drop (tree a) (pow2 k) ts)))))))))
 (declare-fun brauns1 (par (a) ((list a)) (tree a)))
 (assert (par (a) (forall ((xs (list a))) (= (brauns1 a xs)
   (ite (= xs (Nil a)) (Leaf a) (nth (tree a) (brauns a zero xs) zero))))))

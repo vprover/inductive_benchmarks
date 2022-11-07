@@ -45,12 +45,12 @@
 (declare-fun brauns (par (a) (nat (list a)) (list (tree a))))
 (assert (par (a) (forall ((k nat) (xs (list a))) (= (brauns a k xs)
   (ite (= xs (Nil a)) (Nil (tree a)) (let ((ys (take a (pow2 k) xs)) (zs (drop a (pow2 k) xs)))
-    (let ((ts (brauns a (s k) (zs a)))) (nodes a (ts a) (ys a) (drop (tree a) (pow2 k) (ts a))))))))))
+    (let ((ts (brauns a (s k) zs))) (nodes a ts ys (drop (tree a) (pow2 k) ts)))))))))
 (declare-fun T_brauns (par (a) (nat (list a)) nat))
 (assert (par (a) (forall ((k nat) (xs (list a))) (= (T_brauns a k xs) (ite (= xs (Nil a)) zero
   (let ((ys (take a (pow2 k) xs)) (zs (drop a (pow2 k) xs)))
-    (let ((ts (brauns a (s k) (zs a)))) (plus (mult (s (s (s (s zero)))) (min (pow2 k) (len a xs)))
-      (T_brauns a (s k) (zs a))))))))))
+    (let ((ts (brauns a (s k) zs))) (plus (mult (s (s (s (s zero)))) (min (pow2 k) (len a xs)))
+      (T_brauns a (s k) zs)))))))))
 
 ; T_brauns(k,xs) = 4 * |xs|
 (assert-not (par (a) (forall ((k nat) (xs (list a))) (= (T_brauns a k xs) (mult (s (s (s (s zero)))) (len a xs))))))

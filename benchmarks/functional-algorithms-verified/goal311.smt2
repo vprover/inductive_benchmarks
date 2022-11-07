@@ -12,7 +12,7 @@
 (declare-fun del_left (par (a) ((tree a)) (pair a (tree a))))
 (assert (par (a) (forall ((x a) (r (tree a))) (= (del_left a (Node a (Leaf a) x r)) (Pair a (tree a) x r)))))
 (assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (del_left a (Node a l x r))
-  (let ((yl (del_left a l))) (Pair a (tree a) (Pair_0 a (tree a) (yl a)) (Node a r x (Pair_1 a (tree a) (yl a)))))))))
+  (let ((yl (del_left a l))) (Pair a (tree a) (Pair_0 a (tree a) yl) (Node a r x (Pair_1 a (tree a) yl))))))))
 
 ; del_left t = (x,t') & t != <> -> mset_tree t = {{x}} + mset_tree t'
 (assert-not (par (a) (forall ((x a) (t (tree a)) (t' (tree a))) (=> (and (= (del_left a t) (Pair a (tree a) x t')) (distinct t (Leaf a)))

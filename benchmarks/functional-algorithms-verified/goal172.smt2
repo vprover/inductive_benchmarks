@@ -45,7 +45,7 @@
 (declare-fun split_minRB (par (a) ((rbt a)) (pair a (rbt a))))
 (assert (par (a) (forall ((l (rbt a)) (x a) (c color) (r (rbt a))) (= (split_minRB a (NodeP a color l x c r))
   (ite (= l (LeafP a color)) (Pair a (rbt a) x r) (let ((xl (split_minRB a l)))
-    (Pair a (rbt a) (Pair_0 a (rbt a) (xl a)) (ite (= (color_of a l) Black) (baldL a (Pair_1 a (rbt a) (xl a)) x r) (R a (Pair_1 a (rbt a) (xl a)) x r)))))))))
+    (Pair a (rbt a) (Pair_0 a (rbt a) xl) (ite (= (color_of a l) Black) (baldL a (Pair_1 a (rbt a) xl) x r) (R a (Pair_1 a (rbt a) xl) x r)))))))))
 
 ; split_min(t) = (x,t') & t != <> & invh(t) & invc(t) -> invh(t') & (color(t) = Red -> bh(t') = bh(t) & invc(t')) & (color(t) = Black -> bh(t') = bh(t) - 1 & invc2(t'))
 (assert-not (par (a) (forall ((t (rbt a)) (x a) (t' (rbt a))) (=> (and (= (split_minRB a t) (Pair a (rbt a) x t')) (distinct t (LeafP a color)) (invh a t) (invc a t))

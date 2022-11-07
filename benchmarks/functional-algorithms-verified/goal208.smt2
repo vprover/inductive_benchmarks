@@ -30,10 +30,10 @@
   (=> (invp a b (NodeP a b l x y r)) (and (invp a b l) (invp a b r))))))
 (declare-fun split_minp (par (a b) ((ptree a b)) (pair a (ptree a b))))
 (assert (par (a b) (forall ((l (ptree a b)) (x a) (y b) (r (ptree a b))) (= (split_minp a b (NodeP a b l x y r))
-  (ite (= l (LeafP a b)) (Pair a (ptree a b) x r) (let ((xl (split_minp a b l))) (Pair a (ptree a b) (Pair_0 a (ptree a b) (xl a b)) (joinp a b (Pair_1 a (ptree a b) (xl a b)) x r))))))))
+  (ite (= l (LeafP a b)) (Pair a (ptree a b) x r) (let ((xl (split_minp a b l))) (Pair a (ptree a b) (Pair_0 a (ptree a b) xl) (joinp a b (Pair_1 a (ptree a b) xl) x r))))))))
 (declare-fun join2 (par (a b) ((ptree a b) (ptree a b)) (ptree a b)))
 (assert (par (a b) (forall ((l (ptree a b)) (r (ptree a b))) (= (join2 a b l r) (ite (= r (LeafP a b))
-  l (let ((mr (split_minp a b r))) (joinp a b l (Pair_0 a (ptree a b) (mr a b)) (Pair_1 a (ptree a b) (mr a b)))))))))
+  l (let ((mr (split_minp a b r))) (joinp a b l (Pair_0 a (ptree a b) mr) (Pair_1 a (ptree a b) mr))))))))
 
 ; inv(l) & inv(r) -> inv(join2(l,r))
 (assert-not (par (a b) (forall ((l (ptree a b)) (r (ptree a b))) (=> (and (invp a b l) (invp a b r)) (invp a b (join2 a b l r))))))

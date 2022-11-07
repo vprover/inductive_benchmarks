@@ -45,12 +45,12 @@
              (_ (node a X x YZ)))) (node a X x YZ))))))
 (declare-fun split_max (par (a) ((tree_ht a)) (pair (tree_ht a) a)))
 (assert (par (a) (forall ((l (tree_ht a)) (x a) (n nat) (r (tree_ht a))) (= (split_max a (NodeP a nat l x n r))
-  (ite (= r (LeafP a nat)) (Pair (tree_ht a) a l x) (let ((rx (split_max a r))) (Pair (tree_ht a) a (balL a l x (Pair_0 (tree_ht a) a (rx a))) (Pair_1 (tree_ht a) a (rx a)))))))))
+  (ite (= r (LeafP a nat)) (Pair (tree_ht a) a l x) (let ((rx (split_max a r))) (Pair (tree_ht a) a (balL a l x (Pair_0 (tree_ht a) a rx)) (Pair_1 (tree_ht a) a rx))))))))
 (declare-fun deleteAVL (par (a) (a (tree_ht a)) (tree_ht a)))
 (assert (par (a) (forall ((x a)) (= (deleteAVL a x (LeafP a nat)) (LeafP a nat)))))
 (assert (par (a) (forall ((x a) (l (tree_ht a)) (y a) (n nat) (r (tree_ht a))) (= (deleteAVL a x (NodeP a nat l y n r))
   (match (cmp a x y) ((LT (balR a (deleteAVL a x l) y r))
-                      (EQ (ite (= l (LeafP a nat)) r (let ((ly (split_max a l))) (balR a (Pair_0 (tree_ht a) a (ly a)) (Pair_1 (tree_ht a) a (ly a)) r))))
+                      (EQ (ite (= l (LeafP a nat)) r (let ((ly (split_max a l))) (balR a (Pair_0 (tree_ht a) a ly) (Pair_1 (tree_ht a) a ly) r))))
                       (GT (balL a l y (deleteAVL a x r)))))))))
 
 ; avl(t) & t' = delete(x,t) -> avl(t') & h(t) in { h(t'), h(t') + 1 }
