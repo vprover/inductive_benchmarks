@@ -22,9 +22,9 @@
 (declare-fun get_min (par (a) ((tree a)) a))
 (assert (par (a) (forall ((l (tree a)) (m a) (r (tree a))) (= (get_min a (Node a l m r)) m))))
 (declare-fun del_left (par (a) ((tree a)) (pair a (tree a))))
-(assert (par (a) (forall ((x a) (r (tree a))) (= (del_left a (Node a (Leaf a) x r)) (Pair a (tree a) x r)))))
-(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (del_left a (Node a l x r))
-  (let ((yl (del_left a l))) (Pair a (tree a) (Pair_0 a (tree a) yl) (Node a r x (Pair_1 a (tree a) yl))))))))
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (del_left a (Node a l x r)) (match l
+  (((Leaf a) (Pair a (tree a) x r))
+    (_ (let ((yl (del_left a l))) (Pair a (tree a) (Pair_0 a (tree a) yl) (Node a r x (Pair_1 a (tree a) yl)))))))))))
 (declare-fun sift_down (par (a) ((tree a) a (tree a)) (tree a)))
 (assert (par (a) (forall ((x a) (t (tree a))) (= (sift_down a (Leaf a) x t) (Node a (Leaf a) x (Leaf a))))))
 (assert (par (a) (forall ((x a) (t (tree a)) (y a)) (= (sift_down a (Node a (Leaf a) x t) y (Leaf a))

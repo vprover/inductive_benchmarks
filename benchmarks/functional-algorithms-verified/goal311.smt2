@@ -10,9 +10,9 @@
 (assert (par (a) (forall ((x a) (l (tree a)) (y a) (r (tree a))) (= (count_tree a x (Node a l y r))
   (let ((lc (count_tree a x l)) (rc (count_tree a x r))) (ite (= x y) (s (plus lc rc)) (plus lc rc)))))))
 (declare-fun del_left (par (a) ((tree a)) (pair a (tree a))))
-(assert (par (a) (forall ((x a) (r (tree a))) (= (del_left a (Node a (Leaf a) x r)) (Pair a (tree a) x r)))))
-(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (del_left a (Node a l x r))
-  (let ((yl (del_left a l))) (Pair a (tree a) (Pair_0 a (tree a) yl) (Node a r x (Pair_1 a (tree a) yl))))))))
+(assert (par (a) (forall ((l (tree a)) (x a) (r (tree a))) (= (del_left a (Node a l x r)) (match l
+  (((Leaf a) (Pair a (tree a) x r))
+    (_ (let ((yl (del_left a l))) (Pair a (tree a) (Pair_0 a (tree a) yl) (Node a r x (Pair_1 a (tree a) yl)))))))))))
 
 ; del_left t = (x,t') & t != <> -> mset_tree t = {{x}} + mset_tree t'
 (assert-not (par (a) (forall ((x a) (t (tree a)) (t' (tree a))) (=> (and (= (del_left a t) (Pair a (tree a) x t')) (distinct t (Leaf a)))
