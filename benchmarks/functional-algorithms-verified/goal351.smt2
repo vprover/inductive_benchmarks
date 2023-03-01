@@ -2,7 +2,11 @@
 (declare-datatype cmp_val ((LT) (EQ) (GT)))
 (declare-fun less (par (a) (a a) Bool))
 (declare-fun leq (par (a) (a a) Bool))
-(assert (par (a) (forall ((x a) (y a)) (= (leq a x y) (or (= x y) (less a x y))))))
+(assert (par (a) (forall ((x a) (y a)) (= (less a x y) (and (leq a x y) (distinct x y))))))
+(assert (par (a) (forall ((x a)) (leq a x x))))
+(assert (par (a) (forall ((x a) (y a) (z a)) (=> (and (leq a x y) (leq a y z)) (leq a x z)))))
+(assert (par (a) (forall ((x a) (y a)) (=> (and (leq a x y) (leq a y x)) (= x y)))))
+(assert (par (a) (forall ((x a) (y a)) (or (leq a x y) (leq a y x)))))
 (declare-fun cmp (par (a) (a a) cmp_val))
 (assert (par (a) (forall ((x a) (y a)) (= (cmp a x y) (ite (less a x y) LT (ite (= x y) EQ GT))))))
 ; TODO there are multiple undefined branches in splay which we cover with this uninterpreted function
