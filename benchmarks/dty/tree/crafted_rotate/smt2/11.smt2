@@ -38,6 +38,6 @@
 (assert (forall ((p1 tree) (x1 nat) (q1 tree) (p2 tree) (x2 nat) (q2 tree))
     (= (mirror (node p1 x1 q1) (node p2 x2 q2)) (and (= x1 x2) (mirror p1 q2) (mirror q1 p2)))))
 (assert (not (forall ((x tree))
-  (= (rotateRight (rotateLeft x)) x)
+  (= (rotateRight (rotateRight x)) (rotateRight x))
 )))
 (check-sat)

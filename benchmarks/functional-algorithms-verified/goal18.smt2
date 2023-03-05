@@ -1,7 +1,4 @@
 (declare-datatype list (par (a) ((Nil) (Cons (Cons_0 a) (Cons_1 (list a))))))
-(declare-fun in_set (par (a) (a (list a)) Bool))
-(assert (par (a) (forall ((x a)) (not (in_set a x (Nil a))))))
-(assert (par (a) (forall ((x a) (y a) (ys (list a))) (= (in_set a x (Cons a y ys)) (or (= x y) (in_set a x ys))))))
 (declare-fun less (par (a) (a a) Bool))
 (declare-fun leq (par (a) (a a) Bool))
 (assert (par (a) (forall ((x a) (y a)) (= (less a x y) (and (leq a x y) (distinct x y))))))
